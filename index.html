@@ -232,6 +232,11 @@
     </svg>
     <h1>Islam Rising</h1>
     <p>نبض العبادة اليومية</p>
+    <div class="dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
   </div>
 
   <!-- Error fallback -->
@@ -286,8 +291,1909 @@
     }, 12000);
   </script>
 
-  <!-- 4. Load App.jsx via Babel -->
-  <script type="text/babel" src="./App.jsx" data-presets="react"></script>
+  <!-- 4. App code inline — no external JSX file needed -->
+  <script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef, memo, useMemo } = React;
+
+/* ══════════════════════════════════════════════════════
+   ISLAM RISING v4 — GPS + Qibla + SENTINEL AI + Premium
+══════════════════════════════════════════════════════ */
+
+const css = `
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Noto+Naskh+Arabic:wght@400;600;700;900&display=swap');
+  @keyframes rotateSlow { to { transform: translateX(-50%) rotate(360deg); } }
+  @keyframes floatStar  { 0%,100%{opacity:0.14;transform:scale(1)} 50%{opacity:0.28;transform:scale(1.07)} }
+
+  html, body { margin:0; padding:0; background:#05070F !important; }
+
+  .ir-root {
+    min-height: 100vh;
+    background: transparent;
+    position: relative;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  ::-webkit-scrollbar { display:none; }
+  :root {
+    --gold:#C9A96E; --gold2:#F0D898; --gold3:#8A6835;
+    --bg:#05070F; --card:rgba(255,255,255,0.04);
+    --border:rgba(201,169,110,0.15); --border2:rgba(201,169,110,0.35);
+    --green:#4ADE80; --muted:rgba(255,255,255,0.38); --text:rgba(255,255,255,0.92);
+    --premium:#7B5EA7;
+  }
+  @keyframes rotate   { to{transform:rotate(360deg)} }
+  @keyframes floatUp  { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes slideIn  { from{opacity:0;transform:translateX(18px)} to{opacity:1;transform:translateX(0)} }
+  @keyframes shimmer  { 0%{background-position:200%} 100%{background-position:-200%} }
+  @keyframes ptsfly   { 0%{opacity:1;transform:translate(-50%,-50%) scale(1)} 100%{opacity:0;transform:translate(-50%,-220%) scale(1.5)} }
+  @keyframes modalIn  { from{opacity:0;transform:scale(0.88) translateY(24px)} to{opacity:1;transform:scale(1) translateY(0)} }
+  @keyframes orbPulse { 0%,100%{transform:translate(0,0)} 50%{transform:translate(15px,-12px)} }
+  @keyframes rotateSlow { to{transform:translateX(-50%) rotate(360deg)} }
+  @keyframes floatStar  { 0%,100%{opacity:0.15} 50%{opacity:0.32} }
+  @keyframes needle   { from{transform:rotate(0deg)} }
+  @keyframes msgIn    { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes thinking { 0%,80%,100%{transform:scale(0)} 40%{transform:scale(1)} }
+  .btn { transition:transform 0.15s,filter 0.15s; cursor:pointer; }
+  .btn:active { transform:scale(0.94)!important; filter:brightness(0.82); }
+  .glass { background:var(--card); backdrop-filter:blur(20px); border:1px solid var(--border); }
+  .glass2 { background:rgba(255,255,255,0.07); backdrop-filter:blur(30px); border:1px solid var(--border2); }
+  .gold-text {
+    background:linear-gradient(135deg,#C9A96E,#F0D898,#C9A96E);
+    background-size:200% auto; -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent; background-clip:text;
+    animation:shimmer 3s linear infinite;
+  }
+  .premium-glow { box-shadow:0 0 20px rgba(123,94,167,0.4),0 0 40px rgba(123,94,167,0.15); }
+  input:focus { outline:none; border-color:var(--gold)!important; }
+  textarea:focus { outline:none; border-color:var(--gold)!important; }
+`;
+
+/* ══ ONE-TIME SETUP — runs once, never again ══ */
+(()=>{
+  if(document.getElementById("islam-rising-css")) return; // already done
+
+  // 1. Inject CSS
+  const styleEl = document.createElement("style");
+  styleEl.id = "islam-rising-css";
+  styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+
+  // 2. Nothing else needed — background defined in .ir-root CSS class
+})();
+
+/* ── Helpers ── */
+function starPts(cx,cy,R,r,n){
+  return Array.from({length:n*2},(_,i)=>{
+    const a=(Math.PI/n)*i-Math.PI/2, rad=i%2===0?R:r;
+    return `${cx+rad*Math.cos(a)},${cy+rad*Math.sin(a)}`;
+  }).join(" ");
+}
+
+/* ── Islamic Background ── */
+const IslamicBg = memo(()=>{
+  const sp = (cx,cy,R,r,n) => Array.from({length:n*2},(_,i)=>{
+    const a=(Math.PI/n)*i-Math.PI/2, rad=i%2===0?R:r;
+    return `${cx+rad*Math.cos(a)},${cy+rad*Math.sin(a)}`;
+  }).join(" ");
+  return (
+  <>
+
+    {/* Layer 1 — Fine 12-point star tile grid with vignette */}
+    <svg style={{position:"fixed",inset:0,width:"100%",height:"100%",zIndex:0,pointerEvents:"none"}} xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="isl-tile" x="0" y="0" width="110" height="110" patternUnits="userSpaceOnUse">
+          <polygon points={sp(55,55,50,20,12)} fill="none" stroke="#C9A96E" strokeWidth="0.55" opacity="0.5"/>
+          <polygon points={sp(55,55,30,14,6)}  fill="none" stroke="#C9A96E" strokeWidth="0.35" opacity="0.35"/>
+          <circle cx="55" cy="55" r="5" fill="none" stroke="#C9A96E" strokeWidth="0.4" opacity="0.4"/>
+          <polygon points={sp(55,55,20,9,4)}   fill="none" stroke="#C9A96E" strokeWidth="0.3" opacity="0.3"/>
+          {Array.from({length:12},(_,i)=>{
+            const a=(Math.PI/6)*i;
+            return <line key={i}
+              x1={55+14*Math.cos(a)} y1={55+14*Math.sin(a)}
+              x2={55+50*Math.cos(a)} y2={55+50*Math.sin(a)}
+              stroke="#C9A96E" strokeWidth="0.25" opacity="0.2"/>;
+          })}
+          {[[0,0],[110,0],[0,110],[110,110]].map(([x,y],i)=>(
+            <circle key={i} cx={x} cy={y} r="11" fill="none" stroke="#C9A96E" strokeWidth="0.3" opacity="0.18"/>
+          ))}
+        </pattern>
+        <radialGradient id="vig" cx="50%" cy="50%" r="55%">
+          <stop offset="0%"   stopColor="white" stopOpacity="1"/>
+          <stop offset="55%"  stopColor="white" stopOpacity="0.55"/>
+          <stop offset="100%" stopColor="white" stopOpacity="0.04"/>
+        </radialGradient>
+        <mask id="vigMask"><rect width="100%" height="100%" fill="url(#vig)"/></mask>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#isl-tile)" mask="url(#vigMask)" opacity="0.75"/>
+    </svg>
+
+    {/* Layer 2 — Large 16-point central medallion (slowly rotating) */}
+    <svg style={{
+      position:"fixed", top:"5%", left:"50%", transform:"translateX(-50%)",
+      width:420, height:420, opacity:0.11,
+      pointerEvents:"none", zIndex:0, overflow:"visible",
+      animation:"rotateSlow 90s linear infinite"
+    }} viewBox="-210 -210 420 420" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="0" cy="0" r="200" fill="none" stroke="#C9A96E" strokeWidth="0.5"/>
+      <circle cx="0" cy="0" r="185" fill="none" stroke="#C9A96E" strokeWidth="0.3"/>
+      <circle cx="0" cy="0" r="168" fill="none" stroke="#C9A96E" strokeWidth="0.7"/>
+      <polygon points={sp(0,0,148,58,16)} fill="none" stroke="#C9A96E" strokeWidth="1.1"/>
+      <polygon points={sp(0,0,95,42,8)}   fill="rgba(201,169,110,0.04)" stroke="#C9A96E" strokeWidth="0.8"/>
+      {Array.from({length:16},(_,i)=>{
+        const a=(Math.PI/8)*i;
+        return <line key={i}
+          x1={58*Math.cos(a)} y1={58*Math.sin(a)}
+          x2={148*Math.cos(a)} y2={148*Math.sin(a)}
+          stroke="#C9A96E" strokeWidth="0.35" opacity="0.5"/>;
+      })}
+      {Array.from({length:8},(_,i)=>{
+        const a=(Math.PI/4)*i+Math.PI/8;
+        return <line key={i}
+          x1={168*Math.cos(a)} y1={168*Math.sin(a)}
+          x2={185*Math.cos(a)} y2={185*Math.sin(a)}
+          stroke="#C9A96E" strokeWidth="0.7" opacity="0.4"/>;
+      })}
+      <circle cx="0" cy="0" r="42"  fill="none" stroke="#C9A96E" strokeWidth="0.55"/>
+      <circle cx="0" cy="0" r="22"  fill="rgba(201,169,110,0.06)" stroke="#C9A96E" strokeWidth="0.8"/>
+      <circle cx="0" cy="0" r="7"   fill="#C9A96E" opacity="0.35"/>
+    </svg>
+
+    {/* Layer 3 — Corner rosettes (8-point stars) */}
+    {[
+      {style:{position:"fixed",top:-25,right:-25,width:190,height:190}},
+      {style:{position:"fixed",top:-25,left:-25, width:190,height:190,transform:"scaleX(-1)"}},
+      {style:{position:"fixed",bottom:180,right:-25,width:160,height:160,transform:"scaleY(-1)"}},
+      {style:{position:"fixed",bottom:180,left:-25, width:160,height:160,transform:"scale(-1,-1)"}},
+    ].map((c,i)=>(
+      <svg key={i} style={{...c.style,opacity:0.1,pointerEvents:"none",zIndex:0,overflow:"visible"}}
+           viewBox="-95 -95 190 190" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="0" cy="0" r="90" fill="none" stroke="#C9A96E" strokeWidth="0.5"/>
+        <circle cx="0" cy="0" r="78" fill="none" stroke="#C9A96E" strokeWidth="0.3"/>
+        <polygon points={sp(0,0,68,26,8)} fill="rgba(201,169,110,0.03)" stroke="#C9A96E" strokeWidth="0.8"/>
+        {Array.from({length:8},(_,j)=>{
+          const a=(Math.PI/4)*j;
+          return <line key={j}
+            x1={26*Math.cos(a)} y1={26*Math.sin(a)}
+            x2={68*Math.cos(a)} y2={68*Math.sin(a)}
+            stroke="#C9A96E" strokeWidth="0.35" opacity="0.45"/>;
+        })}
+        <circle cx="0" cy="0" r="26" fill="none" stroke="#C9A96E" strokeWidth="0.5"/>
+        <circle cx="0" cy="0" r="10" fill="rgba(201,169,110,0.09)" stroke="#C9A96E" strokeWidth="0.6"/>
+      </svg>
+    ))}
+
+    {/* Layer 4 — Floating animated stars */}
+    <svg style={{position:"fixed",inset:0,width:"100%",height:"100%",pointerEvents:"none",zIndex:0,overflow:"hidden"}}
+         xmlns="http://www.w3.org/2000/svg">
+      {[[25,300,18,0,7],[345,265,13,1.5,9],[50,570,22,2,11],[295,500,12,3.2,8.5],[135,710,16,0.7,10],[280,740,20,4,12]].map(([x,y,r,d,du],i)=>(
+        <polygon key={i} points={sp(x,y,r,r*0.42,8)} fill="none" stroke="#C9A96E" strokeWidth="0.6"
+          style={{animation:`floatStar ${du}s ease-in-out ${d}s infinite`}}/>
+      ))}
+    </svg>
+
+    {/* Ambient orbs */}
+    <div style={{position:"fixed",top:"-18%",right:"-12%",width:480,height:480,borderRadius:"50%",
+      background:"radial-gradient(circle,rgba(201,169,110,0.11) 0%,transparent 65%)",
+      animation:"orbPulse 13s ease-in-out infinite",pointerEvents:"none",zIndex:0}}/>
+    <div style={{position:"fixed",bottom:"2%",left:"-16%",width:380,height:380,borderRadius:"50%",
+      background:"radial-gradient(circle,rgba(80,60,200,0.07) 0%,transparent 65%)",
+      animation:"orbPulse 16s ease-in-out 4s infinite",pointerEvents:"none",zIndex:0}}/>
+  </>
+  );
+});
+
+/* ── Prayer time calculation (simplified) ── */
+function calcPrayerTimes(lat, lng, date = new Date(), tzOffset = null) {
+  const toRad = d => d * Math.PI / 180;
+  const toDeg = r => r * 180 / Math.PI;
+  const D = date;
+  const JD = Math.floor(365.25*(D.getFullYear()+4716)) + Math.floor(30.6001*(D.getMonth()+2)) + D.getDate() - 1524.5;
+  const T  = (JD - 2451545) / 36525;
+  const L0 = 280.46646 + 36000.76983*T;
+  const M  = 357.52911 + 35999.05029*T;
+  const C  = (1.914602-0.004817*T)*Math.sin(toRad(M)) + 0.019993*Math.sin(toRad(2*M));
+  const sunLng = L0 + C;
+  const e  = 23.439291 - 0.013004*T;
+  const RA = toDeg(Math.atan2(Math.cos(toRad(e))*Math.sin(toRad(sunLng)), Math.cos(toRad(sunLng)))) / 15;
+  const decl = toDeg(Math.asin(Math.sin(toRad(e))*Math.sin(toRad(sunLng))));
+  const EqT = 4*(L0 - 0.0057183 - RA*15 + 360*(Math.floor((L0-RA*15)/360)));
+  const noon = 12 - EqT/60 - lng/15;
+  const ha = a => toDeg(Math.acos((Math.sin(toRad(a)) - Math.sin(toRad(lat))*Math.sin(toRad(decl))) / (Math.cos(toRad(lat))*Math.cos(toRad(decl))))) / 15;
+  const asrShadow = 1 + Math.tan(toRad(Math.abs(lat - decl)));
+  const asrAngle = toDeg(Math.atan(1/asrShadow));
+  const fmt = h => {
+    const tz = tzOffset !== null ? tzOffset : -date.getTimezoneOffset()/60;
+    const local = h + tz;
+    const hh = Math.floor(((local % 24)+24)%24);
+    const mm = Math.floor((local-Math.floor(local))*60);
+    return `${String(hh).padStart(2,"0")}:${String(mm).padStart(2,"0")}`;
+  };
+  try {
+    return {
+      fajr:    fmt(noon - ha(-18)),
+      sunrise: fmt(noon - ha(-0.833)),
+      dhuhr:   fmt(noon + 0.03),
+      asr:     fmt(noon + ha(asrAngle)),
+      maghrib: fmt(noon + ha(-0.833)),
+      isha:    fmt(noon + ha(-17)),
+    };
+  } catch { return null; }
+}
+
+/* ── Qibla bearing ── */
+function qiblaBearing(lat, lng) {
+  const mLat = 21.4225, mLng = 39.8262;
+  const dLng = toRad(mLng - lng);
+  const y = Math.sin(dLng) * Math.cos(toRad(mLat));
+  const x = Math.cos(toRad(lat))*Math.sin(toRad(mLat)) - Math.sin(toRad(lat))*Math.cos(toRad(mLat))*Math.cos(dLng);
+  return (toDeg(Math.atan2(y, x)) + 360) % 360;
+}
+function toRad(d){ return d*Math.PI/180; }
+function toDeg(r){ return r*180/Math.PI; }
+
+/* ── Data ── */
+const PRAYER_META = [
+  {id:"fajr",    ar:"الفجر",   hue:"220,180,255"},
+  {id:"dhuhr",   ar:"الظهر",   hue:"255,220,100"},
+  {id:"asr",     ar:"العصر",   hue:"255,160,80"},
+  {id:"maghrib", ar:"المغرب",  hue:"255,100,120"},
+  {id:"isha",    ar:"العشاء",  hue:"140,180,255"},
+];
+const EMOJIS = ["🌙","☀️","🌤","🌅","⭐"];
+const EXTRA = [
+  {id:"quran",   ar:"ورد القرآن",   pts:15, verify:"بِسْمِ اللَّهِ"},
+  {id:"adhkars", ar:"أذكار الصباح", pts:8,  verify:null},
+  {id:"adhkarm", ar:"أذكار المساء", pts:8,  verify:"أَعُوذُ بِكَلِمَاتِ"},
+  {id:"sawm",    ar:"صيام نافلة",   pts:50, verify:"اللَّهُمَّ إِنِّي صُمْتُ"},
+];
+const MEDALS = ["🥇","🥈","🥉"];
+const RANKS  = ["مبتدئ","مواظب","تقي","عابد","من أهل الليل"];
+
+/* ════════════════════════════════════════════════════════ */
+const ONBOARD_STEPS = [
+  { title:"أهلاً بك في Islam Rising", sub:"رفيقك اليومي في رحلة العبادة", emoji:"🌙" },
+  { title:"ما اسمك؟", sub:"سيظهر في لوحة المتصدرين", emoji:"👤" },
+  { title:"من أي مدينة؟", sub:"لحساب أوقات الصلاة بدقة", emoji:"📍" },
+  { title:"فعّل إشعارات الصلاة", sub:"لا تفوّت وقت الأذان", emoji:"🔔" },
+];
+
+function App() {
+  const [tab, setTab]       = useState(0);
+  const [pts, setPts]       = useState(0);
+  const [prayers, setDP]    = useState({});
+  const [extras, setDE]     = useState({});
+  const [modal, setModal]   = useState(null);
+  const [vInput, setVI]     = useState("");
+  const [vOk, setVOk]       = useState(false);
+  const [fly, setFly]       = useState(null);
+  const [visible, setVis]   = useState(false);
+
+  // ── Onboarding ──
+  const [onboarding, setOnboarding] = useState(false);
+  const [obStep, setObStep]         = useState(0);
+  const [obName, setObName]         = useState("");
+  const [obCity, setObCity]         = useState("");
+  const [obDone, setObDone]         = useState(false);
+
+  // ── Real Streak ──
+  const [streak, setStreak]         = useState(0);
+  const [userName, setUserName]     = useState("");
+  const [userCity, setUserCity]     = useState("");
+
+  // ── Notifications ──
+  const [notifPerm, setNotifPerm]   = useState(typeof Notification !== "undefined" ? Notification.permission : "unsupported");
+  const notifTimers                 = useRef([]);
+
+  // ── Share ──
+  const [shareItem, setShareItem]   = useState(null);
+  const [shareDone, setShareDone]   = useState(false);
+
+  // GPS & Prayer Times
+  const [coords, setCoords]     = useState(null);
+  const [pTimes, setPTimes]     = useState(null);
+  const [locErr, setLocErr]     = useState(null);
+  const [locLoading, setLocL]   = useState(false);
+
+  // Qibla
+  const [qibla, setQibla]       = useState(null);
+  const [compass, setCompass]   = useState(0);
+  const [qiblaTab, setQiblaTab] = useState(false);
+
+  // SENTINEL AI
+  const [aiMsgs, setAiMsgs]     = useState([
+    {role:"assistant", text:"السلام عليكم 👋\nأنا SENTINEL — مساعدك الإسلامي.\nاسألني عن أي شيء يخص الإسلام."}
+  ]);
+  const [aiInput, setAiInput]   = useState("");
+  const [aiLoading, setAiL]     = useState(false);
+  const aiRef                   = useRef(null);
+
+  // Leaderboard
+  const [board, setBoard]       = useState([]);
+  const [myName, setMyName]     = useState("");
+  const [nameIn, setNameIn]     = useState("");
+  const [bLoading, setBL]       = useState(true);
+  const [saving, setSaving]     = useState(false);
+  const [myKey, setMyKey]       = useState(null);
+  const [period, setPeriod]     = useState("daily");
+
+  // Premium
+  const [isPremium, setIsPremium] = useState(false);
+  const [premModal, setPremModal] = useState(false);
+
+  // Rewarded Ads
+  const [rewardAd, setRewardAd]   = useState(null);
+  const [adWatched, setAdWatched] = useState({});
+  const [adPlaying, setAdPlaying] = useState(false);
+  const [adTimer,   setAdTimer]   = useState(0);
+  const adIntervalRef             = useRef(null);
+  // Stable refs to avoid stale closures in interval
+  const rewardAdRef               = useRef(null);
+  const adWatchedRef              = useRef({});
+
+  const isFriday = new Date().getDay() === 5;
+  const MULT = isPremium ? (isFriday ? 3 : 1.5) : (isFriday ? 2 : 1);
+  const pDone = Object.keys(prayers).length;
+  const GOAL  = 500;
+
+  // Memoized — never recalculates unless date changes
+  const meccaTimes = useMemo(()=> calcPrayerTimes(21.3891, 39.8579, new Date(), 3), []);
+
+  useEffect(()=>{ setTimeout(()=>setVis(true),80); },[]);
+  useEffect(()=>{ loadAll(); },[]);
+  useEffect(()=>{ if(myKey&&myName) saveScore(myKey,myName,pts); },[pts]);
+  useEffect(()=>{ if(aiRef.current) aiRef.current.scrollTop=aiRef.current.scrollHeight; },[aiMsgs]);
+
+  /* ── GPS ── */
+  const getLocation = () => {
+    if(!navigator.geolocation){ setLocErr("الجهاز لا يدعم GPS"); return; }
+    setLocL(true); setLocErr(null);
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        const {latitude:lat, longitude:lng} = pos.coords;
+        setCoords({lat,lng});
+        setPTimes(calcPrayerTimes(lat,lng));
+        setQibla(qiblaBearing(lat,lng));
+        setLocL(false);
+      },
+      ()=>{ setLocErr("تعذّر الحصول على الموقع"); setLocL(false); }
+    );
+  };
+
+  /* ── Compass ── */
+  useEffect(()=>{
+    const handler = e => {
+      const h = e.webkitCompassHeading ?? (e.alpha ? 360-e.alpha : 0);
+      setCompass(h);
+    };
+    if(window.DeviceOrientationEvent){
+      if(typeof DeviceOrientationEvent.requestPermission==="function"){
+        DeviceOrientationEvent.requestPermission().then(()=>window.addEventListener("deviceorientation",handler));
+      } else {
+        window.addEventListener("deviceorientation",handler);
+      }
+    }
+    return ()=>window.removeEventListener("deviceorientation",handler);
+  },[]);
+
+  /* ══ LOAD ALL ══ */
+  const loadAll = async () => {
+    // Premium
+    try { const r=await window.storage.get("ir-premium"); if(r) setIsPremium(JSON.parse(r.value)); } catch {}
+
+    // User profile
+    try {
+      const r=await window.storage.get("ir-user");
+      if(r){
+        const u=JSON.parse(r.value);
+        setUserName(u.name||""); setObDone(true);
+        setUserCity(u.city||"");
+        if(u.name) setMyName(u.name);
+      } else {
+        // First launch — show onboarding
+        setTimeout(()=>setOnboarding(true), 800);
+      }
+    } catch { setTimeout(()=>setOnboarding(true), 800); }
+
+    // Streak
+    await loadStreak();
+
+    // Pts today
+    try {
+      const r=await window.storage.get("ir-pts-today");
+      if(r){
+        const d=JSON.parse(r.value);
+        const today=new Date().toDateString();
+        if(d.date===today){ setPts(d.pts); setDP(d.prayers||{}); setDE(d.extras||{}); }
+      }
+    } catch {}
+
+    loadBoard();
+  };
+
+  /* ── Streak ── */
+  const loadStreak = async () => {
+    try {
+      const r=await window.storage.get("ir-streak");
+      if(!r){ setStreak(0); return; }
+      const d=JSON.parse(r.value);
+      const today=new Date().toDateString();
+      const yesterday=new Date(Date.now()-86400000).toDateString();
+      if(d.lastDate===today) setStreak(d.count||0);
+      else if(d.lastDate===yesterday) setStreak(d.count||0); // still alive
+      else setStreak(0); // broken
+    } catch { setStreak(0); }
+  };
+
+  const bumpStreak = async () => {
+    try {
+      const today=new Date().toDateString();
+      const r=await window.storage.get("ir-streak");
+      let count=1;
+      if(r){
+        const d=JSON.parse(r.value);
+        const yesterday=new Date(Date.now()-86400000).toDateString();
+        if(d.lastDate===today) return; // already bumped
+        count = d.lastDate===yesterday ? (d.count||0)+1 : 1;
+      }
+      await window.storage.set("ir-streak", JSON.stringify({count, lastDate:today}));
+      setStreak(count);
+    } catch {}
+  };
+
+  const savePtsToday = async (newPts, newPrayers, newExtras) => {
+    try {
+      await window.storage.set("ir-pts-today", JSON.stringify({
+        date: new Date().toDateString(), pts:newPts,
+        prayers:newPrayers, extras:newExtras
+      }));
+    } catch {}
+  };
+
+  /* ── Notifications ── */
+  const requestNotifications = async () => {
+    if(typeof Notification === "undefined" || !("Notification" in window)){
+      setNotifPerm("unsupported");
+      return;
+    }
+    try {
+      const perm = await Notification.requestPermission();
+      setNotifPerm(perm);
+      if(perm==="granted") schedulePrayerNotifs();
+    } catch { setNotifPerm("denied"); }
+  };
+
+  const schedulePrayerNotifs = () => {
+    if(typeof Notification === "undefined") return;
+    notifTimers.current.forEach(t=>clearTimeout(t));
+    notifTimers.current=[];
+    const times = pTimes || calcPrayerTimes(21.3891, 39.8579, new Date(), 3);
+    const labels = {fajr:"الفجر 🌙",dhuhr:"الظهر ☀️",asr:"العصر 🌤",maghrib:"المغرب 🌅",isha:"العشاء ⭐"};
+    Object.entries(labels).forEach(([key, label])=>{
+      const t = times[key]; if(!t) return;
+      const [hh,mm] = t.split(":").map(Number);
+      const now=new Date(), target=new Date();
+      target.setHours(hh,mm,0,0);
+      if(target<=now) target.setDate(target.getDate()+1);
+      const diff=target-now;
+      if(diff>0 && diff<86400000){
+        const id=setTimeout(()=>{
+          try {
+            if(typeof Notification!=="undefined" && Notification.permission==="granted"){
+              new Notification("🕌 حان وقت "+label,{
+                body:"افتح Islam Rising وسجّل صلاتك",
+                tag:key, renotify:true
+              });
+            }
+          } catch {}
+        }, diff);
+        notifTimers.current.push(id);
+      }
+    });
+  };
+
+  useEffect(()=>{
+    if(notifPerm==="granted" && pTimes) schedulePrayerNotifs();
+  },[pTimes]);
+
+  /* ── Share ── */
+  const shareAchievement = async (item) => {
+    const text = `✦ Islam Rising ✦\n` +
+      `${item.e} حصلت على إنجاز: ${item.t}\n` +
+      `🔥 streak ${streak} أيام متواصلة\n` +
+      `⚡ ${pts} نقطة إجمالاً\n\n` +
+      `انضم معي في تطبيق Islam Rising 🕌`;
+    try {
+      if(navigator.share){
+        await navigator.share({ title:"Islam Rising — إنجاز جديد", text });
+      } else {
+        await navigator.clipboard.writeText(text);
+        setShareDone(true);
+        setTimeout(()=>setShareDone(false),2500);
+      }
+    } catch {}
+    setShareItem(null);
+  };
+
+  /* ── Onboarding complete ── */
+  const finishOnboarding = async () => {
+    if(!obName.trim()) return;
+    const user = { name:obName.trim(), city:obCity.trim() };
+    setUserName(user.name); setUserCity(user.city);
+    setMyName(user.name); setObDone(true); setOnboarding(false);
+    try { await window.storage.set("ir-user", JSON.stringify(user)); } catch {}
+    await bumpStreak();
+  };
+
+  /* ── Rewarded Ad ── */
+  const showRewardedAd = (id, label, bonusPts) => {
+    if(isPremium || isFriday || adWatchedRef.current[id]) return;
+    const ad = { id, label, bonusPts };
+    rewardAdRef.current = ad;
+    setRewardAd(ad);
+  };
+
+  const startAd = () => {
+    setAdPlaying(true);
+    setAdTimer(5);
+    adIntervalRef.current = setInterval(()=>{
+      setAdTimer(t => {
+        if(t <= 1){
+          clearInterval(adIntervalRef.current);
+          setAdPlaying(false);
+          const ad = rewardAdRef.current;
+          if(ad){
+            give(ad.bonusPts);
+            adWatchedRef.current = {...adWatchedRef.current, [ad.id]:true};
+            setAdWatched(w => ({...w, [ad.id]:true}));
+          }
+          rewardAdRef.current = null;
+          setRewardAd(null);
+          setAdTimer(0);
+          return 0;
+        }
+        return t - 1;
+      });
+    }, 1000);
+  };
+
+  const skipAd = () => {
+    clearInterval(adIntervalRef.current);
+    setAdPlaying(false);
+    setAdTimer(0);
+    setRewardAd(null);
+  };
+
+  useEffect(() => () => clearInterval(adIntervalRef.current), []);
+
+  /* ── Premium ── */
+  const loadPremium = async () => {
+    try {
+      const r = await window.storage.get("ir-premium");
+      if(r) setIsPremium(JSON.parse(r.value));
+    } catch {}
+  };
+  const activatePremium = async () => {
+    setIsPremium(true);
+    setPremModal(false);
+    try { await window.storage.set("ir-premium", "true"); } catch {}
+  };
+
+  /* ── Points ── */
+  const give = (n, newPrayers=prayers, newExtras=extras) => {
+    const actual = Math.round(n * MULT);
+    setPts(p=>{
+      const next=p+actual;
+      savePtsToday(next, newPrayers, newExtras);
+      return next;
+    });
+    setFly(isFriday||isPremium ? `+${actual} ✦` : `+${actual}`);
+    setTimeout(()=>setFly(null),1100);
+  };
+
+  const tapPrayer = p => {
+    if(prayers[p.id]) return;
+    const next={...prayers,[p.id]:true};
+    setDP(next);
+    bumpStreak();
+    give(10, next, extras);
+    // Offer rewarded ad after prayer (not on Friday, not premium)
+    if(!isPremium && !isFriday && !adWatched[p.id]){
+      setTimeout(() => showRewardedAd(p.id, p.ar, 10), 800);
+    }
+  };
+
+  const tapExtra = e => {
+    if(extras[e.id]) return;
+    if(e.verify){ setModal(e); setVI(""); setVOk(false); }
+    else {
+      const next={...extras,[e.id]:true};
+      setDE(next);
+      give(e.pts, prayers, next);
+      if(!isPremium && !isFriday && !adWatched[e.id]){
+        setTimeout(() => showRewardedAd(e.id, e.ar, e.pts), 800);
+      }
+    }
+  };
+
+  const confirmVerify = () => {
+    if(vInput.trim().slice(0,5)===modal.verify.slice(0,5)){
+      setVOk(true);
+      const next={...extras,[modal.id]:true};
+      setDE(next);
+      give(modal.pts, prayers, next);
+      const mid=modal.id, mpts=modal.pts;
+      setTimeout(()=>{
+        setModal(null);
+        if(!isPremium && !isFriday && !adWatched[mid]){
+          setTimeout(() => showRewardedAd(mid, "العبادة", mpts), 400);
+        }
+      }, 1500);
+    }
+  };
+
+  /* ── Leaderboard ── */
+  const periodStart = p => {
+    const now = new Date();
+    if(p==="daily"){const d=new Date(now);d.setHours(0,0,0,0);return d.getTime();}
+    if(p==="weekly"){const d=new Date(now);d.setDate(d.getDate()-d.getDay());d.setHours(0,0,0,0);return d.getTime();}
+    return new Date(now.getFullYear(),now.getMonth(),1).getTime();
+  };
+  const filteredBoard = p => board.filter(e=>(e.ts||0)>=periodStart(p)).sort((a,b)=>b.pts-a.pts);
+
+  const loadBoard = async () => {
+    setBL(true);
+    try {
+      const res = await window.storage.list("ir-lb:",true);
+      const keys = res?.keys||[];
+      const entries = await Promise.all(keys.map(async k=>{
+        try{ const r=await window.storage.get(k,true); return r?JSON.parse(r.value):null; }
+        catch{ return null; }
+      }));
+      setBoard(entries.filter(Boolean).sort((a,b)=>b.pts-a.pts));
+    } catch { setBoard([]); }
+    setBL(false);
+  };
+  const saveScore = async (key,name,score) => {
+    try {
+      await window.storage.set(key,JSON.stringify({
+        name, pts:score, streak, ts:Date.now(),
+        title:RANKS[Math.min(Math.floor(score/200),RANKS.length-1)],
+        premium:isPremium
+      }),true);
+      await loadBoard();
+    } catch {}
+  };
+  const joinBoard = async () => {
+    if(!nameIn.trim()) return;
+    setSaving(true);
+    const name=nameIn.trim();
+    const key=`ir-lb:${Date.now()}-${Math.random().toString(36).slice(2,6)}`;
+    setMyName(name); setMyKey(key); setNameIn("");
+    await saveScore(key,name,pts);
+    setSaving(false);
+  };
+  const myRank = myName ? filteredBoard(period).findIndex(e=>e.name===myName)+1 : 0;
+
+  /* ── SENTINEL AI ── */
+  const sendAI = async () => {
+    const q = aiInput.trim();
+    if(!q||aiLoading) return;
+    if(!isPremium && aiMsgs.filter(m=>m.role==="user").length>=3){
+      setPremModal(true); return;
+    }
+    const newMsgs = [...aiMsgs, {role:"user",text:q}];
+    setAiMsgs(newMsgs); setAiInput(""); setAiL(true);
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          model:"claude-sonnet-4-20250514",
+          max_tokens:1000,
+          system:`أنت SENTINEL، مساعد إسلامي في تطبيق Islam Rising. 
+أجب بالعربية فقط. ردودك موجزة وواضحة (٢-٤ جمل). 
+تخصصك: الفقه، العبادات، السيرة النبوية، الأذكار، التفسير.
+لا تتحدث إلا في المواضيع الإسلامية. ابدأ دائماً بـ "بسم الله".`,
+          messages: newMsgs.filter(m=>m.role==="user"||m.role==="assistant")
+            .slice(-6)
+            .map(m=>({role:m.role==="assistant"?"assistant":"user", content:m.text}))
+        })
+      });
+      const data = await res.json();
+      const reply = data.content?.[0]?.text || "عذراً، حدث خطأ.";
+      setAiMsgs(prev=>[...prev,{role:"assistant",text:reply}]);
+    } catch {
+      setAiMsgs(prev=>[...prev,{role:"assistant",text:"عذراً، تعذّر الاتصال. حاول مرة أخرى."}]);
+    }
+    setAiL(false);
+  };
+
+  /* ════ STYLES ════ */
+  const cardStyle = (done,hue) => ({
+    padding:"18px 12px", textAlign:"center",
+    background: done
+      ? "linear-gradient(160deg,rgba(20,50,25,0.9),rgba(10,30,15,0.95))"
+      : `linear-gradient(160deg,rgba(${hue},0.08),rgba(${hue},0.02))`,
+    border: done ? "1px solid rgba(74,222,128,0.3)" : `1px solid rgba(${hue},0.2)`,
+    borderRadius:22, backdropFilter:"blur(20px)",
+    position:"relative", overflow:"hidden",
+    cursor: done?"default":"pointer",
+  });
+
+  const current = filteredBoard(period);
+
+  /* ════ RENDER ════ */
+  return (
+    <>
+      <div className="ir-root" style={{
+        fontFamily:"'Noto Naskh Arabic',serif",
+        direction:"rtl", color:"var(--text)", overflowX:"hidden"
+      }}>
+        {/* ══ DARK BASE — position:fixed, always dark no matter what ══ */}
+        <div style={{
+          position:"fixed",inset:0,zIndex:0,
+          background:"radial-gradient(ellipse 150% 60% at 50% -10%, #1C1400 0%, #05070F 38%, #080C1A 100%)"
+        }}/>
+
+        {/* ══ ISLAMIC ORNAMENTAL BACKGROUND ══ */}
+        <IslamicBg/>
+
+
+
+        {/* ── PTS FLY ── */}
+        {fly && (
+          <div style={{
+            position:"fixed",top:"38%",left:"50%",zIndex:999,pointerEvents:"none",
+            animation:"ptsfly 1.1s ease forwards",fontSize:34,fontWeight:900,letterSpacing:2,
+            background:"linear-gradient(135deg,#C9A96E,#F0D898)",
+            WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",
+            filter:"drop-shadow(0 0 18px rgba(201,169,110,0.8))"
+          }}>{fly}</div>
+        )}
+
+        {/* ── VERIFY MODAL ── */}
+        {modal && (
+          <div style={{position:"fixed",inset:0,zIndex:300,background:"rgba(5,7,15,0.88)",backdropFilter:"blur(16px)",
+            display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
+            <div className="glass2" style={{borderRadius:26,padding:28,maxWidth:360,width:"100%",textAlign:"center",
+              animation:"modalIn 0.35s ease",boxShadow:"0 40px 100px rgba(0,0,0,0.8)"}}>
+              {vOk ? (
+                <div>
+                  <div style={{fontSize:52,marginBottom:8}}>✦</div>
+                  <div className="gold-text" style={{fontSize:20,fontWeight:700}}>جزاك الله خيراً</div>
+                </div>
+              ) : (
+                <>
+                  <div style={{fontSize:17,fontWeight:700,marginBottom:6,color:"white"}}>{modal.ar}</div>
+                  <div style={{fontSize:12,color:"var(--muted)",marginBottom:14}}>اكتب بداية هذا الذكر</div>
+                  <div style={{background:"rgba(201,169,110,0.07)",border:"1px solid rgba(201,169,110,0.2)",
+                    borderRadius:12,padding:"12px 16px",marginBottom:14,fontSize:17,color:"var(--gold2)",lineHeight:2.2}}>
+                    {modal.verify}
+                  </div>
+                  <input value={vInput} onChange={e=>setVI(e.target.value)} placeholder="اكتب هنا..."
+                    style={{width:"100%",padding:"11px 14px",borderRadius:11,border:"1px solid rgba(255,255,255,0.1)",
+                      background:"rgba(255,255,255,0.04)",color:"white",fontSize:15,fontFamily:"Noto Naskh Arabic",
+                      direction:"rtl",marginBottom:14,transition:"border 0.2s"}}/>
+                  <div style={{display:"flex",gap:10}}>
+                    <button className="btn" onClick={confirmVerify} style={{flex:2,padding:"12px",borderRadius:12,border:"none",
+                      background:"linear-gradient(135deg,#C9A96E,#F0D898)",color:"#05070F",fontWeight:900,fontSize:15,
+                      fontFamily:"Noto Naskh Arabic",boxShadow:"0 6px 24px rgba(201,169,110,0.4)"}}>تأكيد</button>
+                    <button className="btn" onClick={()=>setModal(null)} style={{flex:1,padding:"12px",borderRadius:12,
+                      border:"1px solid rgba(255,255,255,0.1)",background:"transparent",color:"var(--muted)",
+                      fontFamily:"Noto Naskh Arabic",fontSize:14,cursor:"pointer"}}>إلغاء</button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── PREMIUM MODAL ── */}
+        {premModal && (
+          <div style={{position:"fixed",inset:0,zIndex:300,background:"rgba(5,7,15,0.9)",backdropFilter:"blur(18px)",
+            display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
+            <div style={{borderRadius:26,padding:30,maxWidth:360,width:"100%",textAlign:"center",
+              background:"linear-gradient(160deg,rgba(30,20,50,0.95),rgba(15,10,30,0.98))",
+              border:"1px solid rgba(123,94,167,0.4)",animation:"modalIn 0.35s ease",
+              boxShadow:"0 40px 100px rgba(0,0,0,0.8),0 0 60px rgba(123,94,167,0.15)"}}>
+              <div style={{fontSize:42,marginBottom:12}}>👑</div>
+              <div style={{fontSize:20,fontWeight:700,color:"white",marginBottom:6}}>Islam Rising Premium</div>
+              <div style={{fontSize:13,color:"var(--muted)",marginBottom:20,lineHeight:1.8}}>
+                افتح كل المميزات وتصدّر اللوحة
+              </div>
+              {[
+                {e:"⚡",t:"نقاط × ١.٥ دائماً"},
+                {e:"🌙",t:"نقاط × ٣ كل جمعة"},
+                {e:"🤖",t:"SENTINEL AI بلا حدود"},
+                {e:"👑",t:"شارة Premium في اللوحة"},
+                {e:"🚫",t:"بدون إعلانات"},
+              ].map((f,i)=>(
+                <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"8px 0",
+                  borderBottom:"1px solid rgba(255,255,255,0.05)",textAlign:"right"}}>
+                  <span style={{fontSize:20}}>{f.e}</span>
+                  <span style={{fontSize:14,color:"rgba(255,255,255,0.85)"}}>{f.t}</span>
+                </div>
+              ))}
+              <button className="btn premium-glow" onClick={activatePremium} style={{
+                width:"100%",marginTop:20,padding:"14px",borderRadius:14,border:"none",
+                background:"linear-gradient(135deg,#7B5EA7,#9B7EC7)",
+                color:"white",fontWeight:900,fontSize:16,fontFamily:"Noto Naskh Arabic",
+                boxShadow:"0 8px 30px rgba(123,94,167,0.5)"}}>
+                اشترك — $1.99/شهر ✦
+              </button>
+              <button className="btn" onClick={()=>setPremModal(false)} style={{
+                width:"100%",marginTop:10,padding:"10px",borderRadius:12,
+                border:"none",background:"transparent",color:"var(--muted)",
+                fontFamily:"Noto Naskh Arabic",fontSize:13,cursor:"pointer"}}>
+                لاحقاً
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── ONBOARDING ── */}
+        {onboarding && (
+          <div style={{position:"fixed",inset:0,zIndex:400,
+            background:"radial-gradient(ellipse at 50% 30%,rgba(30,20,5,0.98),rgba(5,7,15,0.99))",
+            display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
+            padding:28,textAlign:"center"}}>
+
+            {/* Step dots */}
+            <div style={{display:"flex",gap:8,marginBottom:32}}>
+              {ONBOARD_STEPS.map((_,i)=>(
+                <div key={i} style={{
+                  width: i===obStep?24:8, height:8, borderRadius:99,
+                  background: i<=obStep?"linear-gradient(90deg,#C9A96E,#F0D898)":"rgba(255,255,255,0.15)",
+                  transition:"all 0.4s cubic-bezier(0.34,1.56,0.64,1)"
+                }}/>
+              ))}
+            </div>
+
+            {/* Step content */}
+            <div style={{animation:"modalIn 0.4s ease",width:"100%",maxWidth:340}}>
+              <div style={{fontSize:64,marginBottom:20,filter:"drop-shadow(0 0 20px rgba(201,169,110,0.4))"}}>
+                {ONBOARD_STEPS[obStep].emoji}
+              </div>
+              <div style={{
+                fontSize:22,fontWeight:900,marginBottom:10,
+                background:"linear-gradient(135deg,#fff,rgba(201,169,110,0.8))",
+                WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"
+              }}>{ONBOARD_STEPS[obStep].title}</div>
+              <div style={{fontSize:14,color:"var(--muted)",marginBottom:32,lineHeight:1.7}}>
+                {ONBOARD_STEPS[obStep].sub}
+              </div>
+
+              {/* Step 0 — welcome */}
+              {obStep===0 && (
+                <div style={{
+                  borderRadius:20,padding:"18px",marginBottom:24,
+                  background:"rgba(201,169,110,0.07)",border:"1px solid rgba(201,169,110,0.2)"
+                }}>
+                  {["🕋 أوقات الصلاة بموقعك","🧭 بوصلة القبلة الدقيقة","🏆 تنافس مع المسلمين حول العالم","🤖 مساعد إسلامي ذكي"].map((f,i)=>(
+                    <div key={i} style={{
+                      display:"flex",alignItems:"center",gap:12,
+                      padding:"8px 0",borderBottom:i<3?"1px solid rgba(255,255,255,0.05)":"none",
+                      textAlign:"right"
+                    }}>
+                      <span style={{fontSize:18}}>{f.split(" ")[0]}</span>
+                      <span style={{fontSize:13,color:"rgba(255,255,255,0.8)"}}>{f.slice(f.indexOf(" ")+1)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Step 1 — name */}
+              {obStep===1 && (
+                <input value={obName} onChange={e=>setObName(e.target.value)}
+                  onKeyDown={e=>e.key==="Enter"&&obName.trim()&&setObStep(2)}
+                  placeholder="مثال: أبو عبدالله"
+                  autoFocus
+                  style={{
+                    width:"100%",padding:"14px 18px",borderRadius:14,marginBottom:20,
+                    border:"1px solid rgba(201,169,110,0.3)",background:"rgba(255,255,255,0.05)",
+                    color:"white",fontSize:16,fontFamily:"Noto Naskh Arabic",
+                    direction:"rtl",outline:"none",textAlign:"center",letterSpacing:1
+                  }}/>
+              )}
+
+              {/* Step 2 — city */}
+              {obStep===2 && (
+                <input value={obCity} onChange={e=>setObCity(e.target.value)}
+                  onKeyDown={e=>e.key==="Enter"&&setObStep(3)}
+                  placeholder="مثال: الرياض"
+                  autoFocus
+                  style={{
+                    width:"100%",padding:"14px 18px",borderRadius:14,marginBottom:20,
+                    border:"1px solid rgba(201,169,110,0.3)",background:"rgba(255,255,255,0.05)",
+                    color:"white",fontSize:16,fontFamily:"Noto Naskh Arabic",
+                    direction:"rtl",outline:"none",textAlign:"center",letterSpacing:1
+                  }}/>
+              )}
+
+              {/* Step 3 — notifications */}
+              {obStep===3 && (
+                <div style={{marginBottom:20,display:"flex",flexDirection:"column",gap:10}}>
+                  {notifPerm === "unsupported" ? (
+                    <div style={{
+                      width:"100%",padding:"13px",borderRadius:14,
+                      background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.1)",
+                      color:"var(--muted)",fontSize:13,textAlign:"center"
+                    }}>
+                      ⚠️ الإشعارات غير متاحة في هذه البيئة<br/>
+                      <span style={{fontSize:11,opacity:0.6}}>ستعمل في التطبيق الحقيقي</span>
+                    </div>
+                  ) : (
+                    <button className="btn" onClick={requestNotifications} style={{
+                      width:"100%",padding:"14px",borderRadius:14,border:"none",
+                      background:notifPerm==="granted"
+                        ?"linear-gradient(135deg,rgba(74,222,128,0.2),rgba(74,222,128,0.08))"
+                        :"linear-gradient(135deg,#C9A96E,#F0D898)",
+                      color:notifPerm==="granted"?"#4ADE80":"#05070F",
+                      fontWeight:900,fontSize:15,fontFamily:"Noto Naskh Arabic",
+                      border:notifPerm==="granted"?"1px solid rgba(74,222,128,0.4)":"none",
+                      boxShadow:notifPerm==="granted"?"none":"0 6px 24px rgba(201,169,110,0.4)"
+                    }}>
+                      {notifPerm==="granted" ? "✓ تم تفعيل الإشعارات" : "🔔 فعّل إشعارات الصلاة"}
+                    </button>
+                  )}
+                  <div style={{fontSize:11,color:"var(--muted)"}}>
+                    ستصل إشعارات الأذان قبل كل صلاة
+                  </div>
+                </div>
+              )}
+
+              {/* Next / Finish button */}
+              <button className="btn" onClick={()=>{
+                if(obStep===0) setObStep(1);
+                else if(obStep===1){ if(obName.trim()) setObStep(2); }
+                else if(obStep===2) setObStep(3);
+                else finishOnboarding();
+              }} style={{
+                width:"100%",padding:"15px",borderRadius:16,border:"none",
+                background:"linear-gradient(135deg,#C9A96E,#F0D898)",
+                color:"#05070F",fontWeight:900,fontSize:16,
+                fontFamily:"Noto Naskh Arabic",
+                boxShadow:"0 8px 30px rgba(201,169,110,0.45)",
+                opacity:(obStep===1&&!obName.trim())?0.4:1,
+                transition:"opacity 0.2s"
+              }}>
+                {obStep===3 ? "ابدأ رحلتك ✦" : "التالي ←"}
+              </button>
+
+              {obStep===3 && (
+                <button className="btn" onClick={finishOnboarding} style={{
+                  width:"100%",marginTop:10,padding:"11px",borderRadius:12,
+                  border:"none",background:"transparent",
+                  color:"var(--muted)",fontSize:13,cursor:"pointer",fontFamily:"Noto Naskh Arabic"
+                }}>تخطّي الإشعارات</button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── SHARE DONE TOAST ── */}
+        {shareDone && (
+          <div style={{
+            position:"fixed",bottom:100,left:"50%",transform:"translateX(-50%)",
+            zIndex:500,background:"linear-gradient(135deg,#1a3a1a,#0f2a0f)",
+            border:"1px solid rgba(74,222,128,0.4)",borderRadius:14,
+            padding:"12px 22px",fontSize:13,color:"#4ADE80",fontWeight:700,
+            boxShadow:"0 8px 30px rgba(0,0,0,0.5)",animation:"modalIn 0.3s ease",
+            whiteSpace:"nowrap"
+          }}>✓ تم نسخ النص — شاركه على واتساب 📲</div>
+        )}
+
+        {/* ── REWARDED AD MODAL ── */}
+        {rewardAd && (
+          <div style={{
+            position:"fixed",inset:0,zIndex:350,
+            background:"rgba(5,7,15,0.92)",backdropFilter:"blur(18px)",
+            display:"flex",alignItems:"flex-end",justifyContent:"center",
+            padding:"0 0 30px"
+          }}>
+            <div style={{
+              width:"100%",maxWidth:420,
+              borderRadius:"28px 28px 20px 20px",
+              padding:"28px 24px 24px",
+              background:"linear-gradient(160deg,#0E1525,#080C18)",
+              border:"1px solid rgba(201,169,110,0.3)",
+              boxShadow:"0 -20px 60px rgba(0,0,0,0.7), 0 0 40px rgba(201,169,110,0.08)",
+              animation:"modalIn 0.4s cubic-bezier(0.34,1.56,0.64,1)"
+            }}>
+              {adPlaying ? (
+                /* ── Ad Playing UI ── */
+                <div style={{textAlign:"center"}}>
+                  {/* Fake ad screen */}
+                  <div style={{
+                    borderRadius:18,overflow:"hidden",marginBottom:18,
+                    background:"linear-gradient(135deg,#1a1a2e,#16213e)",
+                    border:"1px solid rgba(255,255,255,0.08)",
+                    height:160,
+                    display:"flex",flexDirection:"column",
+                    alignItems:"center",justifyContent:"center",gap:10,
+                    position:"relative"
+                  }}>
+                    <div style={{
+                      position:"absolute",top:10,left:12,
+                      fontSize:9,color:"rgba(255,255,255,0.3)",letterSpacing:1
+                    }}>إعلان • Ad</div>
+                    <div style={{
+                      position:"absolute",top:10,right:12,
+                      background:"rgba(0,0,0,0.5)",borderRadius:6,
+                      padding:"3px 8px",fontSize:11,color:"rgba(255,255,255,0.6)"
+                    }}>{adTimer}s</div>
+                    {/* Simulated ad content */}
+                    <div style={{fontSize:36}}>🌿</div>
+                    <div style={{fontSize:14,color:"rgba(255,255,255,0.7)",fontWeight:600}}>
+                      منتج حلال موثوق
+                    </div>
+                    <div style={{fontSize:11,color:"rgba(255,255,255,0.35)"}}>
+                      إعلان إسلامي مناسب
+                    </div>
+                    {/* Progress bar */}
+                    <div style={{
+                      position:"absolute",bottom:0,left:0,right:0,
+                      height:3,background:"rgba(255,255,255,0.08)"
+                    }}>
+                      <div style={{
+                        height:"100%",
+                        width:`${((5-adTimer)/5)*100}%`,
+                        background:"linear-gradient(90deg,#C9A96E,#F0D898)",
+                        transition:"width 1s linear",
+                        borderRadius:"0 0 0 0"
+                      }}/>
+                    </div>
+                  </div>
+                  <div style={{fontSize:13,color:"var(--muted)"}}>
+                    انتظر {adTimer} ثانية للحصول على مكافأتك...
+                  </div>
+                </div>
+              ) : (
+                /* ── Offer UI ── */
+                <>
+                  {/* Header */}
+                  <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:20}}>
+                    <div style={{
+                      width:56,height:56,borderRadius:16,flexShrink:0,
+                      background:"linear-gradient(135deg,rgba(201,169,110,0.2),rgba(201,169,110,0.06))",
+                      border:"1px solid rgba(201,169,110,0.3)",
+                      display:"flex",alignItems:"center",justifyContent:"center",fontSize:26
+                    }}>🎁</div>
+                    <div>
+                      <div style={{fontSize:16,fontWeight:900,color:"white",marginBottom:3}}>
+                        ضاعف نقاطك!
+                      </div>
+                      <div style={{fontSize:12,color:"var(--muted)"}}>
+                        شاهد إعلان قصير مقابل نقاط إضافية
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Reward detail */}
+                  <div style={{
+                    borderRadius:16,padding:"14px 18px",marginBottom:18,
+                    background:"linear-gradient(135deg,rgba(201,169,110,0.1),rgba(201,169,110,0.03))",
+                    border:"1px solid rgba(201,169,110,0.25)",
+                    display:"flex",alignItems:"center",justifyContent:"space-between"
+                  }}>
+                    <div>
+                      <div style={{fontSize:13,color:"var(--muted)",marginBottom:4}}>
+                        مكافأة {rewardAd.label}
+                      </div>
+                      <div style={{display:"flex",alignItems:"center",gap:8}}>
+                        <span className="gold-text" style={{fontSize:26,fontWeight:900,lineHeight:1}}>
+                          +{rewardAd.bonusPts}
+                        </span>
+                        <span style={{fontSize:13,color:"var(--gold3)"}}>نقطة مجاناً</span>
+                      </div>
+                    </div>
+                    <div style={{
+                      textAlign:"center",padding:"10px 16px",borderRadius:12,
+                      background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)"
+                    }}>
+                      <div style={{fontSize:22,fontWeight:900,color:"white",lineHeight:1}}>5</div>
+                      <div style={{fontSize:10,color:"var(--muted)",marginTop:2}}>ثوانٍ</div>
+                    </div>
+                  </div>
+
+                  {/* Multiplier note if Friday coming */}
+                  <div style={{
+                    display:"flex",alignItems:"center",gap:8,marginBottom:18,
+                    padding:"8px 12px",borderRadius:10,
+                    background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.06)"
+                  }}>
+                    <span style={{fontSize:14}}>✦</span>
+                    <span style={{fontSize:11,color:"var(--muted)"}}>
+                      هذا الإعلان اختياري تماماً — نقاطك محفوظة
+                    </span>
+                  </div>
+
+                  {/* Buttons */}
+                  <button className="btn" onClick={startAd} style={{
+                    width:"100%",padding:"15px",borderRadius:16,border:"none",
+                    background:"linear-gradient(135deg,#C9A96E,#F0D898,#C9A96E)",
+                    backgroundSize:"200% auto",animation:"shimmer 2s linear infinite",
+                    color:"#05070F",fontWeight:900,fontSize:16,
+                    fontFamily:"Noto Naskh Arabic",
+                    boxShadow:"0 8px 30px rgba(201,169,110,0.45)",
+                    marginBottom:10
+                  }}>
+                    🎬 شاهد الإعلان (+{rewardAd.bonusPts} نقطة)
+                  </button>
+
+                  <button className="btn" onClick={skipAd} style={{
+                    width:"100%",padding:"12px",borderRadius:14,
+                    border:"1px solid rgba(255,255,255,0.08)",background:"transparent",
+                    color:"var(--muted)",fontFamily:"Noto Naskh Arabic",fontSize:14,cursor:"pointer"
+                  }}>
+                    لا شكراً، أكمل بدون إعلان
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ═════════ HEADER ═════════ */}
+        <div style={{position:"relative",zIndex:1,padding:"28px 20px 0",
+          opacity:visible?1:0, animation:visible?"floatUp 0.6s ease":"none"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:18}}>
+            <div>
+              <div style={{fontSize:10,letterSpacing:4,color:"var(--gold3)",textTransform:"uppercase",marginBottom:3}}>
+                ✦ ISLAM RISING ✦
+              </div>
+              <div style={{fontSize:22,fontWeight:700,
+                background:"linear-gradient(135deg,#fff 60%,rgba(201,169,110,0.6))",
+                WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>
+                {userName ? `أهلاً، ${userName} 🌙` : "أهلاً وسهلاً 🌙"}
+              </div>
+              {userCity && <div style={{fontSize:11,color:"var(--muted)",marginTop:2}}>📍 {userCity}</div>}
+            </div>
+            <div style={{display:"flex",gap:8,alignItems:"center"}}>
+              {/* Notif bell */}
+              {notifPerm !== "unsupported" && (
+                <button className="btn" onClick={notifPerm==="granted"?null:requestNotifications} style={{
+                  width:38,height:38,borderRadius:12,border:"none",
+                  background:notifPerm==="granted"?"rgba(74,222,128,0.12)":"rgba(255,255,255,0.06)",
+                  border:notifPerm==="granted"?"1px solid rgba(74,222,128,0.3)":"1px solid rgba(255,255,255,0.1)",
+                  display:"flex",alignItems:"center",justifyContent:"center",
+                  fontSize:18,cursor:notifPerm==="granted"?"default":"pointer",
+                  position:"relative"
+                }}>
+                  {notifPerm==="granted" ? "🔔" : "🔕"}
+                  {notifPerm!=="granted" && (
+                    <div style={{position:"absolute",top:4,right:4,width:8,height:8,
+                      borderRadius:"50%",background:"#ff4444",
+                      boxShadow:"0 0 6px rgba(255,68,68,0.8)"}}/>
+                  )}
+                </button>
+              )}
+              {/* Premium badge */}
+              {isPremium && (
+                <div style={{background:"linear-gradient(135deg,#7B5EA7,#9B7EC7)",borderRadius:10,
+                  padding:"4px 10px",fontSize:11,fontWeight:700,color:"white"}}>👑 Premium</div>
+              )}
+              {/* Points orb */}
+              <div style={{position:"relative",width:66,height:66}}>
+                <div style={{position:"absolute",inset:0,borderRadius:"50%",
+                  background:"conic-gradient(from 0deg,#C9A96E,#F0D898,#C9A96E,#8A6835,#C9A96E)",
+                  animation:"rotate 7s linear infinite"}}/>
+                <div style={{position:"absolute",inset:3,borderRadius:"50%",
+                  background:"linear-gradient(135deg,#0E1525,#08101E)",
+                  display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
+                  <span className="gold-text" style={{fontSize:18,fontWeight:900,lineHeight:1}}>{pts}</span>
+                  <span style={{fontSize:9,color:"var(--muted)",letterSpacing:1.5,marginTop:1}}>نقطة</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div style={{display:"flex",gap:10,marginBottom:14}}>
+            {[
+              {top:`${streak} أيام 🔥`, bot:streak>=7?"streak أسبوع 🏆":"streak متواصل", col:"#FF6B35"},
+              {top:`المستوى ٣ ⚡`, bot:"مؤمن نشيط", col:"var(--gold)"},
+              ...(isFriday?[{top:"جمعة مباركة ✨",bot:`× ${MULT} نقاط`,col:"#FFD700"}]:[])
+            ].map((s,i)=>(
+              <div key={i} className="glass" style={{flex:1,borderRadius:16,padding:"10px 12px",
+                animation:`floatUp ${0.7+i*0.1}s ease`}}>
+                <div style={{fontSize:13,fontWeight:700,color:s.col,marginBottom:2}}>{s.top}</div>
+                <div style={{fontSize:10,color:"var(--muted)"}}>{s.bot}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Progress */}
+          <div className="glass" style={{borderRadius:16,padding:"12px 16px",marginBottom:2}}>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}>
+              <span style={{fontSize:11,color:"var(--muted)"}}>🎯 التقدم اليومي</span>
+              <span className="gold-text" style={{fontSize:12,fontWeight:700}}>{pts}/{GOAL}</span>
+            </div>
+            <div style={{background:"rgba(255,255,255,0.06)",borderRadius:99,height:6,overflow:"hidden"}}>
+              <div style={{height:"100%",width:`${Math.min((pts/GOAL)*100,100)}%`,
+                background:"linear-gradient(90deg,#8A6835,#C9A96E,#F0D898,#C9A96E)",
+                backgroundSize:"200% auto",borderRadius:99,
+                animation:"shimmer 2.5s linear infinite",
+                boxShadow:"0 0 10px rgba(201,169,110,0.6)",
+                transition:"width 0.9s cubic-bezier(0.4,0,0.2,1)"}}/>
+            </div>
+            <div style={{display:"flex",justifyContent:"space-between",marginTop:6}}>
+              <span style={{fontSize:10,color:"var(--green)"}}>✦ {pDone}/5 صلوات</span>
+              <span style={{fontSize:10,color:"var(--muted)"}}>{Math.round((pts/GOAL)*100)}٪</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ═════════ TABS ═════════ */}
+        <div style={{position:"sticky",top:0,zIndex:10,padding:"12px 20px",
+          background:"linear-gradient(to bottom,rgba(5,7,15,0.92) 60%,transparent)",
+          backdropFilter:"blur(20px)"}}>
+          <div className="glass" style={{display:"flex",borderRadius:99,padding:4,gap:2}}>
+            {["الرئيسية","عباداتي","المتصدرون","SENTINEL"].map((t,i)=>(
+              <button key={i} className="btn" onClick={()=>setTab(i)} style={{
+                flex:1,padding:"9px 2px",border:"none",cursor:"pointer",borderRadius:99,
+                fontSize:11,fontWeight:700,fontFamily:"Noto Naskh Arabic",
+                background:tab===i
+                  ?(i===3&&!isPremium)
+                    ?"linear-gradient(135deg,#7B5EA7,#9B7EC7)"
+                    :"linear-gradient(135deg,#C9A96E,#F0D898)"
+                  :"transparent",
+                color:tab===i?"#05070F":"var(--muted)",
+                boxShadow:tab===i
+                  ?(i===3&&!isPremium)
+                    ?"0 4px 16px rgba(123,94,167,0.4)"
+                    :"0 4px 16px rgba(201,169,110,0.4)"
+                  :"none",
+                transition:"all 0.3s cubic-bezier(0.34,1.56,0.64,1)"
+              }}>{t}</button>
+            ))}
+          </div>
+        </div>
+
+        {/* ═════════ CONTENT ═════════ */}
+        <div style={{position:"relative",zIndex:1,padding:"4px 20px 110px"}}>
+
+          {/* ════ HOME ════ */}
+          {tab===0 && (
+            <div key="home" style={{animation:"floatUp 0.3s ease"}}>
+
+              {/* ── مكة المكرمة ── */}
+              {(()=>{
+                const mTimes = meccaTimes;
+                return (
+                  <div style={{
+                    borderRadius:20,padding:"16px 18px",marginBottom:14,
+                    background:"linear-gradient(135deg,rgba(201,169,110,0.13),rgba(140,100,40,0.07),rgba(201,169,110,0.04))",
+                    border:"1px solid rgba(201,169,110,0.45)",
+                    boxShadow:"0 0 40px rgba(201,169,110,0.12), inset 0 1px 0 rgba(201,169,110,0.2)",
+                    position:"relative",overflow:"hidden"
+                  }}>
+                    {/* bg glow */}
+                    <div style={{position:"absolute",top:-30,right:-30,width:160,height:160,borderRadius:"50%",
+                      background:"radial-gradient(circle,rgba(201,169,110,0.1),transparent 70%)",pointerEvents:"none"}}/>
+
+                    {/* Header */}
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
+                      <div style={{display:"flex",alignItems:"center",gap:8}}>
+                        <span style={{fontSize:22}}>🕋</span>
+                        <div>
+                          <div style={{
+                            fontSize:15,fontWeight:900,
+                            background:"linear-gradient(135deg,#C9A96E,#F0D898,#C9A96E)",
+                            backgroundSize:"200% auto",
+                            WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",
+                            backgroundClip:"text",
+                            animation:"shimmer 3s linear infinite",
+                            letterSpacing:1
+                          }}>مكة المكرمة</div>
+                          <div style={{fontSize:10,color:"var(--gold3)",letterSpacing:2}}>Makkah Al-Mukarramah</div>
+                        </div>
+                      </div>
+                      <div style={{
+                        fontSize:10,color:"var(--gold3)",
+                        background:"rgba(201,169,110,0.1)",
+                        border:"1px solid rgba(201,169,110,0.25)",
+                        borderRadius:8,padding:"3px 8px",letterSpacing:1
+                      }}>🕌 الحرم المكي</div>
+                    </div>
+
+                    {/* Times grid */}
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:6}}>
+                      {PRAYER_META.map((p,i)=>(
+                        <div key={p.id} style={{
+                          textAlign:"center",padding:"8px 4px",borderRadius:11,
+                          background:"rgba(201,169,110,0.07)",
+                          border:"1px solid rgba(201,169,110,0.2)"
+                        }}>
+                          <div style={{fontSize:15,marginBottom:3}}>{EMOJIS[i]}</div>
+                          <div style={{
+                            fontSize:10,fontWeight:700,marginBottom:4,
+                            background:"linear-gradient(135deg,#C9A96E,#F0D898)",
+                            WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",
+                            backgroundClip:"text"
+                          }}>{p.ar}</div>
+                          <div style={{
+                            fontSize:12,fontWeight:900,
+                            background:"linear-gradient(135deg,#F0D898,#C9A96E)",
+                            WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",
+                            backgroundClip:"text",
+                            textShadow:"none",letterSpacing:0.5
+                          }}>
+                            {mTimes?.[p.id]||"—"}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Sunrise */}
+                    <div style={{
+                      marginTop:10,display:"flex",justifyContent:"center",alignItems:"center",gap:6,
+                      padding:"6px 12px",borderRadius:10,
+                      background:"rgba(201,169,110,0.06)",
+                      border:"1px solid rgba(201,169,110,0.15)"
+                    }}>
+                      <span style={{fontSize:13}}>🌄</span>
+                      <span style={{fontSize:11,color:"var(--gold3)"}}>الشروق</span>
+                      <span style={{
+                        fontSize:13,fontWeight:700,
+                        background:"linear-gradient(135deg,#C9A96E,#F0D898)",
+                        WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"
+                      }}>{mTimes?.sunrise||"—"}</span>
+                      <span style={{fontSize:11,color:"rgba(201,169,110,0.3)"}}>|</span>
+                      <span style={{fontSize:11,color:"var(--gold3)"}}>التوقيت السعودي AST</span>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* GPS Prayer Times */}
+              <div style={{marginBottom:16}}>
+                {!coords ? (
+                  <button className="btn" onClick={getLocation} style={{
+                    width:"100%",padding:"13px",borderRadius:16,border:"none",
+                    background:"linear-gradient(135deg,rgba(201,169,110,0.15),rgba(201,169,110,0.05))",
+                    border:"1px solid rgba(201,169,110,0.3)",
+                    color:"var(--gold)",fontWeight:700,fontSize:14,fontFamily:"Noto Naskh Arabic",
+                    cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:10}}>
+                    {locLoading
+                      ? <span style={{animation:"floatUp 0.5s infinite"}}>⏳ جاري تحديد الموقع...</span>
+                      : <><span style={{fontSize:18}}>📍</span> احسب أوقات الصلاة بموقعك</>}
+                  </button>
+                ) : pTimes ? (
+                  <div className="glass" style={{borderRadius:18,padding:"14px 16px"}}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+                      <span style={{fontSize:11,color:"var(--gold3)",letterSpacing:2}}>✦ أوقات الصلاة</span>
+                      <span style={{fontSize:10,color:"var(--muted)"}}>📍 موقعك الحالي</span>
+                    </div>
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:6}}>
+                      {PRAYER_META.map((p,i)=>(
+                        <div key={p.id} style={{textAlign:"center",
+                          padding:"8px 4px",borderRadius:12,
+                          background:`rgba(${p.hue},0.06)`,
+                          border:`1px solid rgba(${p.hue},0.15)`}}>
+                          <div style={{fontSize:16,marginBottom:4}}>{EMOJIS[i]}</div>
+                          <div style={{fontSize:11,fontWeight:700,color:"white",marginBottom:3}}>{p.ar}</div>
+                          <div style={{fontSize:11,color:`rgb(${p.hue})`,fontWeight:600}}>
+                            {pTimes[p.id]||"—"}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+                {locErr && <div style={{color:"#ff6b6b",fontSize:12,textAlign:"center",marginTop:6}}>{locErr}</div>}
+              </div>
+
+              {/* Qibla Compass — always visible */}
+              {(()=>{
+                const bearing = coords ? qibla : null;
+                const needleAngle = bearing !== null ? bearing - compass : 0;
+                return (
+                <div style={{
+                  borderRadius:22,padding:"24px",marginBottom:16,textAlign:"center",
+                  background:"linear-gradient(160deg,rgba(10,20,15,0.9),rgba(5,12,10,0.95))",
+                  border:"1px solid rgba(74,222,128,0.25)",
+                  boxShadow:"0 8px 40px rgba(0,0,0,0.5)"
+                }}>
+                  <div style={{fontSize:11,color:"rgba(74,222,128,0.7)",letterSpacing:3,marginBottom:16}}>
+                    ✦ اتجاه القبلة ✦
+                  </div>
+                  {/* Compass circle */}
+                  <div style={{position:"relative",width:180,height:180,margin:"0 auto 16px"}}>
+                    {/* Outer ring */}
+                    <div style={{position:"absolute",inset:0,borderRadius:"50%",
+                      border:"2px solid rgba(74,222,128,0.3)",
+                      background:"radial-gradient(circle,rgba(74,222,128,0.04),transparent 70%)"}}>
+                      {/* Cardinal points */}
+                      {[["N",0],["E",90],["S",180],["W",270]].map(([l,a])=>{
+                        const rad = (a - compass) * Math.PI/180;
+                        const x = 90 + 78*Math.sin(rad), y = 90 - 78*Math.cos(rad);
+                        return <div key={l} style={{position:"absolute",left:x-8,top:y-8,
+                          width:16,height:16,display:"flex",alignItems:"center",justifyContent:"center",
+                          fontSize:10,fontWeight:700,color:l==="N"?"#ff6b6b":"rgba(74,222,128,0.6)"}}>
+                          {l}
+                        </div>;
+                      })}
+                    </div>
+                    {/* Qibla needle */}
+                    <div style={{
+                      position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",
+                      transform:`rotate(${needleAngle}deg)`,
+                      transition:"transform 0.2s ease"
+                    }}>
+                      <div style={{position:"relative",width:"100%",height:"100%"}}>
+                        <div style={{
+                          position:"absolute",left:"50%",top:10,
+                          transform:"translateX(-50%)",
+                          width:0,height:0,
+                          borderLeft:"8px solid transparent",
+                          borderRight:"8px solid transparent",
+                          borderBottom:"70px solid #4ADE80",
+                          filter:"drop-shadow(0 0 8px rgba(74,222,128,0.8))"
+                        }}/>
+                        <div style={{
+                          position:"absolute",left:"50%",bottom:10,
+                          transform:"translateX(-50%)",
+                          width:0,height:0,
+                          borderLeft:"8px solid transparent",
+                          borderRight:"8px solid transparent",
+                          borderTop:"70px solid rgba(74,222,128,0.3)"
+                        }}/>
+                        <div style={{
+                          position:"absolute",left:"50%",top:"50%",
+                          transform:"translate(-50%,-50%)",
+                          width:12,height:12,borderRadius:"50%",
+                          background:"#4ADE80",boxShadow:"0 0 12px rgba(74,222,128,0.8)"
+                        }}/>
+                      </div>
+                    </div>
+                    {/* Kaaba icon center */}
+                    <div style={{
+                      position:"absolute",left:"50%",top:"50%",
+                      transform:"translate(-50%,-50%) rotate(0deg)",
+                      fontSize:14,marginTop:-2
+                    }}>🕋</div>
+                  </div>
+                  <div style={{fontSize:13,color:"rgba(74,222,128,0.8)",fontWeight:700}}>
+                    {bearing!==null?`${Math.round(bearing)}° من الشمال`:"فعّل GPS للاتجاه الدقيق"}
+                  </div>
+                  {!coords && (
+                    <div style={{
+                      marginTop:12,padding:"10px 16px",borderRadius:12,
+                      background:"rgba(201,169,110,0.07)",border:"1px solid rgba(201,169,110,0.2)",
+                      display:"flex",alignItems:"center",justifyContent:"center",gap:8
+                    }}>
+                      <span style={{fontSize:14}}>📍</span>
+                      <span style={{fontSize:12,color:"var(--gold3)"}}>
+                        فعّل الموقع أعلاه للحصول على الاتجاه الدقيق
+                      </span>
+                    </div>
+                  )}
+                  {coords && (
+                    <div style={{fontSize:11,color:"var(--muted)",marginTop:8}}>
+                      حرّك جهازك للمعايرة • الإبرة الخضراء تشير للكعبة
+                    </div>
+                  )}
+                </div>
+                );
+              })()}
+
+              {/* Prayers grid */}
+              <div style={{fontSize:11,color:"var(--muted)",letterSpacing:3,marginBottom:12,textAlign:"center"}}>
+                ✦ صلوات اليوم ✦
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:16}}>
+                {PRAYER_META.map((p,i)=>{
+                  const done = prayers[p.id];
+                  const time = pTimes?.[p.id];
+                  return (
+                    <button key={p.id} className="btn" onClick={()=>tapPrayer(p)} style={{
+                      border:"none",padding:0,borderRadius:22,overflow:"hidden",
+                      animation:`floatUp ${0.3+i*0.07}s ease`,
+                      boxShadow:done?"0 6px 24px rgba(74,222,128,0.12)":"0 6px 24px rgba(0,0,0,0.35)"}}>
+                      <div style={cardStyle(done,p.hue)}>
+                        <div style={{
+                          position:"absolute",top:"50%",left:"50%",width:110,height:110,
+                          borderRadius:"50%",transform:"translate(-50%,-50%)",pointerEvents:"none",
+                          background:`radial-gradient(circle,rgba(${done?"74,222,128":p.hue},0.1),transparent 70%)`}}/>
+                        <div style={{
+                          width:46,height:46,borderRadius:13,margin:"0 auto 10px",
+                          background:done?"rgba(74,222,128,0.15)":`rgba(${p.hue},0.15)`,
+                          border:done?"1px solid rgba(74,222,128,0.4)":`1px solid rgba(${p.hue},0.3)`,
+                          display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,
+                          boxShadow:done?"0 4px 16px rgba(74,222,128,0.2)":`0 4px 16px rgba(${p.hue},0.15)`}}>
+                          {done?"✓":EMOJIS[i]}
+                        </div>
+                        <div style={{fontSize:14,fontWeight:700,color:done?"#4ADE80":"white",marginBottom:2}}>{p.ar}</div>
+                        <div style={{fontSize:11,color:"var(--muted)",marginBottom:6}}>{time||"--:--"}</div>
+                        <div style={{display:"inline-block",fontSize:10,padding:"2px 10px",borderRadius:99,
+                          background:done?"rgba(74,222,128,0.1)":"rgba(201,169,110,0.1)",
+                          border:done?"1px solid rgba(74,222,128,0.3)":"1px solid rgba(201,169,110,0.3)",
+                          color:done?"#4ADE80":"var(--gold)"}}>
+                          {done?"مكتمل ✦":`+${Math.round(10*MULT)}`}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Verse */}
+              <div style={{borderRadius:22,padding:"20px 22px",
+                background:"linear-gradient(160deg,rgba(30,22,0,0.82),rgba(15,10,0,0.92))",
+                border:"1px solid rgba(201,169,110,0.18)",
+                boxShadow:"0 16px 50px rgba(0,0,0,0.45),inset 0 1px 0 rgba(201,169,110,0.12)",
+                position:"relative",overflow:"hidden"}}>
+                <div style={{position:"absolute",top:-24,right:-24,width:140,height:140,borderRadius:"50%",
+                  background:"radial-gradient(circle,rgba(201,169,110,0.07),transparent)"}}/>
+                <div style={{fontSize:10,letterSpacing:4,color:"var(--gold3)",marginBottom:12,textAlign:"center"}}>
+                  ✦ آية اليوم ✦
+                </div>
+                <div style={{fontSize:19,textAlign:"center",lineHeight:2.5,color:"rgba(255,255,255,0.9)",marginBottom:8}}>
+                  وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا
+                </div>
+                <div style={{fontSize:11,color:"var(--gold3)",textAlign:"center"}}>سورة الطلاق: ٢</div>
+              </div>
+            </div>
+          )}
+
+          {/* ════ IBADAAT ════ */}
+          {tab===1 && (
+            <div key="ibadaat" style={{animation:"floatUp 0.3s ease"}}>
+              <div style={{fontSize:11,color:"var(--muted)",letterSpacing:3,marginBottom:14,textAlign:"center"}}>
+                ✦ العبادات الإضافية ✦
+              </div>
+              {EXTRA.map((e,i)=>{
+                const done=extras[e.id];
+                return (
+                  <button key={e.id} className="btn" onClick={()=>tapExtra(e)} style={{
+                    width:"100%",border:"none",cursor:done?"default":"pointer",borderRadius:18,
+                    overflow:"hidden",marginBottom:10,animation:`slideIn ${0.3+i*0.07}s ease`}}>
+                    <div style={{
+                      padding:"15px 18px",
+                      background:done?"linear-gradient(135deg,rgba(20,50,25,0.85),rgba(10,30,15,0.9))":"rgba(255,255,255,0.04)",
+                      border:done?"1px solid rgba(74,222,128,0.28)":"1px solid rgba(255,255,255,0.07)",
+                      borderRadius:18,backdropFilter:"blur(20px)",
+                      display:"flex",alignItems:"center",gap:14,textAlign:"right"}}>
+                      <div style={{width:48,height:48,borderRadius:13,flexShrink:0,
+                        background:done?"rgba(74,222,128,0.1)":"rgba(201,169,110,0.08)",
+                        border:done?"1px solid rgba(74,222,128,0.3)":"1px solid rgba(201,169,110,0.18)",
+                        display:"flex",alignItems:"center",justifyContent:"center",fontSize:22}}>
+                        {done?"✓":["📖","🌸","🌙","✨"][i]}
+                      </div>
+                      <div style={{flex:1}}>
+                        <div style={{fontSize:15,fontWeight:700,color:done?"#4ADE80":"white",marginBottom:3}}>{e.ar}</div>
+                        <div style={{fontSize:11,color:"var(--muted)"}}>
+                          {e.verify?"يتطلب تحقق بالتلاوة":"يُسجَّل بالنية"}
+                        </div>
+                      </div>
+                      <div style={{padding:"5px 13px",borderRadius:99,flexShrink:0,fontSize:13,fontWeight:700,
+                        background:done?"rgba(74,222,128,0.1)":"rgba(201,169,110,0.1)",
+                        border:done?"1px solid rgba(74,222,128,0.3)":"1px solid rgba(201,169,110,0.25)",
+                        color:done?"#4ADE80":"var(--gold)"}}>
+                        {done?"✦":`+${Math.round(e.pts*MULT)}`}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* ════ LEADERBOARD ════ */}
+          {tab===2 && (
+            <div key="lb" style={{animation:"floatUp 0.3s ease"}}>
+              <div style={{fontSize:11,color:"var(--muted)",letterSpacing:3,marginBottom:14,textAlign:"center"}}>
+                ✦ لوحة المتصدرين ✦
+              </div>
+
+              {isFriday && (
+                <div style={{borderRadius:16,padding:"12px 16px",marginBottom:14,
+                  background:"linear-gradient(135deg,rgba(255,200,0,0.14),rgba(201,169,110,0.06))",
+                  border:"1px solid rgba(255,200,0,0.35)",display:"flex",alignItems:"center",gap:12}}>
+                  <span style={{fontSize:24}}>✨</span>
+                  <div>
+                    <div style={{fontSize:13,fontWeight:700,color:"#FFD700"}}>جمعة مباركة — النقاط مضاعفة</div>
+                    <div style={{fontSize:11,color:"rgba(255,200,0,0.65)"}}>× {MULT} على كل عبادة اليوم</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Period tabs */}
+              <div style={{display:"flex",background:"rgba(255,255,255,0.04)",
+                border:"1px solid rgba(255,255,255,0.07)",borderRadius:14,padding:4,gap:3,marginBottom:14}}>
+                {[{k:"daily",ar:"اليوم"},{k:"weekly",ar:"الأسبوع"},{k:"monthly",ar:"الشهر"}].map(p=>(
+                  <button key={p.k} className="btn" onClick={()=>setPeriod(p.k)} style={{
+                    flex:1,padding:"9px",border:"none",cursor:"pointer",borderRadius:10,
+                    fontSize:13,fontWeight:700,fontFamily:"Noto Naskh Arabic",
+                    background:period===p.k?"linear-gradient(135deg,#C9A96E,#F0D898)":"transparent",
+                    color:period===p.k?"#05070F":"var(--muted)",
+                    boxShadow:period===p.k?"0 3px 12px rgba(201,169,110,0.38)":"none",
+                    transition:"all 0.3s cubic-bezier(0.34,1.56,0.64,1)"}}>
+                    {p.ar}
+                  </button>
+                ))}
+              </div>
+
+              {/* My card */}
+              {myName && current.find(e=>e.name===myName) ? (
+                <div style={{borderRadius:18,padding:"14px 18px",marginBottom:14,
+                  background:"linear-gradient(135deg,rgba(201,169,110,0.12),rgba(201,169,110,0.04))",
+                  border:"1px solid rgba(201,169,110,0.38)",display:"flex",alignItems:"center",gap:14,
+                  boxShadow:"0 6px 24px rgba(201,169,110,0.12)"}}>
+                  <div style={{width:48,height:48,borderRadius:"50%",flexShrink:0,
+                    background:"linear-gradient(135deg,#C9A96E,#F0D898)",
+                    display:"flex",alignItems:"center",justifyContent:"center",
+                    fontSize:myRank<=3?20:15,fontWeight:900,color:"#05070F",
+                    boxShadow:"0 4px 14px rgba(201,169,110,0.45)"}}>
+                    {myRank<=3?MEDALS[myRank-1]:`#${myRank}`}
+                  </div>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:15,fontWeight:700,color:"white"}}>{myName}{isPremium&&" 👑"}</div>
+                    <div style={{fontSize:11,color:"var(--gold3)",marginTop:2}}>
+                      {RANKS[Math.min(Math.floor(pts/200),RANKS.length-1)]}
+                    </div>
+                  </div>
+                  <div style={{textAlign:"center"}}>
+                    <div className="gold-text" style={{fontSize:22,fontWeight:900,lineHeight:1}}>{pts}</div>
+                    <div style={{fontSize:9,color:"var(--muted)",marginTop:1}}>نقطة</div>
+                  </div>
+                </div>
+              ) : !myName && (
+                <div style={{borderRadius:18,padding:"20px",marginBottom:14,
+                  background:"rgba(255,255,255,0.03)",border:"1px solid rgba(201,169,110,0.18)",textAlign:"center"}}>
+                  <div style={{fontSize:24,marginBottom:8}}>🏆</div>
+                  <div style={{fontSize:14,fontWeight:700,color:"white",marginBottom:6}}>انضم للمتصدرين</div>
+                  <div style={{display:"flex",gap:10,marginTop:14}}>
+                    <input value={nameIn} onChange={e=>setNameIn(e.target.value)}
+                      onKeyDown={e=>e.key==="Enter"&&joinBoard()}
+                      placeholder="اسمك أو لقبك..."
+                      style={{flex:1,padding:"11px 14px",borderRadius:11,
+                        border:"1px solid rgba(201,169,110,0.22)",background:"rgba(255,255,255,0.04)",
+                        color:"white",fontSize:14,fontFamily:"Noto Naskh Arabic",direction:"rtl",outline:"none"}}/>
+                    <button className="btn" onClick={joinBoard} disabled={saving||!nameIn.trim()} style={{
+                      padding:"11px 16px",borderRadius:11,border:"none",
+                      background:nameIn.trim()?"linear-gradient(135deg,#C9A96E,#F0D898)":"rgba(255,255,255,0.05)",
+                      color:nameIn.trim()?"#05070F":"var(--muted)",fontWeight:700,fontSize:14,
+                      fontFamily:"Noto Naskh Arabic",cursor:"pointer",whiteSpace:"nowrap",
+                      boxShadow:nameIn.trim()?"0 4px 14px rgba(201,169,110,0.38)":"none"}}>
+                      {saving?"...":"انضم ✦"}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Board */}
+              {bLoading ? (
+                <div style={{textAlign:"center",padding:"36px 0",color:"var(--muted)"}}>
+                  <div style={{fontSize:26,marginBottom:8,animation:"floatUp 1s infinite"}}>⏳</div>
+                  جاري التحميل...
+                </div>
+              ) : current.length===0 ? (
+                <div style={{textAlign:"center",padding:"36px 0",color:"var(--muted)"}}>
+                  <div style={{fontSize:32,marginBottom:8}}>🌟</div>
+                  كن أول المتصدرين!
+                </div>
+              ) : (
+                <>
+                  {/* Podium */}
+                  {current.length>=3 && (
+                    <div style={{display:"flex",alignItems:"flex-end",gap:6,marginBottom:16,padding:"0 4px"}}>
+                      {[current[1],current[0],current[2]].map((e,i)=>{
+                        const H=[108,140,90][i];
+                        const grads=[
+                          "linear-gradient(180deg,#B0B8C8,#8A9AAA)",
+                          "linear-gradient(180deg,#F0D060,#C9A96E)",
+                          "linear-gradient(180deg,#C08040,#8A5A20)"
+                        ][i];
+                        const glows=["rgba(176,184,200,0.3)","rgba(201,169,110,0.5)","rgba(192,128,64,0.3)"][i];
+                        const isMe=e?.name===myName;
+                        return (
+                          <div key={i} style={{flex:1,textAlign:"center"}}>
+                            <div style={{fontSize:11,color:isMe?"var(--gold)":"var(--muted)",marginBottom:3,
+                              overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",padding:"0 2px"}}>
+                              {e?.name||"—"}{e?.premium?" 👑":""}
+                            </div>
+                            <div style={{fontSize:10,color:"rgba(255,255,255,0.38)",marginBottom:5}}>{e?.pts||0}</div>
+                            <div style={{height:H,borderRadius:"10px 10px 0 0",background:grads,
+                              display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"flex-start",
+                              paddingTop:10,boxShadow:`0 -5px 20px ${glows}`,
+                              border:isMe?"2px solid rgba(201,169,110,0.85)":"none"}}>
+                              <div style={{fontSize:22}}>{["🥈","🥇","🥉"][i]}</div>
+                              <div style={{fontSize:11,fontWeight:900,marginTop:4,color:i===1?"#05070F":"rgba(0,0,0,0.65)"}}>
+                                #{[2,1,3][i]}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {current.map((e,i)=>{
+                    const isMe=e.name===myName, isTop=i<3;
+                    const ago=Math.round((Date.now()-(e.ts||0))/60000);
+                    const agoStr=ago<60?`${ago}د`:ago<1440?`${Math.round(ago/60)}س`:`${Math.round(ago/1440)}ي`;
+                    return (
+                      <div key={i} style={{borderRadius:14,padding:"11px 14px",marginBottom:7,
+                        background:isMe?"linear-gradient(135deg,rgba(201,169,110,0.12),rgba(201,169,110,0.04))":"rgba(255,255,255,0.03)",
+                        border:isMe?"1px solid rgba(201,169,110,0.4)":isTop?"1px solid rgba(255,255,255,0.08)":"1px solid rgba(255,255,255,0.04)",
+                        display:"flex",alignItems:"center",gap:11,
+                        animation:`slideIn ${0.15+i*0.035}s ease`,
+                        boxShadow:isMe?"0 4px 16px rgba(201,169,110,0.1)":"none"}}>
+                        <div style={{width:33,height:33,borderRadius:"50%",flexShrink:0,
+                          background:isTop?"rgba(255,255,255,0.06)":"rgba(255,255,255,0.03)",
+                          display:"flex",alignItems:"center",justifyContent:"center",
+                          fontSize:i<3?16:11,fontWeight:700,color:isMe?"var(--gold)":isTop?"white":"var(--muted)"}}>
+                          {i<3?MEDALS[i]:i+1}
+                        </div>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontSize:13,fontWeight:700,color:isMe?"var(--gold)":"white",marginBottom:2,
+                            overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                            {e.name}{isMe&&" (أنت)"}{e.premium&&" 👑"}
+                          </div>
+                          <div style={{fontSize:10,color:"var(--muted)"}}>🔥{e.streak||0} · {e.title} · منذ {agoStr}</div>
+                        </div>
+                        <div style={{background:"rgba(255,255,255,0.04)",borderRadius:8,padding:"5px 10px",textAlign:"center",flexShrink:0}}>
+                          <div style={{fontSize:14,fontWeight:900,color:isMe?"var(--gold)":isTop?"white":"rgba(255,255,255,0.65)"}}>{e.pts}</div>
+                          <div style={{fontSize:9,color:"var(--muted)"}}>نقطة</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  <button className="btn" onClick={loadBoard} style={{width:"100%",marginTop:6,padding:"10px",
+                    borderRadius:12,border:"1px solid rgba(255,255,255,0.07)",background:"transparent",
+                    color:"var(--muted)",fontSize:12,cursor:"pointer",fontFamily:"Noto Naskh Arabic"}}>
+                    ↻ تحديث
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* ════ SENTINEL AI ════ */}
+          {tab===3 && (
+            <div key="ai" style={{animation:"floatUp 0.3s ease"}}>
+              {/* Header */}
+              <div style={{textAlign:"center",marginBottom:16}}>
+                <div style={{fontSize:10,letterSpacing:4,color:"var(--gold3)",marginBottom:6}}>✦ SENTINEL AI ✦</div>
+                <div style={{fontSize:13,color:"var(--muted)"}}>
+                  اسألني عن الفقه، العبادات، السيرة والأذكار
+                </div>
+                {!isPremium && (
+                  <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8,marginTop:8}}>
+                    <div style={{fontSize:11,color:"rgba(123,94,167,0.8)"}}>
+                      {3-aiMsgs.filter(m=>m.role==="user").length} سؤال مجاني متبقي
+                    </div>
+                    <button className="btn" onClick={()=>setPremModal(true)} style={{
+                      padding:"4px 12px",borderRadius:8,border:"none",
+                      background:"linear-gradient(135deg,#7B5EA7,#9B7EC7)",
+                      color:"white",fontSize:11,fontWeight:700,cursor:"pointer",
+                      fontFamily:"Noto Naskh Arabic"}}>
+                      👑 Premium
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Chat */}
+              <div ref={aiRef} style={{
+                height:380,overflowY:"auto",borderRadius:18,padding:"14px",
+                background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.07)",
+                marginBottom:12,display:"flex",flexDirection:"column",gap:10
+              }}>
+                {aiMsgs.map((m,i)=>(
+                  <div key={i} style={{
+                    display:"flex",justifyContent:m.role==="user"?"flex-start":"flex-end",
+                    animation:"msgIn 0.3s ease"
+                  }}>
+                    <div style={{
+                      maxWidth:"82%",padding:"10px 14px",borderRadius:16,
+                      borderBottomRightRadius:m.role==="user"?4:16,
+                      borderBottomLeftRadius:m.role==="user"?16:4,
+                      background:m.role==="user"
+                        ?"linear-gradient(135deg,rgba(201,169,110,0.18),rgba(201,169,110,0.08))"
+                        :"rgba(255,255,255,0.06)",
+                      border:m.role==="user"
+                        ?"1px solid rgba(201,169,110,0.25)"
+                        :"1px solid rgba(255,255,255,0.08)",
+                      fontSize:14,lineHeight:1.7,color:"white",
+                      whiteSpace:"pre-wrap",direction:"rtl",textAlign:"right"
+                    }}>
+                      {m.text}
+                    </div>
+                  </div>
+                ))}
+                {aiLoading && (
+                  <div style={{display:"flex",justifyContent:"flex-end"}}>
+                    <div style={{padding:"12px 16px",borderRadius:16,
+                      background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.08)",
+                      display:"flex",gap:5,alignItems:"center"}}>
+                      {[0,0.2,0.4].map((d,i)=>(
+                        <div key={i} style={{width:6,height:6,borderRadius:"50%",background:"var(--gold)",
+                          animation:`thinking 1.2s ${d}s ease-in-out infinite`}}/>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Input */}
+              <div style={{display:"flex",gap:10}}>
+                <textarea
+                  value={aiInput}
+                  onChange={e=>setAiInput(e.target.value)}
+                  onKeyDown={e=>e.key==="Enter"&&!e.shiftKey&&(e.preventDefault(),sendAI())}
+                  placeholder="اكتب سؤالك هنا..."
+                  rows={2}
+                  style={{
+                    flex:1,padding:"11px 14px",borderRadius:14,resize:"none",
+                    border:"1px solid rgba(255,255,255,0.1)",background:"rgba(255,255,255,0.05)",
+                    color:"white",fontSize:14,fontFamily:"Noto Naskh Arabic",
+                    direction:"rtl",transition:"border 0.2s",lineHeight:1.5
+                  }}
+                />
+                <button className="btn" onClick={sendAI} disabled={aiLoading||!aiInput.trim()} style={{
+                  width:50,borderRadius:14,border:"none",
+                  background:aiInput.trim()?"linear-gradient(135deg,#C9A96E,#F0D898)":"rgba(255,255,255,0.05)",
+                  color:aiInput.trim()?"#05070F":"var(--muted)",
+                  fontSize:20,cursor:aiInput.trim()?"pointer":"default",
+                  flexShrink:0,
+                  boxShadow:aiInput.trim()?"0 4px 14px rgba(201,169,110,0.38)":"none",
+                  transition:"all 0.2s"}}>
+                  ➤
+                </button>
+              </div>
+
+              {/* Quick questions */}
+              <div style={{marginTop:12,display:"flex",flexWrap:"wrap",gap:8}}>
+                {["ما حكم صلاة الجماعة؟","أذكار الصباح","فضل يوم الجمعة","دعاء قبل النوم"].map((q,i)=>(
+                  <button key={i} className="btn" onClick={()=>{ setAiInput(q); }} style={{
+                    padding:"7px 14px",borderRadius:99,border:"1px solid rgba(201,169,110,0.22)",
+                    background:"rgba(201,169,110,0.06)",color:"var(--gold)",
+                    fontSize:12,cursor:"pointer",fontFamily:"Noto Naskh Arabic",
+                    transition:"all 0.2s"}}>
+                    {q}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div style={{position:"fixed",bottom:0,left:0,right:0,height:90,
+          background:"linear-gradient(transparent,rgba(5,7,15,0.98))",
+          pointerEvents:"none",zIndex:5}}/>
+      </div>
+    </>
+  );
+}
+
+
+/* ── Mount to DOM ── */
+const _root = document.getElementById('root');
+if (_root && !_root._reactRootContainer) {
+  ReactDOM.createRoot(_root).render(React.createElement(App));
+  if (window.__removeSplash) window.__removeSplash();
+}
+
+  </script>
+
+  <!-- 5. Poll for React mount -->
+  <script>
+    let attempts = 0;
+    const checkMount = setInterval(() => {
+      attempts++;
+      const root = document.getElementById('root');
+      if (root && root.children.length > 0) {
+        clearInterval(checkMount);
+        window.__hideSplash();
+      } else if (attempts > 150) {
+        clearInterval(checkMount);
+        document.getElementById('err').classList.add('show');
+        document.getElementById('splash').classList.add('gone');
+      }
+    }, 100);
+  </script>
 
 </body>
 </html>
