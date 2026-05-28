@@ -607,12 +607,16 @@ function App() {
       (pos) => {
         const { latitude: lat, longitude: lng } = pos.coords;
         setCoords({ lat, lng });
-        setPTimes(calcPrayerTimes(lat, lng));
+        const newTimes = calcPrayerTimes(lat, lng);
+        setPTimes(newTimes);
         setQibla(qiblaBearing(lat, lng));
         setLocL(false);
         try {
           window.storage.set("ir-coords", JSON.stringify({ lat, lng }));
         } catch (e) {
+        }
+        if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+          setTimeout(() => schedulePrayerNotifs(), 500);
         }
       },
       (err) => {
@@ -657,6 +661,16 @@ function App() {
     };
   }, []);
   const loadAll = async () => {
+    if (typeof Notification !== "undefined" && Notification.permission === "default") {
+      try {
+        const perm = await Notification.requestPermission();
+        setNotifPerm(perm);
+        if (perm === "granted") setTimeout(() => schedulePrayerNotifs(), 2e3);
+      } catch (e) {
+      }
+    } else if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+      setTimeout(() => schedulePrayerNotifs(), 2e3);
+    }
     try {
       const r = await window.storage.get("ir-premium");
       if (r) setIsPremium(JSON.parse(r.value));
@@ -753,8 +767,11 @@ function App() {
     if (typeof Notification === "undefined") return;
     notifTimers.current.forEach((t) => clearTimeout(t));
     notifTimers.current = [];
-    const times = pTimes || calcPrayerTimes(21.3891, 39.8579, /* @__PURE__ */ new Date(), 3);
+    const lat = coords ? coords.lat : 21.3891;
+    const lng = coords ? coords.lng : 39.8579;
+    const times = pTimes || calcPrayerTimes(lat, lng, /* @__PURE__ */ new Date());
     const labels = { fajr: "\u0627\u0644\u0641\u062C\u0631 \u{1F319}", dhuhr: "\u0627\u0644\u0638\u0647\u0631 \u2600\uFE0F", asr: "\u0627\u0644\u0639\u0635\u0631 \u{1F324}", maghrib: "\u0627\u0644\u0645\u063A\u0631\u0628 \u{1F305}", isha: "\u0627\u0644\u0639\u0634\u0627\u0621 \u2B50" };
+    let scheduled = 0;
     Object.entries(labels).forEach(([key, label]) => {
       const t = times[key];
       if (!t) return;
@@ -768,17 +785,26 @@ function App() {
           try {
             if (typeof Notification !== "undefined" && Notification.permission === "granted") {
               new Notification("\u{1F54C} \u062D\u0627\u0646 \u0648\u0642\u062A " + label, {
-                body: "\u0627\u0641\u062A\u062D Islam Rising \u0648\u0633\u062C\u0651\u0644 \u0635\u0644\u0627\u062A\u0643",
+                body: "\u0627\u0641\u062A\u062D Islam Rising \u0648\u0633\u062C\u0651\u0644 \u0635\u0644\u0627\u062A\u0643 \u{1F319}",
                 tag: key,
-                renotify: true
+                renotify: true,
+                icon: "./icons/icon-192.png"
               });
             }
           } catch (e) {
           }
+          if (key === "isha") setTimeout(() => schedulePrayerNotifs(), 3e3);
         }, diff);
         notifTimers.current.push(id);
+        scheduled++;
       }
     });
+    const midnight = /* @__PURE__ */ new Date();
+    midnight.setHours(0, 1, 0, 0);
+    midnight.setDate(midnight.getDate() + 1);
+    const tillMidnight = midnight - /* @__PURE__ */ new Date();
+    const mid_id = setTimeout(() => schedulePrayerNotifs(), tillMidnight);
+    notifTimers.current.push(mid_id);
   };
   useEffect(() => {
     if (notifPerm === "granted" && pTimes) schedulePrayerNotifs();
