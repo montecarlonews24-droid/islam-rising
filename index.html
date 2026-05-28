@@ -128,6 +128,17 @@
 <div id="root"></div>
 
 <script>
+// Clear old Service Worker cache that may serve stale files
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.getRegistrations().then(regs=>{
+    regs.forEach(r=>r.unregister());
+  });
+}
+// Clear caches
+if('caches' in window){
+  caches.keys().then(keys=>keys.forEach(k=>caches.delete(k)));
+}
+
 window.storage={_d:{},_s:{},async get(k,s=false){const st=s?this._s:this._d,lk=(s?'ir_s_':'ir_p_')+k,v=st[k]||localStorage.getItem(lk);if(v){st[k]=v;return{key:k,value:v,shared:s};}throw new Error('nf');},async set(k,v,s=false){const st=s?this._s:this._d;st[k]=v;try{localStorage.setItem((s?'ir_s_':'ir_p_')+k,v);}catch(e){}return{key:k,value:v,shared:s};},async delete(k,s=false){const st=s?this._s:this._d;delete st[k];try{localStorage.removeItem((s?'ir_s_':'ir_p_')+k);}catch(e){}return{key:k,deleted:true,shared:s};},async list(p='',s=false){const st=s?this._s:this._d,ks=Object.keys(st).filter(k=>k.startsWith(p));for(let i=0;i<localStorage.length;i++){const lk=localStorage.key(i),pf=s?'ir_s_':'ir_p_';if(lk&&lk.startsWith(pf)){const rk=lk.slice(pf.length);if(rk.startsWith(p)&&!ks.includes(rk)){ks.push(rk);st[rk]=localStorage.getItem(lk);}}}return{keys:ks,prefix:p,shared:s};}};
 window.__hideSplash=window.__removeSplash=()=>{const s=document.getElementById('splash');if(!s)return;s.classList.add('hide');setTimeout(()=>s.classList.add('gone'),700);};
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
