@@ -131,12 +131,7 @@
 window.storage={_d:{},_s:{},async get(k,s=false){const st=s?this._s:this._d,lk=(s?'ir_s_':'ir_p_')+k,v=st[k]||localStorage.getItem(lk);if(v){st[k]=v;return{key:k,value:v,shared:s};}throw new Error('nf');},async set(k,v,s=false){const st=s?this._s:this._d;st[k]=v;try{localStorage.setItem((s?'ir_s_':'ir_p_')+k,v);}catch(e){}return{key:k,value:v,shared:s};},async delete(k,s=false){const st=s?this._s:this._d;delete st[k];try{localStorage.removeItem((s?'ir_s_':'ir_p_')+k);}catch(e){}return{key:k,deleted:true,shared:s};},async list(p='',s=false){const st=s?this._s:this._d,ks=Object.keys(st).filter(k=>k.startsWith(p));for(let i=0;i<localStorage.length;i++){const lk=localStorage.key(i),pf=s?'ir_s_':'ir_p_';if(lk&&lk.startsWith(pf)){const rk=lk.slice(pf.length);if(rk.startsWith(p)&&!ks.includes(rk)){ks.push(rk);st[rk]=localStorage.getItem(lk);}}}return{keys:ks,prefix:p,shared:s};}};
 window.__hideSplash=window.__removeSplash=()=>{const s=document.getElementById('splash');if(!s)return;s.classList.add('hide');setTimeout(()=>s.classList.add('gone'),700);};
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
-window.onerror=function(msg,src,line,col,err){
-  const em=document.getElementById('err-msg');
-  if(em)em.textContent=msg+' ('+line+':'+col+')';
-  document.getElementById('err').classList.add('show');
-  document.getElementById('splash').classList.add('gone');
-};
+// onerror removed - don't block app
 let _a=0;const _ck=setInterval(()=>{_a++;const r=document.getElementById('root');if(r&&r.children.length>0){clearInterval(_ck);window.__hideSplash();}else if(_a>100){clearInterval(_ck);window.__hideSplash();}},150);
 </script>
 
@@ -200,8 +195,11 @@ react-dom/cjs/react-dom-client.production.js:
 
 </script>
 <script>
-var React=globalThis.React||window.React;
-var ReactDOM=globalThis.ReactDOM||window.ReactDOM;
+// React is set by previous script via globalThis
+var React = globalThis.React;
+var ReactDOM = globalThis.ReactDOM;
+if (!React) { console.error('React not found!'); }
+if (!ReactDOM) { console.error('ReactDOM not found!'); }
 var __App = (() => {
   var __defProp = Object.defineProperty;
   var __defProps = Object.defineProperties;
