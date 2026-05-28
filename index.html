@@ -479,11 +479,11 @@ function toDeg(r) {
   return r * 180 / Math.PI;
 }
 const PRAYER_META = [
-  { id: "fajr", ar: "\u0627\u0644\u0641\u062C\u0631", hue: "220,180,255" },
-  { id: "dhuhr", ar: "\u0627\u0644\u0638\u0647\u0631", hue: "255,220,100" },
-  { id: "asr", ar: "\u0627\u0644\u0639\u0635\u0631", hue: "255,160,80" },
-  { id: "maghrib", ar: "\u0627\u0644\u0645\u063A\u0631\u0628", hue: "255,100,120" },
-  { id: "isha", ar: "\u0627\u0644\u0639\u0634\u0627\u0621", hue: "140,180,255" }
+  { id: "fajr", ar: "\u0627\u0644\u0641\u062C\u0631", hue: "160,140,220" },
+  { id: "dhuhr", ar: "\u0627\u0644\u0638\u0647\u0631", hue: "201,169,110" },
+  { id: "asr", ar: "\u0627\u0644\u0639\u0635\u0631", hue: "201,169,110" },
+  { id: "maghrib", ar: "\u0627\u0644\u0645\u063A\u0631\u0628", hue: "180,130,80" },
+  { id: "isha", ar: "\u0627\u0644\u0639\u0634\u0627\u0621", hue: "120,100,180" }
 ];
 const EMOJIS = ["\u{1F319}", "\u2600\uFE0F", "\u{1F324}", "\u{1F305}", "\u2B50"];
 const EXTRA = [
@@ -589,20 +589,37 @@ function App() {
       }
     );
   };
-  useEffect(() => {
+  const [compassActive, setCompassActive] = useState(false);
+  const startCompass = () => {
     const handler = (e) => {
-      var _a;
-      const h = (_a = e.webkitCompassHeading) != null ? _a : e.alpha ? 360 - e.alpha : 0;
+      let h = 0;
+      if (e.webkitCompassHeading !== void 0 && e.webkitCompassHeading !== null) {
+        h = e.webkitCompassHeading;
+      } else if (e.alpha !== null && e.alpha !== void 0) {
+        h = (360 - e.alpha) % 360;
+      }
       setCompass(h);
+      setCompassActive(true);
     };
     if (window.DeviceOrientationEvent) {
       if (typeof DeviceOrientationEvent.requestPermission === "function") {
-        DeviceOrientationEvent.requestPermission().then(() => window.addEventListener("deviceorientation", handler));
+        DeviceOrientationEvent.requestPermission().then((state) => {
+          if (state === "granted") {
+            window.addEventListener("deviceorientation", handler, true);
+          }
+        }).catch(console.error);
       } else {
-        window.addEventListener("deviceorientation", handler);
+        window.addEventListener("deviceorientation", handler, true);
+        setTimeout(() => {
+          if (!compassActive) setCompassActive(false);
+        }, 2e3);
       }
     }
-    return () => window.removeEventListener("deviceorientation", handler);
+  };
+  useEffect(() => {
+    startCompass();
+    return () => {
+    };
   }, []);
   const loadAll = async () => {
     try {
@@ -963,8 +980,8 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
   const cardStyle = (done, hue) => ({
     padding: "18px 12px",
     textAlign: "center",
-    background: done ? "linear-gradient(160deg,rgba(20,50,25,0.9),rgba(10,30,15,0.95))" : `linear-gradient(160deg,rgba(${hue},0.08),rgba(${hue},0.02))`,
-    border: done ? "1px solid rgba(74,222,128,0.3)" : `1px solid rgba(${hue},0.2)`,
+    background: done ? "linear-gradient(160deg,rgba(20,50,25,0.9),rgba(10,30,15,0.95))" : `linear-gradient(160deg,rgba(${hue},0.14),rgba(${hue},0.04))`,
+    border: done ? "1px solid rgba(74,222,128,0.3)" : `1px solid rgba(${hue},0.35)`,
     borderRadius: 22,
     backdropFilter: "blur(20px)",
     position: "relative",
@@ -1034,7 +1051,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
         padding: "11px 14px",
         borderRadius: 11,
         border: "1px solid rgba(255,255,255,0.1)",
-        background: "rgba(255,255,255,0.04)",
+        background: "rgba(201,169,110,0.05)",
         color: "white",
         fontSize: 19,
         fontFamily: "Noto Naskh Arabic",
@@ -1171,7 +1188,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
         borderRadius: 14,
         marginBottom: 20,
         border: "1px solid rgba(201,169,110,0.3)",
-        background: "rgba(255,255,255,0.05)",
+        background: "rgba(201,169,110,0.06)",
         color: "white",
         fontSize: 20,
         fontFamily: "Noto Naskh Arabic",
@@ -1195,7 +1212,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
         borderRadius: 14,
         marginBottom: 20,
         border: "1px solid rgba(201,169,110,0.3)",
-        background: "rgba(255,255,255,0.05)",
+        background: "rgba(201,169,110,0.06)",
         color: "white",
         fontSize: 20,
         fontFamily: "Noto Naskh Arabic",
@@ -1209,7 +1226,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
     width: "100%",
     padding: "13px",
     borderRadius: 14,
-    background: "rgba(255,255,255,0.04)",
+    background: "rgba(201,169,110,0.05)",
     border: "1px solid rgba(255,255,255,0.1)",
     color: "var(--muted)",
     fontSize: 17,
@@ -1328,7 +1345,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
       left: 0,
       right: 0,
       height: 3,
-      background: "rgba(255,255,255,0.08)"
+      background: "rgba(201,169,110,0.08)"
     } }, /* @__PURE__ */ React.createElement("div", { style: {
       height: "100%",
       width: `${(5 - adTimer) / 5 * 100}%`,
@@ -1362,7 +1379,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
       textAlign: "center",
       padding: "10px 16px",
       borderRadius: 12,
-      background: "rgba(255,255,255,0.04)",
+      background: "rgba(201,169,110,0.05)",
       border: "1px solid rgba(255,255,255,0.08)"
     } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 28, fontWeight: 900, color: "white", lineHeight: 1 } }, "5"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, color: "var(--muted)", marginTop: 2 } }, "\u062B\u0648\u0627\u0646\u064D"))), /* @__PURE__ */ React.createElement("div", { style: {
       display: "flex",
@@ -1371,7 +1388,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
       marginBottom: 18,
       padding: "8px 12px",
       borderRadius: 10,
-      background: "rgba(255,255,255,0.03)",
+      background: "rgba(201,169,110,0.04)",
       border: "1px solid rgba(255,255,255,0.06)"
     } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 18 } }, "\u2726"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 14, color: "var(--muted)" } }, "\u0647\u0630\u0627 \u0627\u0644\u0625\u0639\u0644\u0627\u0646 \u0627\u062E\u062A\u064A\u0627\u0631\u064A \u062A\u0645\u0627\u0645\u0627\u064B \u2014 \u0646\u0642\u0627\u0637\u0643 \u0645\u062D\u0641\u0648\u0638\u0629")), /* @__PURE__ */ React.createElement("button", { className: "btn", onClick: startAd, style: {
       width: "100%",
@@ -1463,7 +1480,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
     borderRadius: 16,
     padding: "10px 12px",
     animation: `floatUp ${0.7 + i * 0.1}s ease`
-  } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 17, fontWeight: 700, color: s.col, marginBottom: 2 } }, s.top), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, color: "var(--muted)" } }, s.bot)))), /* @__PURE__ */ React.createElement("div", { className: "glass", style: { borderRadius: 16, padding: "12px 16px", marginBottom: 2 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", marginBottom: 8 } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 14, color: "var(--muted)" } }, "\u{1F3AF} \u0627\u0644\u062A\u0642\u062F\u0645 \u0627\u0644\u064A\u0648\u0645\u064A"), /* @__PURE__ */ React.createElement("span", { className: "gold-text", style: { fontSize: 15, fontWeight: 700 } }, pts, "/", GOAL)), /* @__PURE__ */ React.createElement("div", { style: { background: "rgba(255,255,255,0.06)", borderRadius: 99, height: 6, overflow: "hidden" } }, /* @__PURE__ */ React.createElement("div", { style: {
+  } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 17, fontWeight: 700, color: s.col, marginBottom: 2 } }, s.top), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, color: "var(--muted)" } }, s.bot)))), /* @__PURE__ */ React.createElement("div", { className: "glass", style: { borderRadius: 16, padding: "12px 16px", marginBottom: 2 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", marginBottom: 8 } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 14, color: "var(--muted)" } }, "\u{1F3AF} \u0627\u0644\u062A\u0642\u062F\u0645 \u0627\u0644\u064A\u0648\u0645\u064A"), /* @__PURE__ */ React.createElement("span", { className: "gold-text", style: { fontSize: 15, fontWeight: 700 } }, pts, "/", GOAL)), /* @__PURE__ */ React.createElement("div", { style: { background: "rgba(201,169,110,0.07)", borderRadius: 99, height: 6, overflow: "hidden" } }, /* @__PURE__ */ React.createElement("div", { style: {
     height: "100%",
     width: `${Math.min(pts / GOAL * 100, 100)}%`,
     background: "linear-gradient(90deg,#8A6835,#C9A96E,#F0D898,#C9A96E)",
@@ -1590,8 +1607,8 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
     textAlign: "center",
     padding: "8px 4px",
     borderRadius: 12,
-    background: `rgba(${p.hue},0.06)`,
-    border: `1px solid rgba(${p.hue},0.15)`
+    background: `rgba(${p.hue},0.12)`,
+    border: `1px solid rgba(${p.hue},0.18)`
   } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 20, marginBottom: 4 } }, EMOJIS[i]), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, fontWeight: 700, color: "white", marginBottom: 3 } }, p.ar), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, color: `rgb(${p.hue})`, fontWeight: 600 } }, pTimes[p.id] || "\u2014"))))) : null, locErr && /* @__PURE__ */ React.createElement("div", { style: { color: "#ff6b6b", fontSize: 15, textAlign: "center", marginTop: 6 } }, locErr)), (() => {
     const bearing = coords ? qibla : null;
     const needleAngle = bearing !== null ? bearing - compass : 0;
@@ -1603,7 +1620,17 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
       background: "linear-gradient(160deg,rgba(10,20,15,0.9),rgba(5,12,10,0.95))",
       border: "1px solid rgba(74,222,128,0.25)",
       boxShadow: "0 8px 40px rgba(0,0,0,0.5)"
-    } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, color: "rgba(74,222,128,0.7)", letterSpacing: 3, marginBottom: 16 } }, "\u2726 \u0627\u062A\u062C\u0627\u0647 \u0627\u0644\u0642\u0628\u0644\u0629 \u2726"), /* @__PURE__ */ React.createElement("div", { style: { position: "relative", width: 180, height: 180, margin: "0 auto 16px" } }, /* @__PURE__ */ React.createElement("div", { style: {
+    } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, color: "rgba(74,222,128,0.7)", letterSpacing: 3, marginBottom: 16 } }, "\u2726 \u0627\u062A\u062C\u0627\u0647 \u0627\u0644\u0642\u0628\u0644\u0629 \u2726"), !compassActive && /* @__PURE__ */ React.createElement("div", { onClick: startCompass, style: {
+      cursor: "pointer",
+      background: "rgba(74,222,128,0.1)",
+      border: "1px solid rgba(74,222,128,0.3)",
+      borderRadius: 12,
+      padding: "8px 16px",
+      fontSize: 14,
+      color: "rgba(74,222,128,0.8)",
+      marginBottom: 12,
+      textAlign: "center"
+    } }, "\u0627\u0636\u063A\u0637 \u0644\u062A\u0641\u0639\u064A\u0644 \u0627\u0644\u0628\u0648\u0635\u0644\u0629 \u{1F9ED}"), /* @__PURE__ */ React.createElement("div", { style: { position: "relative", width: 180, height: 180, margin: "0 auto 16px" }, onClick: startCompass }, /* @__PURE__ */ React.createElement("div", { style: {
       position: "absolute",
       inset: 0,
       borderRadius: "50%",
@@ -1707,13 +1734,13 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
       height: 46,
       borderRadius: 13,
       margin: "0 auto 10px",
-      background: done ? "rgba(74,222,128,0.15)" : `rgba(${p.hue},0.15)`,
+      background: done ? "rgba(74,222,128,0.15)" : `rgba(${p.hue},0.18)`,
       border: done ? "1px solid rgba(74,222,128,0.4)" : `1px solid rgba(${p.hue},0.3)`,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       fontSize: 28,
-      boxShadow: done ? "0 4px 16px rgba(74,222,128,0.2)" : `0 4px 16px rgba(${p.hue},0.15)`
+      boxShadow: done ? "0 4px 16px rgba(74,222,128,0.2)" : `0 4px 16px rgba(${p.hue},0.18)`
     } }, done ? "\u2713" : EMOJIS[i]), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 18, fontWeight: 700, color: done ? "#4ADE80" : "white", marginBottom: 2 } }, p.ar), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, color: "var(--muted)", marginBottom: 6 } }, time || "--:--"), /* @__PURE__ */ React.createElement("div", { style: {
       display: "inline-block",
       fontSize: 14,
@@ -1791,7 +1818,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
     gap: 12
   } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 31 } }, "\u2728"), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 17, fontWeight: 700, color: "#FFD700" } }, "\u062C\u0645\u0639\u0629 \u0645\u0628\u0627\u0631\u0643\u0629 \u2014 \u0627\u0644\u0646\u0642\u0627\u0637 \u0645\u0636\u0627\u0639\u0641\u0629"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, color: "rgba(255,200,0,0.65)" } }, "\xD7 ", MULT, " \u0639\u0644\u0649 \u0643\u0644 \u0639\u0628\u0627\u062F\u0629 \u0627\u0644\u064A\u0648\u0645"))), /* @__PURE__ */ React.createElement("div", { style: {
     display: "flex",
-    background: "rgba(255,255,255,0.04)",
+    background: "rgba(201,169,110,0.05)",
     border: "1px solid rgba(255,255,255,0.07)",
     borderRadius: 14,
     padding: 4,
@@ -1837,7 +1864,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
     borderRadius: 18,
     padding: "20px",
     marginBottom: 14,
-    background: "rgba(255,255,255,0.03)",
+    background: "rgba(201,169,110,0.04)",
     border: "1px solid rgba(201,169,110,0.18)",
     textAlign: "center"
   } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 31, marginBottom: 8 } }, "\u{1F3C6}"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 18, fontWeight: 700, color: "white", marginBottom: 6 } }, "\u0627\u0646\u0636\u0645 \u0644\u0644\u0645\u062A\u0635\u062F\u0631\u064A\u0646"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 10, marginTop: 14 } }, /* @__PURE__ */ React.createElement(
@@ -1852,7 +1879,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
         padding: "11px 14px",
         borderRadius: 11,
         border: "1px solid rgba(201,169,110,0.22)",
-        background: "rgba(255,255,255,0.04)",
+        background: "rgba(201,169,110,0.05)",
         color: "white",
         fontSize: 18,
         fontFamily: "Noto Naskh Arabic",
@@ -1936,7 +1963,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
       overflow: "hidden",
       textOverflow: "ellipsis",
       whiteSpace: "nowrap"
-    } }, e.name, isMe && " (\u0623\u0646\u062A)", e.premium && " \u{1F451}"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, color: "var(--muted)" } }, "\u{1F525}", e.streak || 0, " \xB7 ", e.title, " \xB7 \u0645\u0646\u0630 ", agoStr)), /* @__PURE__ */ React.createElement("div", { style: { background: "rgba(255,255,255,0.04)", borderRadius: 8, padding: "5px 10px", textAlign: "center", flexShrink: 0 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 18, fontWeight: 900, color: isMe ? "var(--gold)" : isTop ? "white" : "rgba(255,255,255,0.65)" } }, e.pts), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, color: "var(--muted)" } }, "\u0646\u0642\u0637\u0629")));
+    } }, e.name, isMe && " (\u0623\u0646\u062A)", e.premium && " \u{1F451}"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, color: "var(--muted)" } }, "\u{1F525}", e.streak || 0, " \xB7 ", e.title, " \xB7 \u0645\u0646\u0630 ", agoStr)), /* @__PURE__ */ React.createElement("div", { style: { background: "rgba(201,169,110,0.05)", borderRadius: 8, padding: "5px 10px", textAlign: "center", flexShrink: 0 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 18, fontWeight: 900, color: isMe ? "var(--gold)" : isTop ? "white" : "rgba(255,255,255,0.65)" } }, e.pts), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, color: "var(--muted)" } }, "\u0646\u0642\u0637\u0629")));
   }), /* @__PURE__ */ React.createElement("button", { className: "btn", onClick: loadBoard, style: {
     width: "100%",
     marginTop: 6,
@@ -1963,7 +1990,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
     overflowY: "auto",
     borderRadius: 18,
     padding: "14px",
-    background: "rgba(255,255,255,0.03)",
+    background: "rgba(201,169,110,0.04)",
     border: "1px solid rgba(255,255,255,0.07)",
     marginBottom: 12,
     display: "flex",
@@ -1990,7 +2017,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
   } }, m.text))), aiLoading && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "flex-end" } }, /* @__PURE__ */ React.createElement("div", { style: {
     padding: "12px 16px",
     borderRadius: 16,
-    background: "rgba(255,255,255,0.06)",
+    background: "rgba(201,169,110,0.07)",
     border: "1px solid rgba(255,255,255,0.08)",
     display: "flex",
     gap: 5,
@@ -2015,7 +2042,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
         borderRadius: 14,
         resize: "none",
         border: "1px solid rgba(255,255,255,0.1)",
-        background: "rgba(255,255,255,0.05)",
+        background: "rgba(201,169,110,0.06)",
         color: "white",
         fontSize: 18,
         fontFamily: "Noto Naskh Arabic",
