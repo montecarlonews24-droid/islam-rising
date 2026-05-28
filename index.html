@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="theme-color" content="#05070F"/>
+
+  <!-- PWA -->
+  <meta name="application-name" content="Islam Rising"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+  <meta name="apple-mobile-web-app-title" content="Islam Rising"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+
+  <!-- SEO -->
+  <meta name="description" content="Islam Rising — تطبيق العبادة اليومي مع leaderboard عالمي حقيقي"/>
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Islam Rising"/>
+  <meta property="og:description" content="نبض العبادة اليومية"/>
+  <meta property="og:image" content="./icons/icon-512.png"/>
+
+  <!-- Icons -->
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png"/>
+  <link rel="apple-touch-icon" href="./icons/icon-192.png"/>
+  <link rel="manifest" href="./manifest.json"/>
+
+  <title>Islam Rising</title>
+
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body, #root { height:100%; background:#05070F; overflow-x:hidden; }
+
+    #splash {
+      position:fixed; inset:0;
+      background:radial-gradient(ellipse 140% 55% at 50% -8%, #1A1200 0%, #05070F 40%, #080C1A 100%);
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      z-index:9999; transition:opacity 0.6s ease;
+    }
+    #splash.hide { opacity:0; pointer-events:none; }
+    #splash.gone { display:none; }
+    #splash svg { animation:pulse 2s ease-in-out infinite; }
+    @keyframes pulse {
+      0%,100%{ transform:scale(1); filter:drop-shadow(0 0 20px rgba(201,169,110,0.4)); }
+      50%    { transform:scale(1.06); filter:drop-shadow(0 0 40px rgba(201,169,110,0.8)); }
+    }
+    #splash h1 {
+      font-family:Georgia,serif; font-size:26px; letter-spacing:8px;
+      color:#C9A96E; margin-top:22px; text-transform:uppercase;
+    }
+    #splash p {
+      font-family:Georgia,serif; font-size:13px; letter-spacing:4px;
+      color:rgba(201,169,110,0.5); margin-top:6px;
+    }
+    #err {
+      display:none; position:fixed; inset:0; background:#05070F;
+      color:#C9A96E; font-family:Georgia,serif; font-size:16px;
+      align-items:center; justify-content:center; flex-direction:column;
+      gap:12px; text-align:center; padding:30px; z-index:99999;
+    }
+    #err.show { display:flex; }
+  </style>
+</head>
+<body>
+
+  <!-- Splash -->
+  <div id="splash">
+    <svg width="110" height="110" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="sbg" cx="50%" cy="35%" r="65%">
+          <stop offset="0%" stop-color="#2A1E00"/>
+          <stop offset="100%" stop-color="#05070F"/>
+        </radialGradient>
+        <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FFF8E0"/>
+          <stop offset="50%" stop-color="#C9A96E"/>
+          <stop offset="100%" stop-color="#8A6835"/>
+        </linearGradient>
+        <filter id="sf">
+          <feGaussianBlur stdDeviation="10" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <clipPath id="sc"><rect width="1024" height="1024" rx="220" ry="220"/></clipPath>
+      </defs>
+      <g clip-path="url(#sc)">
+        <rect width="1024" height="1024" fill="url(#sbg)"/>
+        <g filter="url(#sf)">
+          <path d="M 512 210 A 215 215 0 1 1 512 630 A 155 155 0 1 0 512 210 Z" fill="url(#sg)"/>
+        </g>
+        <g transform="translate(638,308)" filter="url(#sf)">
+          <polygon points="0,-52 12,-19 48,-19 21,7 32,42 0,21 -32,42 -21,7 -48,-19 -12,-19" fill="#F0D060"/>
+        </g>
+      </g>
+      <rect width="1024" height="1024" rx="220" ry="220" fill="none" stroke="rgba(201,169,110,0.35)" stroke-width="6"/>
+    </svg>
+    <h1>Islam Rising</h1>
+    <p>نبض العبادة اليومية</p>
+  </div>
+
+  <!-- Error fallback -->
+  <div id="err">
+    <div style="font-size:40px">⚠️</div>
+    <div>تعذّر تحميل التطبيق</div>
+    <div style="font-size:13px;opacity:0.6">تحقق من اتصالك بالإنترنت وأعد المحاولة</div>
+    <button onclick="location.reload()" style="margin-top:12px;padding:10px 24px;border-radius:10px;border:1px solid #C9A96E;background:transparent;color:#C9A96E;font-size:14px;cursor:pointer">إعادة المحاولة</button>
+  </div>
+
+  <!-- React root -->
+  <div id="root"></div>
+
+  <!-- 1. React 18 -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <!-- 2. Babel standalone (compiles JSX in browser) -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- 3. Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .catch(e => console.warn('SW:', e));
+      });
+    }
+
+    // Splash control
+    window.__hideSplash = () => {
+      const s = document.getElementById('splash');
+      if (!s) return;
+      s.classList.add('hide');
+      setTimeout(() => s.classList.add('gone'), 700);
+    };
+
+    // Error handler
+    window.onerror = (msg, src, line) => {
+      console.error('App error:', msg, src, line);
+      document.getElementById('err').classList.add('show');
+      document.getElementById('splash').classList.add('gone');
+    };
+
+    // Timeout fallback — if app doesn't load in 12s
+    setTimeout(() => {
+      const s = document.getElementById('splash');
+      if (s && !s.classList.contains('gone')) {
+        document.getElementById('err').classList.add('show');
+        s.classList.add('gone');
+      }
+    }, 12000);
+  </script>
+
+  <!-- 4. Load App.jsx via Babel -->
+  <script type="text/babel" src="./App.jsx" data-presets="react"></script>
+
+</body>
+</html>
