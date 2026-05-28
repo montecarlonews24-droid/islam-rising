@@ -680,8 +680,13 @@ function App() {
     const handler = (e) => {
       let h = 0;
       if (e.webkitCompassHeading !== void 0 && e.webkitCompassHeading !== null) {
+        // iOS - webkitCompassHeading is already absolute (0=North)
         h = e.webkitCompassHeading;
+      } else if (e.absolute === true && e.alpha !== null && e.alpha !== void 0) {
+        // Android absolute orientation - alpha is CCW from North
+        h = (360 - e.alpha) % 360;
       } else if (e.alpha !== null && e.alpha !== void 0) {
+        // Fallback: relative orientation
         h = (360 - e.alpha) % 360;
       }
       setCompass(h);
@@ -689,13 +694,26 @@ function App() {
     };
     if (window.DeviceOrientationEvent) {
       if (typeof DeviceOrientationEvent.requestPermission === "function") {
+        // iOS 13+
         DeviceOrientationEvent.requestPermission().then((state) => {
           if (state === "granted") {
+            window.addEventListener("deviceorientationabsolute", handler, true);
             window.addEventListener("deviceorientation", handler, true);
           }
         }).catch(console.error);
       } else {
-        window.addEventListener("deviceorientation", handler, true);
+        // Android - try absolute first, fallback to relative
+        let absSupported = false;
+        const absHandler = (e) => {
+          if (e.absolute === true) {
+            absSupported = true;
+            handler(e);
+          }
+        };
+        window.addEventListener("deviceorientationabsolute", absHandler, true);
+        window.addEventListener("deviceorientation", (e) => {
+          if (!absSupported) handler(e);
+        }, true);
         setTimeout(() => {
           if (!compassActive) setCompassActive(false);
         }, 2e3);
