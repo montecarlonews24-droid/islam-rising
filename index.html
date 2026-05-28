@@ -696,9 +696,6 @@ function App() {
         }).catch(console.error);
       } else {
         window.addEventListener("deviceorientation", handler, true);
-        setTimeout(() => {
-          if (!compassActive) setCompassActive(false);
-        }, 2e3);
       }
     }
   };
