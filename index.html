@@ -561,6 +561,34 @@ function App() {
   }, []);
   useEffect(() => {
     loadAll();
+    setTimeout(() => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const { latitude: lat, longitude: lng } = pos.coords;
+            setCoords({ lat, lng });
+            setPTimes(calcPrayerTimes(lat, lng));
+            setQibla(qiblaBearing(lat, lng));
+            try {
+              window.storage.set("ir-coords", JSON.stringify({ lat, lng }));
+            } catch (e) {
+            }
+          },
+          () => {
+            window.storage.get("ir-coords").then((r) => {
+              if (r) {
+                const { lat, lng } = JSON.parse(r.value);
+                setCoords({ lat, lng });
+                setPTimes(calcPrayerTimes(lat, lng));
+                setQibla(qiblaBearing(lat, lng));
+              }
+            }).catch(() => {
+            });
+          },
+          { enableHighAccuracy: true, timeout: 1e4, maximumAge: 3e5 }
+        );
+      }
+    }, 1e3);
   }, []);
   useEffect(() => {
     if (myKey && myName) saveScore(myKey, myName, pts);
@@ -582,11 +610,18 @@ function App() {
         setPTimes(calcPrayerTimes(lat, lng));
         setQibla(qiblaBearing(lat, lng));
         setLocL(false);
+        try {
+          window.storage.set("ir-coords", JSON.stringify({ lat, lng }));
+        } catch (e) {
+        }
       },
-      () => {
-        setLocErr("\u062A\u0639\u0630\u0651\u0631 \u0627\u0644\u062D\u0635\u0648\u0644 \u0639\u0644\u0649 \u0627\u0644\u0645\u0648\u0642\u0639");
+      (err) => {
         setLocL(false);
-      }
+        if (err.code === 1) setLocErr("\u0627\u0644\u0631\u062C\u0627\u0621 \u0627\u0644\u0633\u0645\u0627\u062D \u0628\u0627\u0644\u0648\u0635\u0648\u0644 \u0644\u0644\u0645\u0648\u0642\u0639 \u0641\u064A \u0625\u0639\u062F\u0627\u062F\u0627\u062A \u0627\u0644\u0645\u062A\u0635\u0641\u062D");
+        else if (err.code === 2) setLocErr("\u062A\u0639\u0630\u0651\u0631 \u062A\u062D\u062F\u064A\u062F \u0627\u0644\u0645\u0648\u0642\u0639\u060C \u062D\u0627\u0648\u0644 \u0645\u0631\u0629 \u0623\u062E\u0631\u0649");
+        else setLocErr("\u0627\u0646\u062A\u0647\u062A \u0645\u0647\u0644\u0629 \u062A\u062D\u062F\u064A\u062F \u0627\u0644\u0645\u0648\u0642\u0639");
+      },
+      { enableHighAccuracy: true, timeout: 1e4, maximumAge: 6e4 }
     );
   };
   const [compassActive, setCompassActive] = useState(false);
