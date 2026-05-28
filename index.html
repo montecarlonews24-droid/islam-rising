@@ -2,340 +2,296 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
   <meta name="theme-color" content="#05070F"/>
-
-  <!-- PWA -->
   <meta name="application-name" content="Islam Rising"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
   <meta name="apple-mobile-web-app-title" content="Islam Rising"/>
   <meta name="mobile-web-app-capable" content="yes"/>
-
-  <!-- SEO -->
-  <meta name="description" content="Islam Rising — تطبيق العبادة اليومي مع leaderboard عالمي حقيقي"/>
-
-  <!-- Open Graph -->
-  <meta property="og:title" content="Islam Rising"/>
-  <meta property="og:description" content="نبض العبادة اليومية"/>
-  <meta property="og:image" content="./icons/icon-512.png"/>
-
-  <!-- Icons -->
+  <meta name="description" content="Islam Rising — نبض العبادة اليومية"/>
   <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png"/>
   <link rel="apple-touch-icon" href="./icons/icon-192.png"/>
   <link rel="manifest" href="./manifest.json"/>
-
   <title>Islam Rising</title>
-
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    html, body, #root { height:100%; background:#05070F; overflow-x:hidden; }
-
-    #splash {
-      position:fixed; inset:0;
-      background:radial-gradient(ellipse 140% 55% at 50% -8%, #1A1200 0%, #05070F 40%, #080C1A 100%);
-      display:flex; flex-direction:column;
-      align-items:center; justify-content:center;
-      z-index:9999; transition:opacity 0.6s ease;
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body,#root{height:100%;background:#05070F;overflow-x:hidden}
+    #splash{
+      position:fixed;inset:0;background:transparent;
+      display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      z-index:9999;transition:opacity 0.6s ease
     }
-    #splash.hide { opacity:0; pointer-events:none; }
-    #splash.gone { display:none; }
-    #splash svg { animation:pulse 2s ease-in-out infinite; }
-    @keyframes pulse {
-      0%,100%{ transform:scale(1); filter:drop-shadow(0 0 20px rgba(201,169,110,0.4)); }
-      50%    { transform:scale(1.06); filter:drop-shadow(0 0 40px rgba(201,169,110,0.8)); }
+    #splash.hide{opacity:0;pointer-events:none}
+    #splash.gone{display:none}
+    #err{
+      display:none;position:fixed;inset:0;background:#05070F;
+      color:#C9A96E;font-family:Georgia,serif;font-size:16px;
+      align-items:center;justify-content:center;flex-direction:column;
+      gap:12px;text-align:center;padding:30px;z-index:99999
     }
-    #splash h1 {
-      font-family:Georgia,serif; font-size:26px; letter-spacing:8px;
-      color:#C9A96E; margin-top:22px; text-transform:uppercase;
+    #err.show{display:flex}
+    /* Background */
+    #ir-bg{
+      position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+      background:radial-gradient(ellipse 140% 55% at 50% -8%,#1A1200 0%,#05070F 40%,#080C1A 100%)
     }
-    #splash p {
-      font-family:Georgia,serif; font-size:13px; letter-spacing:4px;
-      color:rgba(201,169,110,0.5); margin-top:6px;
+    @keyframes ir-rotate{to{transform:translateX(-50%) rotate(360deg)}}
+    @keyframes ir-float{0%,100%{opacity:0.14}50%{opacity:0.28}}
+    /* Splash text */
+    #splash h1{
+      position:relative;z-index:1;
+      font-family:Georgia,serif;font-size:26px;letter-spacing:8px;
+      color:#C9A96E;margin-top:20px;text-transform:uppercase
     }
-    #err {
-      display:none; position:fixed; inset:0; background:#05070F;
-      color:#C9A96E; font-family:Georgia,serif; font-size:16px;
-      align-items:center; justify-content:center; flex-direction:column;
-      gap:12px; text-align:center; padding:30px; z-index:99999;
+    #splash p{
+      position:relative;z-index:1;
+      font-family:Georgia,serif;font-size:13px;letter-spacing:4px;
+      color:rgba(201,169,110,0.5);margin-top:6px
     }
-    #err.show { display:flex; }
+    .dots{position:relative;z-index:1;display:flex;gap:8px;margin-top:24px}
+    .dot{width:7px;height:7px;border-radius:50%;background:#C9A96E;opacity:0.3;animation:dotP 1.4s ease-in-out infinite}
+    .dot:nth-child(2){animation-delay:.2s}
+    .dot:nth-child(3){animation-delay:.4s}
+    @keyframes dotP{0%,80%,100%{transform:scale(0.7);opacity:0.3}40%{transform:scale(1);opacity:1}}
   </style>
 </head>
 <body>
 
-  <!-- Splash -->
-  <div id="splash">
-    <!-- Islamic background ornaments on splash screen -->
-    <svg style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.12" viewBox="0 0 400 800" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-      <!-- Full tile pattern -->
-      <defs>
-        <pattern id="splTile" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
-          <polygon points="40,3 43,13 50,8 48,19 58,17 54,26 64,28 57,35 62,44 52,43 50,53 42,48 40,58 38,48 30,53 28,43 18,44 23,35 16,28 26,26 22,17 32,19 30,8 37,13" fill="none" stroke="#C9A96E" strokeWidth="0.6"/>
-          <circle cx="40" cy="40" r="8" fill="none" stroke="#C9A96E" strokeWidth="0.4"/>
-          <circle cx="40" cy="40" r="3" fill="none" stroke="#C9A96E" strokeWidth="0.35"/>
-          <line x1="0" y1="0" x2="80" y2="80" stroke="#C9A96E" strokeWidth="0.2"/>
-          <line x1="80" y1="0" x2="0" y2="80" stroke="#C9A96E" strokeWidth="0.2"/>
-        </pattern>
-      </defs>
-      <rect width="400" height="800" fill="url(#splTile)"/>
-      <!-- Outer border medallion top -->
-      <g transform="translate(200,80)">
-        <circle cx="0" cy="0" r="70" fill="none" stroke="#C9A96E" strokeWidth="0.8"/>
-        <polygon points="0,-65 10,-24 48,-38 24,-6 48,20 14,16 6,55 -2,20 -36,38 -20,6 -48,20 -24,-6 -48,-38 -10,-24" fill="none" stroke="#C9A96E" strokeWidth="0.7"/>
-        <circle cx="0" cy="0" r="22" fill="none" stroke="#C9A96E" strokeWidth="0.5"/>
+<!-- DARK BASE + ISLAMIC BACKGROUND — exact replica of IslamicBg React component -->
+<style>
+  @keyframes rotateSlow { to{transform:translateX(-50%) rotate(360deg)} }
+  @keyframes floatStar  { 0%,100%{opacity:0.15} 50%{opacity:0.32} }
+  @keyframes orbPulse   { 0%,100%{transform:translate(0,0)} 50%{transform:translate(15px,-12px)} }
+</style>
+<div id="ir-bg" style="position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:radial-gradient(ellipse 140% 55% at 50% -8%,#1A1200 0%,#05070F 40%,#080C1A 100%)">
+
+  <!-- Layer 1: 12-point star tile grid with vignette -->
+  <svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="isl-tile" x="0" y="0" width="110" height="110" patternUnits="userSpaceOnUse">
+        <polygon points="55.000,5.000 60.176,35.681 80.000,11.699 69.142,40.858 98.301,30.000 74.319,49.824 105.000,55.000 74.319,60.176 98.301,80.000 69.142,69.142 80.000,98.301 60.176,74.319 55.000,105.000 49.824,74.319 30.000,98.301 40.858,69.142 11.699,80.000 35.681,60.176 5.000,55.000 35.681,49.824 11.699,30.000 40.858,40.858 30.000,11.699 49.824,35.681" fill="none" stroke="#C9A96E" stroke-width="0.55" opacity="0.5"/>
+        <polygon points="55.000,25.000 62.000,42.876 80.981,40.000 69.000,55.000 80.981,70.000 62.000,67.124 55.000,85.000 48.000,67.124 29.019,70.000 41.000,55.000 29.019,40.000 48.000,42.876"  fill="none" stroke="#C9A96E" stroke-width="0.35" opacity="0.35"/>
+        <circle cx="55" cy="55" r="5" fill="none" stroke="#C9A96E" stroke-width="0.4" opacity="0.4"/>
+        <polygon points="55.000,35.000 61.364,48.636 75.000,55.000 61.364,61.364 55.000,75.000 48.636,61.364 35.000,55.000 48.636,48.636"   fill="none" stroke="#C9A96E" stroke-width="0.3" opacity="0.3"/>
+        <line x1="69.00" y1="55.00" x2="105.00" y2="55.00" stroke="#C9A96E" stroke-width="0.25" opacity="0.2"/><line x1="67.12" y1="62.00" x2="98.30" y2="80.00" stroke="#C9A96E" stroke-width="0.25" opacity="0.2"/><line x1="62.00" y1="67.12" x2="80.00" y2="98.30" stroke="#C9A96E" stroke-width="0.25" opacity="0.2"/><line x1="55.00" y1="69.00" x2="55.00" y2="105.00" stroke="#C9A96E" stroke-width="0.25" opacity="0.2"/><line x1="48.00" y1="67.12" x2="30.00" y2="98.30" stroke="#C9A96E" stroke-width="0.25" opacity="0.2"/><line x1="42.88" y1="62.00" x2="11.70" y2="80.00" stroke="#C9A96E" stroke-width="0.25" opacity="0.2"/><line x1="41.00" y1="55.00" x2="5.00" y2="55.00" stroke="#C9A96E" stroke-width="0.25" opacity="0.2"/><line x1="42.88" y1="48.00" x2="11.70" y2="30.00" stroke="#C9A96E" stroke-width="0.25" opacity="0.2"/><line x1="48.00" y1="42.88" x2="30.00" y2="11.70" stroke="#C9A96E" stroke-width="0.25" opacity="0.2"/><line x1="55.00" y1="41.00" x2="55.00" y2="5.00" stroke="#C9A96E" stroke-width="0.25" opacity="0.2"/><line x1="62.00" y1="42.88" x2="80.00" y2="11.70" stroke="#C9A96E" stroke-width="0.25" opacity="0.2"/><line x1="67.12" y1="48.00" x2="98.30" y2="30.00" stroke="#C9A96E" stroke-width="0.25" opacity="0.2"/>
+        <circle cx="0"   cy="0"   r="11" fill="none" stroke="#C9A96E" stroke-width="0.3" opacity="0.18"/>
+        <circle cx="110" cy="0"   r="11" fill="none" stroke="#C9A96E" stroke-width="0.3" opacity="0.18"/>
+        <circle cx="0"   cy="110" r="11" fill="none" stroke="#C9A96E" stroke-width="0.3" opacity="0.18"/>
+        <circle cx="110" cy="110" r="11" fill="none" stroke="#C9A96E" stroke-width="0.3" opacity="0.18"/>
+      </pattern>
+      <radialGradient id="vig" cx="50%" cy="50%" r="55%">
+        <stop offset="0%"   stop-color="white" stop-opacity="1"/>
+        <stop offset="55%"  stop-color="white" stop-opacity="0.55"/>
+        <stop offset="100%" stop-color="white" stop-opacity="0.04"/>
+      </radialGradient>
+      <mask id="vigMask"><rect width="100%" height="100%" fill="url(#vig)"/></mask>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#isl-tile)" mask="url(#vigMask)" opacity="0.75"/>
+  </svg>
+
+  <!-- Layer 2: 16-point central medallion rotating -->
+  <svg style="position:fixed;top:5%;left:50%;transform:translateX(-50%);width:420px;height:420px;opacity:0.11;pointer-events:none;z-index:0;overflow:visible;animation:rotateSlow 90s linear infinite"
+       viewBox="-210 -210 420 420" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="0" cy="0" r="200" fill="none" stroke="#C9A96E" stroke-width="0.5"/>
+    <circle cx="0" cy="0" r="185" fill="none" stroke="#C9A96E" stroke-width="0.3"/>
+    <circle cx="0" cy="0" r="168" fill="none" stroke="#C9A96E" stroke-width="0.7"/>
+    <polygon points="0.000,-148.000 11.315,-56.886 56.637,-136.734 32.223,-48.225 104.652,-104.652 48.225,-32.223 136.734,-56.637 56.886,-11.315 148.000,0.000 56.886,11.315 136.734,56.637 48.225,32.223 104.652,104.652 32.223,48.225 56.637,136.734 11.315,56.886 0.000,148.000 -11.315,56.886 -56.637,136.734 -32.223,48.225 -104.652,104.652 -48.225,32.223 -136.734,56.637 -56.886,11.315 -148.000,0.000 -56.886,-11.315 -136.734,-56.637 -48.225,-32.223 -104.652,-104.652 -32.223,-48.225 -56.637,-136.734 -11.315,-56.886" fill="none" stroke="#C9A96E" stroke-width="1.1"/>
+    <polygon points="0.000,-95.000 16.073,-38.803 67.175,-67.175 38.803,-16.073 95.000,0.000 38.803,16.073 67.175,67.175 16.073,38.803 0.000,95.000 -16.073,38.803 -67.175,67.175 -38.803,16.073 -95.000,0.000 -38.803,-16.073 -67.175,-67.175 -16.073,-38.803"  fill="rgba(201,169,110,0.04)" stroke="#C9A96E" stroke-width="0.8"/>
+    <line x1="58.00" y1="0.00" x2="148.00" y2="0.00" stroke="#C9A96E" stroke-width="0.35" opacity="0.5"/><line x1="53.59" y1="22.20" x2="136.73" y2="56.64" stroke="#C9A96E" stroke-width="0.35" opacity="0.5"/><line x1="41.01" y1="41.01" x2="104.65" y2="104.65" stroke="#C9A96E" stroke-width="0.35" opacity="0.5"/><line x1="22.20" y1="53.59" x2="56.64" y2="136.73" stroke="#C9A96E" stroke-width="0.35" opacity="0.5"/><line x1="0.00" y1="58.00" x2="0.00" y2="148.00" stroke="#C9A96E" stroke-width="0.35" opacity="0.5"/><line x1="-22.20" y1="53.59" x2="-56.64" y2="136.73" stroke="#C9A96E" stroke-width="0.35" opacity="0.5"/><line x1="-41.01" y1="41.01" x2="-104.65" y2="104.65" stroke="#C9A96E" stroke-width="0.35" opacity="0.5"/><line x1="-53.59" y1="22.20" x2="-136.73" y2="56.64" stroke="#C9A96E" stroke-width="0.35" opacity="0.5"/><line x1="-58.00" y1="0.00" x2="-148.00" y2="0.00" stroke="#C9A96E" stroke-width="0.35" opacity="0.5"/><line x1="-53.59" y1="-22.20" x2="-136.73" y2="-56.64" stroke="#C9A96E" stroke-width="0.35" opacity="0.5"/><line x1="-41.01" y1="-41.01" x2="-104.65" y2="-104.65" stroke="#C9A96E" stroke-width="0.35" opacity="0.5"/><line x1="-22.20" y1="-53.59" x2="-56.64" y2="-136.73" stroke="#C9A96E" stroke-width="0.35" opacity="0.5"/><line x1="-0.00" y1="-58.00" x2="-0.00" y2="-148.00" stroke="#C9A96E" stroke-width="0.35" opacity="0.5"/><line x1="22.20" y1="-53.59" x2="56.64" y2="-136.73" stroke="#C9A96E" stroke-width="0.35" opacity="0.5"/><line x1="41.01" y1="-41.01" x2="104.65" y2="-104.65" stroke="#C9A96E" stroke-width="0.35" opacity="0.5"/><line x1="53.59" y1="-22.20" x2="136.73" y2="-56.64" stroke="#C9A96E" stroke-width="0.35" opacity="0.5"/>
+    <line x1="155.21" y1="64.29" x2="170.92" y2="70.80" stroke="#C9A96E" stroke-width="0.7" opacity="0.4"/><line x1="64.29" y1="155.21" x2="70.80" y2="170.92" stroke="#C9A96E" stroke-width="0.7" opacity="0.4"/><line x1="-64.29" y1="155.21" x2="-70.80" y2="170.92" stroke="#C9A96E" stroke-width="0.7" opacity="0.4"/><line x1="-155.21" y1="64.29" x2="-170.92" y2="70.80" stroke="#C9A96E" stroke-width="0.7" opacity="0.4"/><line x1="-155.21" y1="-64.29" x2="-170.92" y2="-70.80" stroke="#C9A96E" stroke-width="0.7" opacity="0.4"/><line x1="-64.29" y1="-155.21" x2="-70.80" y2="-170.92" stroke="#C9A96E" stroke-width="0.7" opacity="0.4"/><line x1="64.29" y1="-155.21" x2="70.80" y2="-170.92" stroke="#C9A96E" stroke-width="0.7" opacity="0.4"/><line x1="155.21" y1="-64.29" x2="170.92" y2="-70.80" stroke="#C9A96E" stroke-width="0.7" opacity="0.4"/>
+    <circle cx="0" cy="0" r="42"  fill="none" stroke="#C9A96E" stroke-width="0.55"/>
+    <circle cx="0" cy="0" r="22"  fill="rgba(201,169,110,0.06)" stroke="#C9A96E" stroke-width="0.8"/>
+    <circle cx="0" cy="0" r="7"   fill="#C9A96E" opacity="0.35"/>
+  </svg>
+
+  <!-- Layer 3: Corner rosettes (4 corners) -->
+  <svg style="position:fixed;top:-25px;right:-25px;width:190px;height:190px;opacity:0.1;pointer-events:none;z-index:0;overflow:visible" viewBox="-95 -95 190 190" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="0" cy="0" r="90" fill="none" stroke="#C9A96E" stroke-width="0.5"/>
+    <circle cx="0" cy="0" r="78" fill="none" stroke="#C9A96E" stroke-width="0.3"/>
+    <polygon points="0.000,-68.000 9.950,-24.021 48.083,-48.083 24.021,-9.950 68.000,0.000 24.021,9.950 48.083,48.083 9.950,24.021 0.000,68.000 -9.950,24.021 -48.083,48.083 -24.021,9.950 -68.000,0.000 -24.021,-9.950 -48.083,-48.083 -9.950,-24.021" fill="rgba(201,169,110,0.03)" stroke="#C9A96E" stroke-width="0.8"/>
+    <line x1="26.00" y1="0.00" x2="68.00" y2="0.00" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="18.38" y1="18.38" x2="48.08" y2="48.08" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="0.00" y1="26.00" x2="0.00" y2="68.00" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="-18.38" y1="18.38" x2="-48.08" y2="48.08" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="-26.00" y1="0.00" x2="-68.00" y2="0.00" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="-18.38" y1="-18.38" x2="-48.08" y2="-48.08" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="-0.00" y1="-26.00" x2="-0.00" y2="-68.00" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="18.38" y1="-18.38" x2="48.08" y2="-48.08" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/>
+    <circle cx="0" cy="0" r="26" fill="none" stroke="#C9A96E" stroke-width="0.5"/>
+    <circle cx="0" cy="0" r="10" fill="rgba(201,169,110,0.09)" stroke="#C9A96E" stroke-width="0.6"/>
+  </svg>
+  <svg style="position:fixed;top:-25px;left:-25px;width:190px;height:190px;opacity:0.1;pointer-events:none;z-index:0;overflow:visible;transform:scaleX(-1)" viewBox="-95 -95 190 190" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="0" cy="0" r="90" fill="none" stroke="#C9A96E" stroke-width="0.5"/>
+    <circle cx="0" cy="0" r="78" fill="none" stroke="#C9A96E" stroke-width="0.3"/>
+    <polygon points="0.000,-68.000 9.950,-24.021 48.083,-48.083 24.021,-9.950 68.000,0.000 24.021,9.950 48.083,48.083 9.950,24.021 0.000,68.000 -9.950,24.021 -48.083,48.083 -24.021,9.950 -68.000,0.000 -24.021,-9.950 -48.083,-48.083 -9.950,-24.021" fill="rgba(201,169,110,0.03)" stroke="#C9A96E" stroke-width="0.8"/>
+    <line x1="26.00" y1="0.00" x2="68.00" y2="0.00" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="18.38" y1="18.38" x2="48.08" y2="48.08" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="0.00" y1="26.00" x2="0.00" y2="68.00" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="-18.38" y1="18.38" x2="-48.08" y2="48.08" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="-26.00" y1="0.00" x2="-68.00" y2="0.00" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="-18.38" y1="-18.38" x2="-48.08" y2="-48.08" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="-0.00" y1="-26.00" x2="-0.00" y2="-68.00" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="18.38" y1="-18.38" x2="48.08" y2="-48.08" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/>
+    <circle cx="0" cy="0" r="26" fill="none" stroke="#C9A96E" stroke-width="0.5"/>
+    <circle cx="0" cy="0" r="10" fill="rgba(201,169,110,0.09)" stroke="#C9A96E" stroke-width="0.6"/>
+  </svg>
+  <svg style="position:fixed;bottom:180px;right:-25px;width:160px;height:160px;opacity:0.1;pointer-events:none;z-index:0;overflow:visible;transform:scaleY(-1)" viewBox="-95 -95 190 190" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="0" cy="0" r="90" fill="none" stroke="#C9A96E" stroke-width="0.5"/>
+    <circle cx="0" cy="0" r="78" fill="none" stroke="#C9A96E" stroke-width="0.3"/>
+    <polygon points="0.000,-68.000 9.950,-24.021 48.083,-48.083 24.021,-9.950 68.000,0.000 24.021,9.950 48.083,48.083 9.950,24.021 0.000,68.000 -9.950,24.021 -48.083,48.083 -24.021,9.950 -68.000,0.000 -24.021,-9.950 -48.083,-48.083 -9.950,-24.021" fill="rgba(201,169,110,0.03)" stroke="#C9A96E" stroke-width="0.8"/>
+    <line x1="26.00" y1="0.00" x2="68.00" y2="0.00" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="18.38" y1="18.38" x2="48.08" y2="48.08" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="0.00" y1="26.00" x2="0.00" y2="68.00" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="-18.38" y1="18.38" x2="-48.08" y2="48.08" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="-26.00" y1="0.00" x2="-68.00" y2="0.00" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="-18.38" y1="-18.38" x2="-48.08" y2="-48.08" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="-0.00" y1="-26.00" x2="-0.00" y2="-68.00" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="18.38" y1="-18.38" x2="48.08" y2="-48.08" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/>
+    <circle cx="0" cy="0" r="26" fill="none" stroke="#C9A96E" stroke-width="0.5"/>
+    <circle cx="0" cy="0" r="10" fill="rgba(201,169,110,0.09)" stroke="#C9A96E" stroke-width="0.6"/>
+  </svg>
+  <svg style="position:fixed;bottom:180px;left:-25px;width:160px;height:160px;opacity:0.1;pointer-events:none;z-index:0;overflow:visible;transform:scale(-1,-1)" viewBox="-95 -95 190 190" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="0" cy="0" r="90" fill="none" stroke="#C9A96E" stroke-width="0.5"/>
+    <circle cx="0" cy="0" r="78" fill="none" stroke="#C9A96E" stroke-width="0.3"/>
+    <polygon points="0.000,-68.000 9.950,-24.021 48.083,-48.083 24.021,-9.950 68.000,0.000 24.021,9.950 48.083,48.083 9.950,24.021 0.000,68.000 -9.950,24.021 -48.083,48.083 -24.021,9.950 -68.000,0.000 -24.021,-9.950 -48.083,-48.083 -9.950,-24.021" fill="rgba(201,169,110,0.03)" stroke="#C9A96E" stroke-width="0.8"/>
+    <line x1="26.00" y1="0.00" x2="68.00" y2="0.00" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="18.38" y1="18.38" x2="48.08" y2="48.08" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="0.00" y1="26.00" x2="0.00" y2="68.00" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="-18.38" y1="18.38" x2="-48.08" y2="48.08" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="-26.00" y1="0.00" x2="-68.00" y2="0.00" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="-18.38" y1="-18.38" x2="-48.08" y2="-48.08" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="-0.00" y1="-26.00" x2="-0.00" y2="-68.00" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/><line x1="18.38" y1="-18.38" x2="48.08" y2="-48.08" stroke="#C9A96E" stroke-width="0.35" opacity="0.45"/>
+    <circle cx="0" cy="0" r="26" fill="none" stroke="#C9A96E" stroke-width="0.5"/>
+    <circle cx="0" cy="0" r="10" fill="rgba(201,169,110,0.09)" stroke="#C9A96E" stroke-width="0.6"/>
+  </svg>
+
+  <!-- Layer 4: Floating animated 8-point stars -->
+  <svg style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="25.000,282.000 27.893,293.015 37.728,287.272 31.985,297.107 43.000,300.000 31.985,302.893 37.728,312.728 27.893,306.985 25.000,318.000 22.107,306.985 12.272,312.728 18.015,302.893 7.000,300.000 18.015,297.107 12.272,287.272 22.107,293.015" fill="none" stroke="#C9A96E" stroke-width="0.6" style="animation:floatStar 7s ease-in-out 0s infinite"/><polygon points="345.000,252.000 347.089,259.956 354.192,255.808 350.044,262.911 358.000,265.000 350.044,267.089 354.192,274.192 347.089,270.044 345.000,278.000 342.911,270.044 335.808,274.192 339.956,267.089 332.000,265.000 339.956,262.911 335.808,255.808 342.911,259.956" fill="none" stroke="#C9A96E" stroke-width="0.6" style="animation:floatStar 9s ease-in-out 1.5s infinite"/><polygon points="50.000,548.000 53.536,561.463 65.556,554.444 58.537,566.464 72.000,570.000 58.537,573.536 65.556,585.556 53.536,578.537 50.000,592.000 46.464,578.537 34.444,585.556 41.463,573.536 28.000,570.000 41.463,566.464 34.444,554.444 46.464,561.463" fill="none" stroke="#C9A96E" stroke-width="0.6" style="animation:floatStar 11s ease-in-out 2s infinite"/><polygon points="295.000,488.000 296.929,495.344 303.485,491.515 299.656,498.071 307.000,500.000 299.656,501.929 303.485,508.485 296.929,504.656 295.000,512.000 293.071,504.656 286.515,508.485 290.344,501.929 283.000,500.000 290.344,498.071 286.515,491.515 293.071,495.344" fill="none" stroke="#C9A96E" stroke-width="0.6" style="animation:floatStar 8.5s ease-in-out 3.2s infinite"/><polygon points="135.000,694.000 137.572,703.792 146.314,698.686 141.208,707.428 151.000,710.000 141.208,712.572 146.314,721.314 137.572,716.208 135.000,726.000 132.428,716.208 123.686,721.314 128.792,712.572 119.000,710.000 128.792,707.428 123.686,698.686 132.428,703.792" fill="none" stroke="#C9A96E" stroke-width="0.6" style="animation:floatStar 10s ease-in-out 0.7s infinite"/><polygon points="280.000,720.000 283.215,732.239 294.142,725.858 287.761,736.785 300.000,740.000 287.761,743.215 294.142,754.142 283.215,747.761 280.000,760.000 276.785,747.761 265.858,754.142 272.239,743.215 260.000,740.000 272.239,736.785 265.858,725.858 276.785,732.239" fill="none" stroke="#C9A96E" stroke-width="0.6" style="animation:floatStar 12s ease-in-out 4s infinite"/>
+  </svg>
+
+  <!-- Ambient orbs -->
+  <div style="position:fixed;top:-18%;right:-12%;width:480px;height:480px;border-radius:50%;background:radial-gradient(circle,rgba(201,169,110,0.11) 0%,transparent 65%);animation:orbPulse 13s ease-in-out infinite;pointer-events:none;z-index:0"></div>
+  <div style="position:fixed;bottom:2%;left:-16%;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(80,60,200,0.07) 0%,transparent 65%);animation:orbPulse 16s ease-in-out 4s infinite;pointer-events:none;z-index:0"></div>
+</div>
+
+<!-- SPLASH SCREEN -->
+<div id="splash">
+  <svg width="200" height="200" style="position:relative;z-index:1" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="sbg" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#2A1E00"/><stop offset="100%" stop-color="#05070F"/></radialGradient>
+      <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFF8E0"/><stop offset="45%" stop-color="#F0D898"/><stop offset="100%" stop-color="#8A6835"/></linearGradient>
+      <linearGradient id="sg2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFF5CC"/><stop offset="100%" stop-color="#C9A96E"/></linearGradient>
+      <filter id="sf" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="12" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <clipPath id="sc"><rect width="1024" height="1024" rx="200" ry="200"/></clipPath>
+    </defs>
+    <g clip-path="url(#sc)">
+      <rect width="1024" height="1024" fill="url(#sbg)"/>
+      <circle cx="512" cy="490" r="320" fill="rgba(201,169,110,0.07)"/>
+      <!-- 12-pt star tile subtle -->
+      <g opacity="0.18">
+        <polygon points="512,180 520,206 548,196 536,220 562,224 546,244 570,254 550,270 566,292 542,292 546,316 522,308 512,332 502,308 478,316 482,292 458,292 474,270 454,254 478,244 462,224 488,220 476,196 504,206" fill="none" stroke="#C9A96E" stroke-width="1.2"/>
       </g>
-      <!-- Bottom medallion -->
-      <g transform="translate(200,720)">
-        <circle cx="0" cy="0" r="70" fill="none" stroke="#C9A96E" strokeWidth="0.8"/>
-        <polygon points="0,-65 10,-24 48,-38 24,-6 48,20 14,16 6,55 -2,20 -36,38 -20,6 -48,20 -24,-6 -48,-38 -10,-24" fill="none" stroke="#C9A96E" strokeWidth="0.7"/>
-        <circle cx="0" cy="0" r="22" fill="none" stroke="#C9A96E" strokeWidth="0.5"/>
+      <!-- Outer rings -->
+      <g opacity="0.22">
+        <circle cx="512" cy="490" r="420" fill="none" stroke="#C9A96E" stroke-width="1"/>
+        <circle cx="512" cy="490" r="405" fill="none" stroke="#C9A96E" stroke-width="0.5" stroke-dasharray="10,20"/>
       </g>
-      <!-- Side ornaments -->
-      <g transform="translate(30,400)">
-        <circle cx="0" cy="0" r="40" fill="none" stroke="#C9A96E" strokeWidth="0.6"/>
-        <polygon points="0,-35 6,-13 28,-20 14,-4 28,12 8,10 4,32 -2,10 -22,22 -12,-4 -28,12 -14,-4 -28,-20 -6,-13" fill="none" stroke="#C9A96E" strokeWidth="0.55"/>
+      <!-- 16-pt medallion rings -->
+      <g opacity="0.2">
+        <polygon points="512,100 536,160 596,130 588,195 648,180 626,240 688,240 650,292 706,308 658,348 700,378 645,398 668,434 608,436 612,476 552,460 540,500 512,520 484,500 472,460 412,476 416,436 356,434 379,398 324,378 366,348 318,308 374,292 336,240 398,240 376,180 436,195 428,130 488,160" fill="none" stroke="#C9A96E" stroke-width="1"/>
+        <circle cx="512" cy="490" r="200" fill="none" stroke="#C9A96E" stroke-width="0.7"/>
+        <circle cx="512" cy="490" r="175" fill="none" stroke="#C9A96E" stroke-width="0.4"/>
       </g>
-      <g transform="translate(370,400)">
-        <circle cx="0" cy="0" r="40" fill="none" stroke="#C9A96E" strokeWidth="0.6"/>
-        <polygon points="0,-35 6,-13 28,-20 14,-4 28,12 8,10 4,32 -2,10 -22,22 -12,-4 -28,12 -14,-4 -28,-20 -6,-13" fill="none" stroke="#C9A96E" strokeWidth="0.55"/>
+      <!-- Crescent -->
+      <g filter="url(#sf)">
+        <path d="M 512 238 A 195 195 0 1 1 512 618 A 138 138 0 1 0 512 238 Z" fill="url(#sg)" opacity="0.97"/>
       </g>
-      <!-- Corner stars -->
-      <polygon points="20,20 23,30 34,30 25,36 28,46 20,40 12,46 15,36 6,30 17,30" fill="none" stroke="#C9A96E" strokeWidth="0.7"/>
-      <polygon points="380,20 383,30 394,30 385,36 388,46 380,40 372,46 375,36 366,30 377,30" fill="none" stroke="#C9A96E" strokeWidth="0.7"/>
-      <polygon points="20,780 23,770 34,770 25,764 28,754 20,760 12,754 15,764 6,770 17,770" fill="none" stroke="#C9A96E" strokeWidth="0.7"/>
-      <polygon points="380,780 383,770 394,770 385,764 388,754 380,760 372,754 375,764 366,770 377,770" fill="none" stroke="#C9A96E" strokeWidth="0.7"/>
-      <!-- Vertical border lines -->
-      <line x1="8" y1="100" x2="8" y2="700" stroke="#C9A96E" strokeWidth="0.5" strokeDasharray="8,12"/>
-      <line x1="392" y1="100" x2="392" y2="700" stroke="#C9A96E" strokeWidth="0.5" strokeDasharray="8,12"/>
-    </svg>
-    <svg width="200" height="200" style="position:relative;z-index:1" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <radialGradient id="sbg" cx="50%" cy="40%" r="60%">
-          <stop offset="0%"   stop-color="#2A1E00"/>
-          <stop offset="50%"  stop-color="#0D0A00"/>
-          <stop offset="100%" stop-color="#05070F"/>
-        </radialGradient>
-        <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%"   stop-color="#FFF8E0"/>
-          <stop offset="45%"  stop-color="#F0D898"/>
-          <stop offset="100%" stop-color="#8A6835"/>
-        </linearGradient>
-        <linearGradient id="sg2" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%"   stop-color="#FFF5CC"/>
-          <stop offset="100%" stop-color="#C9A96E"/>
-        </linearGradient>
-        <filter id="sf" x="-40%" y="-40%" width="180%" height="180%">
-          <feGaussianBlur stdDeviation="12" result="b"/>
-          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-        <filter id="sf2" x="-60%" y="-60%" width="220%" height="220%">
-          <feGaussianBlur stdDeviation="22" result="b"/>
-          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-        <clipPath id="sc"><rect width="1024" height="1024" rx="200" ry="200"/></clipPath>
-      </defs>
-
-      <g clip-path="url(#sc)">
-        <!-- Background -->
-        <rect width="1024" height="1024" fill="url(#sbg)"/>
-
-        <!-- Center ambient glow -->
-        <circle cx="512" cy="490" r="320" fill="rgba(201,169,110,0.07)"/>
-        <circle cx="512" cy="490" r="200" fill="rgba(201,169,110,0.05)"/>
-
-        <!-- ═══ LAYER 1: Outer 16-point star ring ═══ -->
-        <g transform="translate(512,490)" opacity="0.5">
-          <!-- Outer circle -->
-          <circle cx="0" cy="0" r="465" fill="none" stroke="#C9A96E" stroke-width="1.5"/>
-          <circle cx="0" cy="0" r="448" fill="none" stroke="#C9A96E" stroke-width="0.8" stroke-dasharray="14,20"/>
-          <circle cx="0" cy="0" r="430" fill="none" stroke="#C9A96E" stroke-width="1.2"/>
-          <!-- 16-point star -->
-          <polygon points="0,-415 30,-370 65,-395 78,-345 120,-355 118,-305 160,-300 142,-255 185,-235 152,-198 190,-165 148,-142 172,-102 124,-92 132,-50 84,-52 76,0 28,-10 10,50 -28,-10 -76,0 -84,-52 -132,-50 -124,-92 -172,-102 -148,-142 -190,-165 -152,-198 -185,-235 -142,-255 -160,-300 -118,-305 -120,-355 -78,-345 -65,-395 -30,-370"
-            fill="none" stroke="#C9A96E" stroke-width="1.3"/>
-          <!-- Spoke lines -->
-          <line x1="0" y1="-415" x2="0" y2="-320" stroke="#C9A96E" stroke-width="0.8"/>
-          <line x1="0" y1="415"  x2="0" y2="320"  stroke="#C9A96E" stroke-width="0.8"/>
-          <line x1="-415" y1="0" x2="-320" y2="0" stroke="#C9A96E" stroke-width="0.8"/>
-          <line x1="415" y1="0"  x2="320" y2="0"  stroke="#C9A96E" stroke-width="0.8"/>
+      <path d="M 520 252 A 182 182 0 1 1 520 604 A 128 128 0 1 0 520 252 Z" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"/>
+      <!-- Star -->
+      <g transform="translate(644,308)" filter="url(#sf)">
+        <polygon points="0,-58 14,-21 52,-21 23,9 36,47 0,24 -36,47 -23,9 -52,-21 -14,-21" fill="url(#sg2)" opacity="0.97"/>
+        <polygon points="0,-36 9,-13 33,-13 15,5 22,28 0,15 -22,28 -15,5 -33,-13 -9,-13" fill="rgba(255,255,255,0.42)"/>
+      </g>
+      <!-- Corner rosettes in icon -->
+      <g opacity="0.28">
+        <g transform="translate(130,130)">
+          <circle cx="0" cy="0" r="90" fill="none" stroke="#C9A96E" stroke-width="0.8"/>
+          <polygon points="0,-75 11,-28 52,-38 26,-6 52,20 14,17 6,60 -2,20 -40,44 -22,8 -60,0 -22,-8 -40,-44 -2,-20 6,-60 14,-17 52,-20 26,6 52,38 11,28" fill="none" stroke="#C9A96E" stroke-width="0.9"/>
+          <circle cx="0" cy="0" r="28" fill="none" stroke="#C9A96E" stroke-width="0.55"/>
         </g>
-
-        <!-- ═══ LAYER 2: Middle 12-point star ═══ -->
-        <g transform="translate(512,490)" opacity="0.55">
-          <circle cx="0" cy="0" r="360" fill="none" stroke="#C9A96E" stroke-width="1"/>
-          <polygon points="0,-340 28,-298 68,-316 68,-272 108,-268 98,-226 136,-208 112,-172 148,-140 112,-116 136,-80 96,-68 102,-28 62,-28 52,14 14,2 0,44 -14,2 -52,14 -62,-28 -102,-28 -96,-68 -136,-80 -112,-116 -148,-140 -112,-172 -136,-208 -98,-226 -108,-268 -68,-272 -68,-316 -28,-298"
-            fill="none" stroke="#C9A96E" stroke-width="1.1"/>
-          <circle cx="0" cy="0" r="200" fill="none" stroke="#C9A96E" stroke-width="0.8"/>
+        <g transform="translate(894,130)">
+          <circle cx="0" cy="0" r="90" fill="none" stroke="#C9A96E" stroke-width="0.8"/>
+          <polygon points="0,-75 11,-28 52,-38 26,-6 52,20 14,17 6,60 -2,20 -40,44 -22,8 -60,0 -22,-8 -40,-44 -2,-20 6,-60 14,-17 52,-20 26,6 52,38 11,28" fill="none" stroke="#C9A96E" stroke-width="0.9"/>
+          <circle cx="0" cy="0" r="28" fill="none" stroke="#C9A96E" stroke-width="0.55"/>
         </g>
+      </g>
+      <!-- Text -->
+      <line x1="220" y1="758" x2="804" y2="758" stroke="#C9A96E" stroke-width="0.8" opacity="0.35"/>
+      <circle cx="512" cy="758" r="4" fill="#C9A96E" opacity="0.45"/>
+      <text x="512" y="832" font-family="Georgia,serif" font-size="96" font-weight="700" letter-spacing="18" text-anchor="middle" fill="#C9A96E" opacity="0.92">ISLAM</text>
+      <text x="512" y="912" font-family="Georgia,serif" font-size="72" font-weight="400" letter-spacing="28" text-anchor="middle" fill="#E8C97A" opacity="0.8">RISING</text>
+      <circle cx="462" cy="942" r="2.5" fill="#C9A96E" opacity="0.3"/>
+      <circle cx="512" cy="942" r="4" fill="#C9A96E" opacity="0.4"/>
+      <circle cx="562" cy="942" r="2.5" fill="#C9A96E" opacity="0.3"/>
+    </g>
+    <rect width="1024" height="1024" rx="200" ry="200" fill="none" stroke="rgba(201,169,110,0.35)" stroke-width="5"/>
+  </svg>
+  <h1>Islam Rising</h1>
+  <p>نبض العبادة اليومية</p>
+  <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+</div>
 
-        <!-- ═══ LAYER 3: Corner rosettes ═══ -->
-        <!-- Top-left -->
-        <g transform="translate(130,130)" opacity="0.45">
-          <circle cx="0" cy="0" r="95" fill="none" stroke="#C9A96E" stroke-width="0.8"/>
-          <polygon points="0,-80 15,-30 60,-40 30,-6 55,26 16,20 8,65 -4,28 -46,50 -28,12 -65,0 -28,-12 -46,-50 -4,-28 8,-65 16,-20 55,-26 30,6 60,40 15,30"
-            fill="none" stroke="#C9A96E" stroke-width="0.9"/>
-          <circle cx="0" cy="0" r="30" fill="none" stroke="#C9A96E" stroke-width="0.7"/>
-          <circle cx="0" cy="0" r="12" fill="rgba(201,169,110,0.15)" stroke="#C9A96E" stroke-width="0.6"/>
-        </g>
-        <!-- Top-right -->
-        <g transform="translate(894,130)" opacity="0.45">
-          <circle cx="0" cy="0" r="95" fill="none" stroke="#C9A96E" stroke-width="0.8"/>
-          <polygon points="0,-80 15,-30 60,-40 30,-6 55,26 16,20 8,65 -4,28 -46,50 -28,12 -65,0 -28,-12 -46,-50 -4,-28 8,-65 16,-20 55,-26 30,6 60,40 15,30"
-            fill="none" stroke="#C9A96E" stroke-width="0.9"/>
-          <circle cx="0" cy="0" r="30" fill="none" stroke="#C9A96E" stroke-width="0.7"/>
-          <circle cx="0" cy="0" r="12" fill="rgba(201,169,110,0.15)" stroke="#C9A96E" stroke-width="0.6"/>
-        </g>
-        <!-- Bottom-left -->
-        <g transform="translate(130,894)" opacity="0.45">
-          <circle cx="0" cy="0" r="95" fill="none" stroke="#C9A96E" stroke-width="0.8"/>
-          <polygon points="0,-80 15,-30 60,-40 30,-6 55,26 16,20 8,65 -4,28 -46,50 -28,12 -65,0 -28,-12 -46,-50 -4,-28 8,-65 16,-20 55,-26 30,6 60,40 15,30"
-            fill="none" stroke="#C9A96E" stroke-width="0.9"/>
-          <circle cx="0" cy="0" r="30" fill="none" stroke="#C9A96E" stroke-width="0.7"/>
-          <circle cx="0" cy="0" r="12" fill="rgba(201,169,110,0.15)" stroke="#C9A96E" stroke-width="0.6"/>
-        </g>
-        <!-- Bottom-right -->
-        <g transform="translate(894,894)" opacity="0.45">
-          <circle cx="0" cy="0" r="95" fill="none" stroke="#C9A96E" stroke-width="0.8"/>
-          <polygon points="0,-80 15,-30 60,-40 30,-6 55,26 16,20 8,65 -4,28 -46,50 -28,12 -65,0 -28,-12 -46,-50 -4,-28 8,-65 16,-20 55,-26 30,6 60,40 15,30"
-            fill="none" stroke="#C9A96E" stroke-width="0.9"/>
-          <circle cx="0" cy="0" r="30" fill="none" stroke="#C9A96E" stroke-width="0.7"/>
-          <circle cx="0" cy="0" r="12" fill="rgba(201,169,110,0.15)" stroke="#C9A96E" stroke-width="0.6"/>
-        </g>
+<!-- ERROR -->
+<div id="err">
+  <div style="font-size:36px">⚠️</div>
+  <div>تعذّر تحميل التطبيق</div>
+  <div style="font-size:12px;opacity:0.5">تحقق من اتصالك وأعد المحاولة</div>
+  <button onclick="location.reload()" style="margin-top:12px;padding:10px 24px;border-radius:10px;border:1px solid #C9A96E;background:transparent;color:#C9A96E;font-size:14px;cursor:pointer;font-family:Georgia,serif">إعادة المحاولة</button>
+</div>
 
-        <!-- ═══ LAYER 4: Inner ring with dots ═══ -->
-        <g transform="translate(512,490)" opacity="0.6">
-          <circle cx="0" cy="0" r="155" fill="none" stroke="#C9A96E" stroke-width="1.2" stroke-dasharray="8,14"/>
-          <circle cx="0" cy="0" r="140" fill="none" stroke="#C9A96E" stroke-width="0.6"/>
-        </g>
+<!-- REACT ROOT -->
+<div id="root"></div>
 
-        <!-- ═══ CRESCENT MOON (main element) ═══ -->
-        <!-- Outer glow -->
-        <g filter="url(#sf2)">
-          <circle cx="490" cy="440" r="180" fill="rgba(201,169,110,0.09)"/>
-        </g>
-        <!-- Crescent -->
-        <g filter="url(#sf)">
-          <path d="M 512 238 A 195 195 0 1 1 512 618 A 138 138 0 1 0 512 238 Z"
-            fill="url(#sg)" opacity="0.97"/>
-        </g>
-        <!-- Crescent highlight -->
-        <path d="M 520 252 A 182 182 0 1 1 520 604 A 128 128 0 1 0 520 252 Z"
-          fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2"/>
-
-        <!-- ═══ STAR ═══ -->
-        <g transform="translate(644,308)" filter="url(#sf)">
-          <polygon points="0,-58 14,-21 52,-21 23,9 36,47 0,24 -36,47 -23,9 -52,-21 -14,-21"
-            fill="url(#sg2)" opacity="0.97"/>
-          <polygon points="0,-36 9,-13 33,-13 15,5 22,28 0,15 -22,28 -15,5 -33,-13 -9,-13"
-            fill="rgba(255,255,255,0.45)"/>
-        </g>
-
-        <!-- ═══ BOTTOM TEXT AREA ═══ -->
-        <!-- Decorative line -->
-        <line x1="200" y1="790" x2="824" y2="790" stroke="#C9A96E" stroke-width="0.8" opacity="0.35"/>
-        <circle cx="512" cy="790" r="4" fill="#C9A96E" opacity="0.5"/>
-        <circle cx="220" cy="790" r="2.5" fill="#C9A96E" opacity="0.3"/>
-        <circle cx="804" cy="790" r="2.5" fill="#C9A96E" opacity="0.3"/>
-
-        <!-- ISLAM text -->
-        <text x="512" y="868"
-          font-family="'Palatino Linotype','Georgia',serif"
-          font-size="100" font-weight="700"
-          letter-spacing="18" text-anchor="middle"
-          fill="#C9A96E"
-          filter="url(#sf)" opacity="0.95">ISLAM</text>
-
-        <!-- RISING text -->
-        <text x="512" y="950"
-          font-family="'Palatino Linotype','Georgia',serif"
-          font-size="74" font-weight="400"
-          letter-spacing="30" text-anchor="middle"
-          fill="#E8C97A" opacity="0.82">RISING</text>
-
-        <!-- dots under text -->
-        <circle cx="462" cy="978" r="2.5" fill="#C9A96E" opacity="0.3"/>
-        <circle cx="512" cy="978" r="4"   fill="#C9A96E" opacity="0.45"/>
-        <circle cx="562" cy="978" r="2.5" fill="#C9A96E" opacity="0.3"/>
-
-        <!-- ═══ FLOATING MINI STARS ═══ -->
-        <g opacity="0.55">
-          <polygon points="120,250 126,268 145,268 131,278 137,296 120,286 103,296 109,278 95,268 114,268" fill="#C9A96E"/>
-          <polygon points="904,250 910,268 929,268 915,278 921,296 904,286 887,296 893,278 879,268 898,268" fill="#C9A96E"/>
-          <polygon points="80,650 85,664 100,664 88,672 93,686 80,678 67,686 72,672 60,664 75,664" fill="#C9A96E" opacity="0.2"/>
-          <polygon points="944,650 949,664 964,664 952,672 957,686 944,678 931,686 936,672 924,664 939,664" fill="#C9A96E" opacity="0.2"/>
-        </g>
-
-      </g><!-- end clip -->
-
-      <!-- Border ring -->
-      <rect width="1024" height="1024" rx="200" ry="200"
-        fill="none" stroke="#C9A96E" stroke-width="5" opacity="0.4"/>
-      <rect x="8" y="8" width="1008" height="1008" rx="194" ry="194"
-        fill="none" stroke="#C9A96E" stroke-width="2" opacity="0.18"/>
-    </svg>
-    <h1 style="position:relative;z-index:1">Islam Rising</h1>
-    <p style="position:relative;z-index:1">نبض العبادة اليومية</p>
-    <div class="dots" style="position:relative;z-index:1">
-      <div class="dot"></div>
-      <div class="dot"></div>
-      <div class="dot"></div>
-    </div>
-    <div id="loading-msg" style="position:relative;z-index:1;margin-top:14px;font-family:Georgia,serif;font-size:11px;letter-spacing:2px;color:rgba(201,169,110,0.4)" style="margin-top:14px;font-family:Georgia,serif;font-size:11px;letter-spacing:2px;color:rgba(201,169,110,0.4)">
-      جاري التحميل...
-    </div>
-  </div>
-
-  <!-- Error fallback -->
-  <div id="err">
-    <div style="font-size:40px">⚠️</div>
-    <div>تعذّر تحميل التطبيق</div>
-    <div style="font-size:13px;opacity:0.6">تحقق من اتصالك بالإنترنت وأعد المحاولة</div>
-    <button onclick="location.reload()" style="margin-top:12px;padding:10px 24px;border-radius:10px;border:1px solid #C9A96E;background:transparent;color:#C9A96E;font-size:14px;cursor:pointer">إعادة المحاولة</button>
-  </div>
-
-  <!-- React root -->
-  <div id="root"></div>
-
-  <!-- 1. React 18 -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-
-  <!-- 2. Babel standalone (compiles JSX in browser) -->
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-  <!-- 3. Service Worker -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .catch(e => console.warn('SW:', e));
-      });
-    }
-
-    // Splash control
-    window.__hideSplash = window.__removeSplash = () => {
-      const s = document.getElementById('splash');
-      if (!s) return;
-      s.classList.add('hide');
-      setTimeout(() => s.classList.add('gone'), 700);
-    };
-
-    // Timeout fallback — 30s for Babel compilation
-    setTimeout(() => {
-      const s = document.getElementById('splash');
-      if (s && !s.classList.contains('gone')) {
-        // Still loading - show tap to continue
-        const tap = document.createElement('div');
-        tap.style.cssText = 'margin-top:20px;font-family:Georgia,serif;font-size:13px;letter-spacing:3px;color:rgba(201,169,110,0.6);cursor:pointer';
-        tap.innerHTML = 'اضغط للمتابعة';
-        tap.onclick = () => { window.__hideSplash(); };
-        document.getElementById('splash').appendChild(tap);
+<!-- window.storage polyfill -->
+<script>
+window.storage = {
+  _d:{}, _s:{},
+  async get(k,s=false){
+    const store=s?this._s:this._d, lk=(s?'ir_s_':'ir_p_')+k;
+    const v=store[k]||localStorage.getItem(lk);
+    if(v){store[k]=v;return{key:k,value:v,shared:s};}
+    throw new Error('not found');
+  },
+  async set(k,v,s=false){
+    const store=s?this._s:this._d;
+    store[k]=v;
+    try{localStorage.setItem((s?'ir_s_':'ir_p_')+k,v);}catch(e){}
+    return{key:k,value:v,shared:s};
+  },
+  async delete(k,s=false){
+    const store=s?this._s:this._d;
+    delete store[k];
+    try{localStorage.removeItem((s?'ir_s_':'ir_p_')+k);}catch(e){}
+    return{key:k,deleted:true,shared:s};
+  },
+  async list(prefix='',s=false){
+    const store=s?this._s:this._d;
+    const keys=Object.keys(store).filter(k=>k.startsWith(prefix));
+    for(let i=0;i<localStorage.length;i++){
+      const lk=localStorage.key(i);
+      const pf=s?'ir_s_':'ir_p_';
+      if(lk&&lk.startsWith(pf)){
+        const rk=lk.slice(pf.length);
+        if(rk.startsWith(prefix)&&!keys.includes(rk)){
+          keys.push(rk);store[rk]=localStorage.getItem(lk);
+        }
       }
-    }, 8000);
-  </script>
+    }
+    return{keys,prefix,shared:s};
+  }
+};
+window.__hideSplash = window.__removeSplash = () => {
+  const s=document.getElementById('splash');
+  if(!s)return;
+  s.classList.add('hide');
+  setTimeout(()=>s.classList.add('gone'),700);
+};
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+// Timeout: 30s
+setTimeout(()=>{
+  const s=document.getElementById('splash');
+  if(s&&!s.classList.contains('gone')) window.__hideSplash();
+},30000);
+</script>
 
-  <!-- 4. App code inline — no external JSX file needed -->
-  <script type="text/babel" data-presets="react">
+<!-- React 18 -->
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+<!-- Babel 7 via jsDelivr -->
+<script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.24.7/babel.min.js"></script>
+
+
+<!-- App JSX compiled by Babel -->
+<script type="text/babel" data-presets="react">
 const { useState, useEffect, useRef, memo, useMemo } = React;
 
 /* ══════════════════════════════════════════════════════
@@ -2219,34 +2175,7 @@ if (_root && !_root._reactRootContainer) {
   if (window.__removeSplash) window.__removeSplash();
 }
 
-  </script>
-
-  <!-- 5. Poll for React mount -->
-  <script>
-    let attempts = 0;
-    const checkMount = setInterval(() => {
-      attempts++;
-      const root = document.getElementById('root');
-      if (root && root.children.length > 0) {
-        clearInterval(checkMount);
-        window.__hideSplash();
-      } else if (attempts === 50) {
-        // Update loading message at 5s
-        const msg = document.getElementById('loading-msg');
-        if(msg) msg.textContent = 'يُرجى الانتظار، جاري تهيئة التطبيق...';
-      } else if (attempts > 300) {
-        clearInterval(checkMount);
-        // Don't show error - just hide splash and hope React mounted
-        window.__hideSplash();
-      }
-    }, 100);
-
-    // Also listen for Babel errors
-    window.addEventListener('error', (e) => {
-      console.warn('App error caught:', e.message);
-      // Don't block the app for non-critical errors
-    });
-  </script>
+</script>
 
 </body>
 </html>
