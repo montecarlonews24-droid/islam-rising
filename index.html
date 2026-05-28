@@ -66,33 +66,169 @@
 
   <!-- Splash -->
   <div id="splash">
-    <svg width="110" height="110" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+    <svg width="200" height="200" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <radialGradient id="sbg" cx="50%" cy="35%" r="65%">
-          <stop offset="0%" stop-color="#2A1E00"/>
+        <radialGradient id="sbg" cx="50%" cy="40%" r="60%">
+          <stop offset="0%"   stop-color="#2A1E00"/>
+          <stop offset="50%"  stop-color="#0D0A00"/>
           <stop offset="100%" stop-color="#05070F"/>
         </radialGradient>
         <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#FFF8E0"/>
-          <stop offset="50%" stop-color="#C9A96E"/>
+          <stop offset="0%"   stop-color="#FFF8E0"/>
+          <stop offset="45%"  stop-color="#F0D898"/>
           <stop offset="100%" stop-color="#8A6835"/>
         </linearGradient>
-        <filter id="sf">
-          <feGaussianBlur stdDeviation="10" result="b"/>
+        <linearGradient id="sg2" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"   stop-color="#FFF5CC"/>
+          <stop offset="100%" stop-color="#C9A96E"/>
+        </linearGradient>
+        <filter id="sf" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="12" result="b"/>
           <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
         </filter>
-        <clipPath id="sc"><rect width="1024" height="1024" rx="220" ry="220"/></clipPath>
+        <filter id="sf2" x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur stdDeviation="22" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <clipPath id="sc"><rect width="1024" height="1024" rx="200" ry="200"/></clipPath>
       </defs>
+
       <g clip-path="url(#sc)">
+        <!-- Background -->
         <rect width="1024" height="1024" fill="url(#sbg)"/>
+
+        <!-- Center ambient glow -->
+        <circle cx="512" cy="490" r="320" fill="rgba(201,169,110,0.07)"/>
+        <circle cx="512" cy="490" r="200" fill="rgba(201,169,110,0.05)"/>
+
+        <!-- ═══ LAYER 1: Outer 16-point star ring ═══ -->
+        <g transform="translate(512,490)" opacity="0.25">
+          <!-- Outer circle -->
+          <circle cx="0" cy="0" r="465" fill="none" stroke="#C9A96E" stroke-width="1.5"/>
+          <circle cx="0" cy="0" r="448" fill="none" stroke="#C9A96E" stroke-width="0.8" stroke-dasharray="14,20"/>
+          <circle cx="0" cy="0" r="430" fill="none" stroke="#C9A96E" stroke-width="1.2"/>
+          <!-- 16-point star -->
+          <polygon points="0,-415 30,-370 65,-395 78,-345 120,-355 118,-305 160,-300 142,-255 185,-235 152,-198 190,-165 148,-142 172,-102 124,-92 132,-50 84,-52 76,0 28,-10 10,50 -28,-10 -76,0 -84,-52 -132,-50 -124,-92 -172,-102 -148,-142 -190,-165 -152,-198 -185,-235 -142,-255 -160,-300 -118,-305 -120,-355 -78,-345 -65,-395 -30,-370"
+            fill="none" stroke="#C9A96E" stroke-width="1.3"/>
+          <!-- Spoke lines -->
+          <line x1="0" y1="-415" x2="0" y2="-320" stroke="#C9A96E" stroke-width="0.8"/>
+          <line x1="0" y1="415"  x2="0" y2="320"  stroke="#C9A96E" stroke-width="0.8"/>
+          <line x1="-415" y1="0" x2="-320" y2="0" stroke="#C9A96E" stroke-width="0.8"/>
+          <line x1="415" y1="0"  x2="320" y2="0"  stroke="#C9A96E" stroke-width="0.8"/>
+        </g>
+
+        <!-- ═══ LAYER 2: Middle 12-point star ═══ -->
+        <g transform="translate(512,490)" opacity="0.3">
+          <circle cx="0" cy="0" r="360" fill="none" stroke="#C9A96E" stroke-width="1"/>
+          <polygon points="0,-340 28,-298 68,-316 68,-272 108,-268 98,-226 136,-208 112,-172 148,-140 112,-116 136,-80 96,-68 102,-28 62,-28 52,14 14,2 0,44 -14,2 -52,14 -62,-28 -102,-28 -96,-68 -136,-80 -112,-116 -148,-140 -112,-172 -136,-208 -98,-226 -108,-268 -68,-272 -68,-316 -28,-298"
+            fill="none" stroke="#C9A96E" stroke-width="1.1"/>
+          <circle cx="0" cy="0" r="200" fill="none" stroke="#C9A96E" stroke-width="0.8"/>
+        </g>
+
+        <!-- ═══ LAYER 3: Corner rosettes ═══ -->
+        <!-- Top-left -->
+        <g transform="translate(130,130)" opacity="0.2">
+          <circle cx="0" cy="0" r="95" fill="none" stroke="#C9A96E" stroke-width="0.8"/>
+          <polygon points="0,-80 15,-30 60,-40 30,-6 55,26 16,20 8,65 -4,28 -46,50 -28,12 -65,0 -28,-12 -46,-50 -4,-28 8,-65 16,-20 55,-26 30,6 60,40 15,30"
+            fill="none" stroke="#C9A96E" stroke-width="0.9"/>
+          <circle cx="0" cy="0" r="30" fill="none" stroke="#C9A96E" stroke-width="0.7"/>
+          <circle cx="0" cy="0" r="12" fill="rgba(201,169,110,0.15)" stroke="#C9A96E" stroke-width="0.6"/>
+        </g>
+        <!-- Top-right -->
+        <g transform="translate(894,130)" opacity="0.2">
+          <circle cx="0" cy="0" r="95" fill="none" stroke="#C9A96E" stroke-width="0.8"/>
+          <polygon points="0,-80 15,-30 60,-40 30,-6 55,26 16,20 8,65 -4,28 -46,50 -28,12 -65,0 -28,-12 -46,-50 -4,-28 8,-65 16,-20 55,-26 30,6 60,40 15,30"
+            fill="none" stroke="#C9A96E" stroke-width="0.9"/>
+          <circle cx="0" cy="0" r="30" fill="none" stroke="#C9A96E" stroke-width="0.7"/>
+          <circle cx="0" cy="0" r="12" fill="rgba(201,169,110,0.15)" stroke="#C9A96E" stroke-width="0.6"/>
+        </g>
+        <!-- Bottom-left -->
+        <g transform="translate(130,894)" opacity="0.2">
+          <circle cx="0" cy="0" r="95" fill="none" stroke="#C9A96E" stroke-width="0.8"/>
+          <polygon points="0,-80 15,-30 60,-40 30,-6 55,26 16,20 8,65 -4,28 -46,50 -28,12 -65,0 -28,-12 -46,-50 -4,-28 8,-65 16,-20 55,-26 30,6 60,40 15,30"
+            fill="none" stroke="#C9A96E" stroke-width="0.9"/>
+          <circle cx="0" cy="0" r="30" fill="none" stroke="#C9A96E" stroke-width="0.7"/>
+          <circle cx="0" cy="0" r="12" fill="rgba(201,169,110,0.15)" stroke="#C9A96E" stroke-width="0.6"/>
+        </g>
+        <!-- Bottom-right -->
+        <g transform="translate(894,894)" opacity="0.2">
+          <circle cx="0" cy="0" r="95" fill="none" stroke="#C9A96E" stroke-width="0.8"/>
+          <polygon points="0,-80 15,-30 60,-40 30,-6 55,26 16,20 8,65 -4,28 -46,50 -28,12 -65,0 -28,-12 -46,-50 -4,-28 8,-65 16,-20 55,-26 30,6 60,40 15,30"
+            fill="none" stroke="#C9A96E" stroke-width="0.9"/>
+          <circle cx="0" cy="0" r="30" fill="none" stroke="#C9A96E" stroke-width="0.7"/>
+          <circle cx="0" cy="0" r="12" fill="rgba(201,169,110,0.15)" stroke="#C9A96E" stroke-width="0.6"/>
+        </g>
+
+        <!-- ═══ LAYER 4: Inner ring with dots ═══ -->
+        <g transform="translate(512,490)" opacity="0.35">
+          <circle cx="0" cy="0" r="155" fill="none" stroke="#C9A96E" stroke-width="1.2" stroke-dasharray="8,14"/>
+          <circle cx="0" cy="0" r="140" fill="none" stroke="#C9A96E" stroke-width="0.6"/>
+        </g>
+
+        <!-- ═══ CRESCENT MOON (main element) ═══ -->
+        <!-- Outer glow -->
+        <g filter="url(#sf2)">
+          <circle cx="490" cy="440" r="180" fill="rgba(201,169,110,0.09)"/>
+        </g>
+        <!-- Crescent -->
         <g filter="url(#sf)">
-          <path d="M 512 210 A 215 215 0 1 1 512 630 A 155 155 0 1 0 512 210 Z" fill="url(#sg)"/>
+          <path d="M 512 238 A 195 195 0 1 1 512 618 A 138 138 0 1 0 512 238 Z"
+            fill="url(#sg)" opacity="0.97"/>
         </g>
-        <g transform="translate(638,308)" filter="url(#sf)">
-          <polygon points="0,-52 12,-19 48,-19 21,7 32,42 0,21 -32,42 -21,7 -48,-19 -12,-19" fill="#F0D060"/>
+        <!-- Crescent highlight -->
+        <path d="M 520 252 A 182 182 0 1 1 520 604 A 128 128 0 1 0 520 252 Z"
+          fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2"/>
+
+        <!-- ═══ STAR ═══ -->
+        <g transform="translate(644,308)" filter="url(#sf)">
+          <polygon points="0,-58 14,-21 52,-21 23,9 36,47 0,24 -36,47 -23,9 -52,-21 -14,-21"
+            fill="url(#sg2)" opacity="0.97"/>
+          <polygon points="0,-36 9,-13 33,-13 15,5 22,28 0,15 -22,28 -15,5 -33,-13 -9,-13"
+            fill="rgba(255,255,255,0.45)"/>
         </g>
-      </g>
-      <rect width="1024" height="1024" rx="220" ry="220" fill="none" stroke="rgba(201,169,110,0.35)" stroke-width="6"/>
+
+        <!-- ═══ BOTTOM TEXT AREA ═══ -->
+        <!-- Decorative line -->
+        <line x1="200" y1="790" x2="824" y2="790" stroke="#C9A96E" stroke-width="0.8" opacity="0.35"/>
+        <circle cx="512" cy="790" r="4" fill="#C9A96E" opacity="0.5"/>
+        <circle cx="220" cy="790" r="2.5" fill="#C9A96E" opacity="0.3"/>
+        <circle cx="804" cy="790" r="2.5" fill="#C9A96E" opacity="0.3"/>
+
+        <!-- ISLAM text -->
+        <text x="512" y="868"
+          font-family="'Palatino Linotype','Georgia',serif"
+          font-size="100" font-weight="700"
+          letter-spacing="18" text-anchor="middle"
+          fill="#C9A96E"
+          filter="url(#sf)" opacity="0.95">ISLAM</text>
+
+        <!-- RISING text -->
+        <text x="512" y="950"
+          font-family="'Palatino Linotype','Georgia',serif"
+          font-size="74" font-weight="400"
+          letter-spacing="30" text-anchor="middle"
+          fill="#E8C97A" opacity="0.82">RISING</text>
+
+        <!-- dots under text -->
+        <circle cx="462" cy="978" r="2.5" fill="#C9A96E" opacity="0.3"/>
+        <circle cx="512" cy="978" r="4"   fill="#C9A96E" opacity="0.45"/>
+        <circle cx="562" cy="978" r="2.5" fill="#C9A96E" opacity="0.3"/>
+
+        <!-- ═══ FLOATING MINI STARS ═══ -->
+        <g opacity="0.3">
+          <polygon points="120,250 126,268 145,268 131,278 137,296 120,286 103,296 109,278 95,268 114,268" fill="#C9A96E"/>
+          <polygon points="904,250 910,268 929,268 915,278 921,296 904,286 887,296 893,278 879,268 898,268" fill="#C9A96E"/>
+          <polygon points="80,650 85,664 100,664 88,672 93,686 80,678 67,686 72,672 60,664 75,664" fill="#C9A96E" opacity="0.2"/>
+          <polygon points="944,650 949,664 964,664 952,672 957,686 944,678 931,686 936,672 924,664 939,664" fill="#C9A96E" opacity="0.2"/>
+        </g>
+
+      </g><!-- end clip -->
+
+      <!-- Border ring -->
+      <rect width="1024" height="1024" rx="200" ry="200"
+        fill="none" stroke="#C9A96E" stroke-width="5" opacity="0.4"/>
+      <rect x="8" y="8" width="1008" height="1008" rx="194" ry="194"
+        fill="none" stroke="#C9A96E" stroke-width="2" opacity="0.18"/>
     </svg>
     <h1>Islam Rising</h1>
     <p>نبض العبادة اليومية</p>
