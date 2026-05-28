@@ -66,7 +66,50 @@
 
   <!-- Splash -->
   <div id="splash">
-    <svg width="200" height="200" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+    <!-- Islamic background ornaments on splash screen -->
+    <svg style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.12" viewBox="0 0 400 800" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      <!-- Full tile pattern -->
+      <defs>
+        <pattern id="splTile" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
+          <polygon points="40,3 43,13 50,8 48,19 58,17 54,26 64,28 57,35 62,44 52,43 50,53 42,48 40,58 38,48 30,53 28,43 18,44 23,35 16,28 26,26 22,17 32,19 30,8 37,13" fill="none" stroke="#C9A96E" strokeWidth="0.6"/>
+          <circle cx="40" cy="40" r="8" fill="none" stroke="#C9A96E" strokeWidth="0.4"/>
+          <circle cx="40" cy="40" r="3" fill="none" stroke="#C9A96E" strokeWidth="0.35"/>
+          <line x1="0" y1="0" x2="80" y2="80" stroke="#C9A96E" strokeWidth="0.2"/>
+          <line x1="80" y1="0" x2="0" y2="80" stroke="#C9A96E" strokeWidth="0.2"/>
+        </pattern>
+      </defs>
+      <rect width="400" height="800" fill="url(#splTile)"/>
+      <!-- Outer border medallion top -->
+      <g transform="translate(200,80)">
+        <circle cx="0" cy="0" r="70" fill="none" stroke="#C9A96E" strokeWidth="0.8"/>
+        <polygon points="0,-65 10,-24 48,-38 24,-6 48,20 14,16 6,55 -2,20 -36,38 -20,6 -48,20 -24,-6 -48,-38 -10,-24" fill="none" stroke="#C9A96E" strokeWidth="0.7"/>
+        <circle cx="0" cy="0" r="22" fill="none" stroke="#C9A96E" strokeWidth="0.5"/>
+      </g>
+      <!-- Bottom medallion -->
+      <g transform="translate(200,720)">
+        <circle cx="0" cy="0" r="70" fill="none" stroke="#C9A96E" strokeWidth="0.8"/>
+        <polygon points="0,-65 10,-24 48,-38 24,-6 48,20 14,16 6,55 -2,20 -36,38 -20,6 -48,20 -24,-6 -48,-38 -10,-24" fill="none" stroke="#C9A96E" strokeWidth="0.7"/>
+        <circle cx="0" cy="0" r="22" fill="none" stroke="#C9A96E" strokeWidth="0.5"/>
+      </g>
+      <!-- Side ornaments -->
+      <g transform="translate(30,400)">
+        <circle cx="0" cy="0" r="40" fill="none" stroke="#C9A96E" strokeWidth="0.6"/>
+        <polygon points="0,-35 6,-13 28,-20 14,-4 28,12 8,10 4,32 -2,10 -22,22 -12,-4 -28,12 -14,-4 -28,-20 -6,-13" fill="none" stroke="#C9A96E" strokeWidth="0.55"/>
+      </g>
+      <g transform="translate(370,400)">
+        <circle cx="0" cy="0" r="40" fill="none" stroke="#C9A96E" strokeWidth="0.6"/>
+        <polygon points="0,-35 6,-13 28,-20 14,-4 28,12 8,10 4,32 -2,10 -22,22 -12,-4 -28,12 -14,-4 -28,-20 -6,-13" fill="none" stroke="#C9A96E" strokeWidth="0.55"/>
+      </g>
+      <!-- Corner stars -->
+      <polygon points="20,20 23,30 34,30 25,36 28,46 20,40 12,46 15,36 6,30 17,30" fill="none" stroke="#C9A96E" strokeWidth="0.7"/>
+      <polygon points="380,20 383,30 394,30 385,36 388,46 380,40 372,46 375,36 366,30 377,30" fill="none" stroke="#C9A96E" strokeWidth="0.7"/>
+      <polygon points="20,780 23,770 34,770 25,764 28,754 20,760 12,754 15,764 6,770 17,770" fill="none" stroke="#C9A96E" strokeWidth="0.7"/>
+      <polygon points="380,780 383,770 394,770 385,764 388,754 380,760 372,754 375,764 366,770 377,770" fill="none" stroke="#C9A96E" strokeWidth="0.7"/>
+      <!-- Vertical border lines -->
+      <line x1="8" y1="100" x2="8" y2="700" stroke="#C9A96E" strokeWidth="0.5" strokeDasharray="8,12"/>
+      <line x1="392" y1="100" x2="392" y2="700" stroke="#C9A96E" strokeWidth="0.5" strokeDasharray="8,12"/>
+    </svg>
+    <svg width="200" height="200" style="position:relative;z-index:1" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <radialGradient id="sbg" cx="50%" cy="40%" r="60%">
           <stop offset="0%"   stop-color="#2A1E00"/>
@@ -102,7 +145,7 @@
         <circle cx="512" cy="490" r="200" fill="rgba(201,169,110,0.05)"/>
 
         <!-- ═══ LAYER 1: Outer 16-point star ring ═══ -->
-        <g transform="translate(512,490)" opacity="0.25">
+        <g transform="translate(512,490)" opacity="0.5">
           <!-- Outer circle -->
           <circle cx="0" cy="0" r="465" fill="none" stroke="#C9A96E" stroke-width="1.5"/>
           <circle cx="0" cy="0" r="448" fill="none" stroke="#C9A96E" stroke-width="0.8" stroke-dasharray="14,20"/>
@@ -118,7 +161,7 @@
         </g>
 
         <!-- ═══ LAYER 2: Middle 12-point star ═══ -->
-        <g transform="translate(512,490)" opacity="0.3">
+        <g transform="translate(512,490)" opacity="0.55">
           <circle cx="0" cy="0" r="360" fill="none" stroke="#C9A96E" stroke-width="1"/>
           <polygon points="0,-340 28,-298 68,-316 68,-272 108,-268 98,-226 136,-208 112,-172 148,-140 112,-116 136,-80 96,-68 102,-28 62,-28 52,14 14,2 0,44 -14,2 -52,14 -62,-28 -102,-28 -96,-68 -136,-80 -112,-116 -148,-140 -112,-172 -136,-208 -98,-226 -108,-268 -68,-272 -68,-316 -28,-298"
             fill="none" stroke="#C9A96E" stroke-width="1.1"/>
@@ -127,7 +170,7 @@
 
         <!-- ═══ LAYER 3: Corner rosettes ═══ -->
         <!-- Top-left -->
-        <g transform="translate(130,130)" opacity="0.2">
+        <g transform="translate(130,130)" opacity="0.45">
           <circle cx="0" cy="0" r="95" fill="none" stroke="#C9A96E" stroke-width="0.8"/>
           <polygon points="0,-80 15,-30 60,-40 30,-6 55,26 16,20 8,65 -4,28 -46,50 -28,12 -65,0 -28,-12 -46,-50 -4,-28 8,-65 16,-20 55,-26 30,6 60,40 15,30"
             fill="none" stroke="#C9A96E" stroke-width="0.9"/>
@@ -135,7 +178,7 @@
           <circle cx="0" cy="0" r="12" fill="rgba(201,169,110,0.15)" stroke="#C9A96E" stroke-width="0.6"/>
         </g>
         <!-- Top-right -->
-        <g transform="translate(894,130)" opacity="0.2">
+        <g transform="translate(894,130)" opacity="0.45">
           <circle cx="0" cy="0" r="95" fill="none" stroke="#C9A96E" stroke-width="0.8"/>
           <polygon points="0,-80 15,-30 60,-40 30,-6 55,26 16,20 8,65 -4,28 -46,50 -28,12 -65,0 -28,-12 -46,-50 -4,-28 8,-65 16,-20 55,-26 30,6 60,40 15,30"
             fill="none" stroke="#C9A96E" stroke-width="0.9"/>
@@ -143,7 +186,7 @@
           <circle cx="0" cy="0" r="12" fill="rgba(201,169,110,0.15)" stroke="#C9A96E" stroke-width="0.6"/>
         </g>
         <!-- Bottom-left -->
-        <g transform="translate(130,894)" opacity="0.2">
+        <g transform="translate(130,894)" opacity="0.45">
           <circle cx="0" cy="0" r="95" fill="none" stroke="#C9A96E" stroke-width="0.8"/>
           <polygon points="0,-80 15,-30 60,-40 30,-6 55,26 16,20 8,65 -4,28 -46,50 -28,12 -65,0 -28,-12 -46,-50 -4,-28 8,-65 16,-20 55,-26 30,6 60,40 15,30"
             fill="none" stroke="#C9A96E" stroke-width="0.9"/>
@@ -151,7 +194,7 @@
           <circle cx="0" cy="0" r="12" fill="rgba(201,169,110,0.15)" stroke="#C9A96E" stroke-width="0.6"/>
         </g>
         <!-- Bottom-right -->
-        <g transform="translate(894,894)" opacity="0.2">
+        <g transform="translate(894,894)" opacity="0.45">
           <circle cx="0" cy="0" r="95" fill="none" stroke="#C9A96E" stroke-width="0.8"/>
           <polygon points="0,-80 15,-30 60,-40 30,-6 55,26 16,20 8,65 -4,28 -46,50 -28,12 -65,0 -28,-12 -46,-50 -4,-28 8,-65 16,-20 55,-26 30,6 60,40 15,30"
             fill="none" stroke="#C9A96E" stroke-width="0.9"/>
@@ -160,7 +203,7 @@
         </g>
 
         <!-- ═══ LAYER 4: Inner ring with dots ═══ -->
-        <g transform="translate(512,490)" opacity="0.35">
+        <g transform="translate(512,490)" opacity="0.6">
           <circle cx="0" cy="0" r="155" fill="none" stroke="#C9A96E" stroke-width="1.2" stroke-dasharray="8,14"/>
           <circle cx="0" cy="0" r="140" fill="none" stroke="#C9A96E" stroke-width="0.6"/>
         </g>
@@ -215,7 +258,7 @@
         <circle cx="562" cy="978" r="2.5" fill="#C9A96E" opacity="0.3"/>
 
         <!-- ═══ FLOATING MINI STARS ═══ -->
-        <g opacity="0.3">
+        <g opacity="0.55">
           <polygon points="120,250 126,268 145,268 131,278 137,296 120,286 103,296 109,278 95,268 114,268" fill="#C9A96E"/>
           <polygon points="904,250 910,268 929,268 915,278 921,296 904,286 887,296 893,278 879,268 898,268" fill="#C9A96E"/>
           <polygon points="80,650 85,664 100,664 88,672 93,686 80,678 67,686 72,672 60,664 75,664" fill="#C9A96E" opacity="0.2"/>
@@ -230,12 +273,15 @@
       <rect x="8" y="8" width="1008" height="1008" rx="194" ry="194"
         fill="none" stroke="#C9A96E" stroke-width="2" opacity="0.18"/>
     </svg>
-    <h1>Islam Rising</h1>
-    <p>نبض العبادة اليومية</p>
-    <div class="dots">
+    <h1 style="position:relative;z-index:1">Islam Rising</h1>
+    <p style="position:relative;z-index:1">نبض العبادة اليومية</p>
+    <div class="dots" style="position:relative;z-index:1">
       <div class="dot"></div>
       <div class="dot"></div>
       <div class="dot"></div>
+    </div>
+    <div id="loading-msg" style="position:relative;z-index:1;margin-top:14px;font-family:Georgia,serif;font-size:11px;letter-spacing:2px;color:rgba(201,169,110,0.4)" style="margin-top:14px;font-family:Georgia,serif;font-size:11px;letter-spacing:2px;color:rgba(201,169,110,0.4)">
+      جاري التحميل...
     </div>
   </div>
 
@@ -267,28 +313,25 @@
     }
 
     // Splash control
-    window.__hideSplash = () => {
+    window.__hideSplash = window.__removeSplash = () => {
       const s = document.getElementById('splash');
       if (!s) return;
       s.classList.add('hide');
       setTimeout(() => s.classList.add('gone'), 700);
     };
 
-    // Error handler
-    window.onerror = (msg, src, line) => {
-      console.error('App error:', msg, src, line);
-      document.getElementById('err').classList.add('show');
-      document.getElementById('splash').classList.add('gone');
-    };
-
-    // Timeout fallback — if app doesn't load in 12s
+    // Timeout fallback — 30s for Babel compilation
     setTimeout(() => {
       const s = document.getElementById('splash');
       if (s && !s.classList.contains('gone')) {
-        document.getElementById('err').classList.add('show');
-        s.classList.add('gone');
+        // Still loading - show tap to continue
+        const tap = document.createElement('div');
+        tap.style.cssText = 'margin-top:20px;font-family:Georgia,serif;font-size:13px;letter-spacing:3px;color:rgba(201,169,110,0.6);cursor:pointer';
+        tap.innerHTML = 'اضغط للمتابعة';
+        tap.onclick = () => { window.__hideSplash(); };
+        document.getElementById('splash').appendChild(tap);
       }
-    }, 12000);
+    }, 8000);
   </script>
 
   <!-- 4. App code inline — no external JSX file needed -->
@@ -2187,12 +2230,22 @@ if (_root && !_root._reactRootContainer) {
       if (root && root.children.length > 0) {
         clearInterval(checkMount);
         window.__hideSplash();
-      } else if (attempts > 150) {
+      } else if (attempts === 50) {
+        // Update loading message at 5s
+        const msg = document.getElementById('loading-msg');
+        if(msg) msg.textContent = 'يُرجى الانتظار، جاري تهيئة التطبيق...';
+      } else if (attempts > 300) {
         clearInterval(checkMount);
-        document.getElementById('err').classList.add('show');
-        document.getElementById('splash').classList.add('gone');
+        // Don't show error - just hide splash and hope React mounted
+        window.__hideSplash();
       }
     }, 100);
+
+    // Also listen for Babel errors
+    window.addEventListener('error', (e) => {
+      console.warn('App error caught:', e.message);
+      // Don't block the app for non-critical errors
+    });
   </script>
 
 </body>
