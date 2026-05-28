@@ -1738,7 +1738,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
     border: `1px solid rgba(201,169,110,0.15)`
   } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 23, marginBottom: 4 } }, EMOJIS[i]), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, fontWeight: 700, color: "white", marginBottom: 3 } }, p.ar), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, color: `rgb(${p.hue})`, fontWeight: 600 } }, pTimes[p.id] || "\u2014"))))) : null, locErr && /* @__PURE__ */ React.createElement("div", { style: { color: "#ff6b6b", fontSize: 17, textAlign: "center", marginTop: 6 } }, locErr)), (() => {
     const bearing = coords ? qibla : null;
-    const needleAngle = bearing !== null ? bearing - compass : 0;
+    const needleAngle = bearing !== null ? bearing : 0;
     return /* @__PURE__ */ React.createElement("div", { style: {
       borderRadius: 22,
       padding: "24px",
@@ -1747,24 +1747,14 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
       background: "linear-gradient(160deg,rgba(10,20,15,0.9),rgba(5,12,10,0.95))",
       border: "1px solid rgba(74,222,128,0.25)",
       boxShadow: "0 8px 40px rgba(0,0,0,0.5)"
-    } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, color: "rgba(74,222,128,0.7)", letterSpacing: 3, marginBottom: 16 } }, "\u2726 \u0627\u062A\u062C\u0627\u0647 \u0627\u0644\u0642\u0628\u0644\u0629 \u2726"), !compassActive && /* @__PURE__ */ React.createElement("div", { onClick: startCompass, style: {
-      cursor: "pointer",
-      background: "rgba(74,222,128,0.1)",
-      border: "1px solid rgba(74,222,128,0.3)",
-      borderRadius: 12,
-      padding: "8px 16px",
-      fontSize: 16,
-      color: "rgba(74,222,128,0.8)",
-      marginBottom: 12,
-      textAlign: "center"
-    } }, "\u0627\u0636\u063A\u0637 \u0644\u062A\u0641\u0639\u064A\u0644 \u0627\u0644\u0628\u0648\u0635\u0644\u0629 \u{1F9ED}"), /* @__PURE__ */ React.createElement("div", { style: { position: "relative", width: 180, height: 180, margin: "0 auto 16px" }, onClick: startCompass }, /* @__PURE__ */ React.createElement("div", { style: {
+    } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, color: "rgba(74,222,128,0.7)", letterSpacing: 3, marginBottom: 16 } }, "\u2726 \u0627\u062A\u062C\u0627\u0647 \u0627\u0644\u0642\u0628\u0644\u0629 \u2726"), /* @__PURE__ */ React.createElement("div", { style: { position: "relative", width: 180, height: 180, margin: "0 auto 16px" } }, /* @__PURE__ */ React.createElement("div", { style: {
       position: "absolute",
       inset: 0,
       borderRadius: "50%",
       border: "2px solid rgba(74,222,128,0.3)",
       background: "radial-gradient(circle,rgba(74,222,128,0.04),transparent 70%)"
     } }, [["N", 0], ["E", 90], ["S", 180], ["W", 270]].map(([l, a]) => {
-      const rad = (a - compass) * Math.PI / 180;
+      const rad = a * Math.PI / 180;
       const x = 90 + 78 * Math.sin(rad), y = 90 - 78 * Math.cos(rad);
       return /* @__PURE__ */ React.createElement("div", { key: l, style: {
         position: "absolute",
@@ -1835,7 +1825,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
       alignItems: "center",
       justifyContent: "center",
       gap: 8
-    } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 21 } }, "\u{1F4CD}"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 17, color: "var(--gold3)" } }, "\u0641\u0639\u0651\u0644 \u0627\u0644\u0645\u0648\u0642\u0639 \u0623\u0639\u0644\u0627\u0647 \u0644\u0644\u062D\u0635\u0648\u0644 \u0639\u0644\u0649 \u0627\u0644\u0627\u062A\u062C\u0627\u0647 \u0627\u0644\u062F\u0642\u064A\u0642")), coords && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, color: "var(--muted)", marginTop: 8 } }, "\u062D\u0631\u0651\u0643 \u062C\u0647\u0627\u0632\u0643 \u0644\u0644\u0645\u0639\u0627\u064A\u0631\u0629 \u2022 \u0627\u0644\u0625\u0628\u0631\u0629 \u0627\u0644\u062E\u0636\u0631\u0627\u0621 \u062A\u0634\u064A\u0631 \u0644\u0644\u0643\u0639\u0628\u0629"));
+    } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 21 } }, "\u{1F4CD}"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 17, color: "var(--gold3)" } }, "\u0641\u0639\u0651\u0644 \u0627\u0644\u0645\u0648\u0642\u0639 \u0623\u0639\u0644\u0627\u0647 \u0644\u0644\u062D\u0635\u0648\u0644 \u0639\u0644\u0649 \u0627\u0644\u0627\u062A\u062C\u0627\u0647 \u0627\u0644\u062F\u0642\u064A\u0642")), coords && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, color: "var(--muted)", marginTop: 8 } }, "\u0627\u0644\u0625\u0628\u0631\u0629 \u0627\u0644\u062E\u0636\u0631\u0627\u0621 \u062A\u0634\u064A\u0631 \u0644\u0644\u0643\u0639\u0628\u0629 ✔️"));
   })(), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, color: "var(--muted)", letterSpacing: 3, marginBottom: 12, textAlign: "center" } }, "\u2726 \u0635\u0644\u0648\u0627\u062A \u0627\u0644\u064A\u0648\u0645 \u2726"), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 } }, PRAYER_META.map((p, i) => {
     const done = prayers[p.id];
     const time = pTimes == null ? void 0 : pTimes[p.id];
