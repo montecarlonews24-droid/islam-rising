@@ -532,7 +532,7 @@ const PRAYER_META = [
   { id: "maghrib", ar: "\u0627\u0644\u0645\u063A\u0631\u0628", hue: "180,130,80" },
   { id: "isha", ar: "\u0627\u0644\u0639\u0634\u0627\u0621", hue: "120,100,180" }
 ];
-const EMOJIS = ["\u{1F319}", "\u2600\uFE0F", "\u{1F324}", "\u{1F305}", "\u2B50"];
+const EMOJIS = ["\uD83C\uDF19", "\u2600\uFE0F", "\u{1F324}", "\u{1F305}", "\u2B50"];
 const EXTRA = [
   { id: "quran", ar: "\u0648\u0631\u062F \u0627\u0644\u0642\u0631\u0622\u0646", pts: 15, verify: "\u0628\u0650\u0633\u0652\u0645\u0650 \u0627\u0644\u0644\u064E\u0651\u0647\u0650" },
   { id: "adhkars", ar: "\u0623\u0630\u0643\u0627\u0631 \u0627\u0644\u0635\u0628\u0627\u062D", pts: 8, verify: null },
@@ -548,7 +548,7 @@ const EXTRA_FRIDAY = [
 const MEDALS = ["\u{1F947}", "\u{1F948}", "\u{1F949}"];
 const RANKS = ["\u0645\u0628\u062A\u062F\u0626", "\u0645\u0648\u0627\u0638\u0628", "\u062A\u0642\u064A", "\u0639\u0627\u0628\u062F", "\u0645\u0646 \u0623\u0647\u0644 \u0627\u0644\u0644\u064A\u0644"];
 const ONBOARD_STEPS = [
-  { title: "\u0623\u0647\u0644\u0627\u064B \u0628\u0643 \u0641\u064A Islam Rising", sub: "\u0631\u0641\u064A\u0642\u0643 \u0627\u0644\u064A\u0648\u0645\u064A \u0641\u064A \u0631\u062D\u0644\u0629 \u0627\u0644\u0639\u0628\u0627\u062F\u0629", emoji: "\u{1F319}" },
+  { title: "\u0623\u0647\u0644\u0627\u064B \u0628\u0643 \u0641\u064A Islam Rising", sub: "\u0631\u0641\u064A\u0642\u0643 \u0627\u0644\u064A\u0648\u0645\u064A \u0641\u064A \u0631\u062D\u0644\u0629 \u0627\u0644\u0639\u0628\u0627\u062F\u0629", emoji: "\uD83C\uDF19" },
   { title: "\u0645\u0627 \u0627\u0633\u0645\u0643\u061F", sub: "\u0633\u064A\u0638\u0647\u0631 \u0641\u064A \u0644\u0648\u062D\u0629 \u0627\u0644\u0645\u062A\u0635\u062F\u0631\u064A\u0646", emoji: "\u{1F464}" },
   { title: "\u0645\u0646 \u0623\u064A \u0645\u062F\u064A\u0646\u0629\u061F", sub: "\u0644\u062D\u0633\u0627\u0628 \u0623\u0648\u0642\u0627\u062A \u0627\u0644\u0635\u0644\u0627\u0629 \u0628\u062F\u0642\u0629", emoji: "\u{1F4CD}" },
   { title: "\u0641\u0639\u0651\u0644 \u0625\u0634\u0639\u0627\u0631\u0627\u062A \u0627\u0644\u0635\u0644\u0627\u0629", sub: "\u0644\u0627 \u062A\u0641\u0648\u0651\u062A \u0648\u0642\u062A \u0627\u0644\u0623\u0630\u0627\u0646", emoji: "\u{1F514}" }
@@ -683,7 +683,6 @@ function App() {
   };
   const [compassActive, setCompassActive] = useState(false);
   const [fridayCounters, setFridayCounters] = useState({});
-  const [counterModal, setCounterModal] = useState(null);
   const startCompass = () => {
     const handler = (e) => {
       let h = 0;
@@ -968,10 +967,6 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
   };
   const tapExtra = (e) => {
     if (extras[e.id]) return;
-    if (e.counter) {
-      setCounterModal({ item: e, count: fridayCounters[e.id] || 0 });
-      return;
-    }
     if (e.verify) {
       setModal(e);
       setVI("");
@@ -983,21 +978,6 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
       if (!isPremium && !isFriday && !adWatched[e.id]) {
         setTimeout(() => showRewardedAd(e.id, e.ar, e.pts), 800);
       }
-    }
-  };
-  const tapFridayCounter = () => {
-    if (!counterModal) return;
-    const newCount = counterModal.count + 1;
-    const e = counterModal.item;
-    if (newCount >= e.counter) {
-      setFridayCounters((p) => __spreadProps(__spreadValues({}, p), { [e.id]: newCount }));
-      setCounterModal(null);
-      const next = __spreadProps(__spreadValues({}, extras), { [e.id]: true });
-      setDE(next);
-      give(e.pts, prayers, next);
-    } else {
-      setFridayCounters((p) => __spreadProps(__spreadValues({}, p), { [e.id]: newCount }));
-      setCounterModal(__spreadProps(__spreadValues({}, counterModal), { count: newCount }));
     }
   };
   const confirmVerify = () => {
@@ -1236,7 +1216,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
     boxShadow: "0 40px 100px rgba(0,0,0,0.8),0 0 60px rgba(123,94,167,0.15)"
   } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 54, marginBottom: 12 } }, "\u{1F451}"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 30, fontWeight: 700, color: "white", marginBottom: 6 } }, "Islam Rising Premium"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 20, color: "var(--muted)", marginBottom: 20, lineHeight: 1.8 } }, "\u0627\u0641\u062A\u062D \u0643\u0644 \u0627\u0644\u0645\u0645\u064A\u0632\u0627\u062A \u0648\u062A\u0635\u062F\u0651\u0631 \u0627\u0644\u0644\u0648\u062D\u0629"), [
     { e: "\u26A1", t: "\u0646\u0642\u0627\u0637 \xD7 \u0661.\u0665 \u062F\u0627\u0626\u0645\u0627\u064B" },
-    { e: "\u{1F319}", t: "\u0646\u0642\u0627\u0637 \xD7 \u0663 \u0643\u0644 \u062C\u0645\u0639\u0629" },
+    { e: "\uD83C\uDF19", t: "\u0646\u0642\u0627\u0637 \xD7 \u0663 \u0643\u0644 \u062C\u0645\u0639\u0629" },
     { e: "\u{1F916}", t: "SENTINEL AI \u0628\u0644\u0627 \u062D\u062F\u0648\u062F" },
     { e: "\u{1F451}", t: "\u0634\u0627\u0631\u0629 Premium \u0641\u064A \u0627\u0644\u0644\u0648\u062D\u0629" },
     { e: "\u{1F6AB}", t: "\u0628\u062F\u0648\u0646 \u0625\u0639\u0644\u0627\u0646\u0627\u062A" }
@@ -1930,7 +1910,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
       alignItems: "center",
       justifyContent: "center",
       fontSize: 32
-    } }, done ? "\u2713" : ["\u{1F4D6}", "\u{1F338}", "\u{1F319}", "\u2728"][i]), /* @__PURE__ */ React.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 22, fontWeight: 700, color: done ? "#4ADE80" : "white", marginBottom: 3 } }, e.ar), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, color: "var(--muted)" } }, e.verify ? "\u064A\u062A\u0637\u0644\u0628 \u062A\u062D\u0642\u0642 \u0628\u0627\u0644\u062A\u0644\u0627\u0648\u0629" : "\u064A\u064F\u0633\u062C\u064E\u0651\u0644 \u0628\u0627\u0644\u0646\u064A\u0629")), /* @__PURE__ */ React.createElement("div", { style: {
+    } }, done ? "\u2713" : ["\uD83D\uDCD6", "\u{1F338}", "\uD83C\uDF19", "\u2728"][i]), /* @__PURE__ */ React.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 22, fontWeight: 700, color: done ? "#4ADE80" : "white", marginBottom: 3 } }, e.ar), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, color: "var(--muted)" } }, e.verify ? "\u064A\u062A\u0637\u0644\u0628 \u062A\u062D\u0642\u0642 \u0628\u0627\u0644\u062A\u0644\u0627\u0648\u0629" : "\u064A\u064F\u0633\u062C\u064E\u0651\u0644 \u0628\u0627\u0644\u0646\u064A\u0629")), /* @__PURE__ */ React.createElement("div", { style: {
       padding: "5px 13px",
       borderRadius: 99,
       flexShrink: 0,
@@ -1940,7 +1920,35 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
       border: done ? "1px solid rgba(74,222,128,0.3)" : "1px solid rgba(201,169,110,0.25)",
       color: done ? "#4ADE80" : "var(--gold)"
     } }, done ? "\u06DE" : `+${Math.round(e.pts * MULT)}`)));
-  }), isFriday && /* @__PURE__ */ React.createElement("div", { style: { marginTop: 8 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, color: "#FFD700", letterSpacing: 3, marginBottom: 10, textAlign: "center" } }, "\u06DE \u0633\u0648\u0631 \u064a\u0648\u0645 \u0627\u0644\u062c\u0645\u0639\u0629 \u06DE"), EXTRA_FRIDAY.map((e, i) => { const done = extras[e.id]; return /* @__PURE__ */ React.createElement("button", { key: e.id, className: "btn", onClick: () => tapExtra(e), style: { width: "100%", border: "none", cursor: done ? "default" : "pointer", borderRadius: 18, overflow: "hidden", marginBottom: 10 } }, /* @__PURE__ */ React.createElement("div", { style: { padding: "15px 18px", background: done ? "linear-gradient(135deg,rgba(20,50,25,0.85),rgba(10,30,15,0.9))" : "linear-gradient(160deg,rgba(60,40,0,0.88),rgba(80,55,0,0.85))", border: done ? "1px solid rgba(74,222,128,0.28)" : "1px solid rgba(255,215,0,0.35)", borderRadius: 18, display: "flex", alignItems: "center", gap: 14, textAlign: "right" } }, /* @__PURE__ */ React.createElement("div", { style: { width: 48, height: 48, borderRadius: 13, flexShrink: 0, background: done ? "rgba(74,222,128,0.1)" : "rgba(255,215,0,0.1)", border: done ? "1px solid rgba(74,222,128,0.3)" : "1px solid rgba(255,215,0,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 } }, done ? "\u2713" : ["\uD83D\uDCD6", "\uD83C\uDF19", "\uD83D\uDE4F", "\u2728"][i]), /* @__PURE__ */ React.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 20, fontWeight: 700, color: done ? "#4ADE80" : "#FFD700", marginBottom: 3 } }, e.ar), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, color: "var(--muted)" } }, e.verify ? "\u064a\u062a\u0637\u0644\u0628 \u062a\u062d\u0642\u0642 \u0628\u0627\u0644\u062a\u0644\u0627\u0648\u0629" : "\u064a\u064f\u0633\u062c\u064e\u0651\u0644 \u0628\u0627\u0644\u0646\u064a\u0651\u0629")), /* @__PURE__ */ React.createElement("div", { style: { padding: "5px 13px", borderRadius: 99, flexShrink: 0, fontSize: 18, fontWeight: 700, background: done ? "rgba(74,222,128,0.1)" : "rgba(255,215,0,0.1)", border: done ? "1px solid rgba(74,222,128,0.3)" : "1px solid rgba(255,215,0,0.35)", color: done ? "#4ADE80" : "#FFD700" } }, done ? "\u06DE" : "+" + Math.round(e.pts * MULT)))); })))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 10 } }, /* @__PURE__ */ React.createElement(
+  }), isFriday && /* @__PURE__ */ React.createElement("div", { style: { marginTop: 8 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, color: "#FFD700", letterSpacing: 3, marginBottom: 10, textAlign: "center" } }, "\u06DE \u0633\u0648\u0631 \u064a\u0648\u0645 \u0627\u0644\u062c\u0645\u0639\u0629 \u06DE"), EXTRA_FRIDAY.map((e, i) => {
+    const done = extras[e.id];
+    const cnt = fridayCounters[e.id] || 0;
+    const target = e.counter || 0;
+    const tapCounter = () => {
+      if (done) return;
+      const next = cnt + 1;
+      if (next >= target) {
+        setFridayCounters((p) => Object.assign({}, p, { [e.id]: next }));
+        tapExtra(e);
+      } else {
+        setFridayCounters((p) => Object.assign({}, p, { [e.id]: next }));
+      }
+    };
+    const icons = ["\uD83D\uDCD6", "\uD83C\uDF19", "\uD83D\uDE4F", "\u2728"];
+    return /* @__PURE__ */ React.createElement("div", { key: e.id, style: { width: "100%", borderRadius: 18, overflow: "hidden", marginBottom: 10 } },
+      /* @__PURE__ */ React.createElement("div", { style: { padding: "15px 18px", background: done ? "linear-gradient(135deg,rgba(20,50,25,0.85),rgba(10,30,15,0.9))" : "linear-gradient(160deg,rgba(60,40,0,0.88),rgba(80,55,0,0.85))", border: done ? "1px solid rgba(74,222,128,0.28)" : "1px solid rgba(255,215,0,0.35)", borderRadius: 18, display: "flex", alignItems: "center", gap: 14, textAlign: "right" } },
+        /* @__PURE__ */ React.createElement("div", { style: { width: 48, height: 48, borderRadius: 13, flexShrink: 0, background: done ? "rgba(74,222,128,0.1)" : "rgba(255,215,0,0.1)", border: done ? "1px solid rgba(74,222,128,0.3)" : "1px solid rgba(255,215,0,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 } }, done ? "\u2713" : icons[i] || "\u2728"),
+        /* @__PURE__ */ React.createElement("div", { style: { flex: 1 } },
+          /* @__PURE__ */ React.createElement("div", { style: { fontSize: 20, fontWeight: 700, color: done ? "#4ADE80" : "#FFD700", marginBottom: 3 } }, e.ar),
+          target > 0 && !done && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, color: "var(--muted)" } }, cnt + " / " + target + " \u0645\u0631\u0629")
+        ),
+        /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: 6 } },
+          /* @__PURE__ */ React.createElement("div", { style: { padding: "5px 13px", borderRadius: 99, fontSize: 18, fontWeight: 700, background: done ? "rgba(74,222,128,0.1)" : "rgba(255,215,0,0.1)", border: done ? "1px solid rgba(74,222,128,0.3)" : "1px solid rgba(255,215,0,0.35)", color: done ? "#4ADE80" : "#FFD700" } }, done ? "\u06DE" : "+" + Math.round(e.pts * MULT)),
+          target > 0 && !done && /* @__PURE__ */ React.createElement("button", { onClick: tapCounter, style: { background: "linear-gradient(135deg,rgba(255,215,0,0.25),rgba(255,215,0,0.1))", border: "1px solid rgba(255,215,0,0.5)", borderRadius: 12, padding: "8px 18px", fontSize: 22, color: "#FFD700", cursor: "pointer", fontWeight: 700 } }, "\u0633\u0628\u062d")
+        )
+      )
+    );
+  })))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 10 } }, /* @__PURE__ */ React.createElement(
     "textarea",
     {
       value: aiInput,
@@ -1995,7 +2003,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
     background: "linear-gradient(transparent,rgba(5,7,15,0.98))",
     pointerEvents: "none",
     zIndex: 5
-  } }), counterModal && /* @__PURE__ */ React.createElement("div", { style: { position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.88)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "Noto Naskh Arabic" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 22, color: "#FFD700", marginBottom: 12, textAlign: "center", padding: "0 24px" } }, counterModal.item.ar), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 90, fontWeight: 700, color: "white", lineHeight: 1 } }, counterModal.count), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 18, color: "rgba(255,255,255,0.4)", margin: "8px 0 36px" } }, counterModal.count + " / " + counterModal.item.counter), /* @__PURE__ */ React.createElement("button", { onClick: tapFridayCounter, style: { width: 150, height: 150, borderRadius: "50%", background: "linear-gradient(135deg,#C9A96E,#F0D898)", border: "none", fontSize: 26, fontWeight: 700, cursor: "pointer", color: "#05070F", boxShadow: "0 8px 32px rgba(201,169,110,0.5)" } }, "سبح"), /* @__PURE__ */ React.createElement("button", { onClick: () => setCounterModal(null), style: { marginTop: 24, background: "none", border: "1px solid rgba(255,255,255,0.25)", borderRadius: 12, padding: "10px 28px", color: "rgba(255,255,255,0.5)", cursor: "pointer", fontSize: 18 } }, "إغلاق"));
+  } });
 }
 const _root = document.getElementById("root");
 if (_root && !_root._reactRootContainer) {
