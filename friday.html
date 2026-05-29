@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=360,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>عبادات الجمعة</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #05070F;
+    color: white;
+    font-family: 'Noto Naskh Arabic', Georgia, serif;
+    min-height: 100vh;
+    padding: 20px 16px 40px;
+  }
+  .header {
+    text-align: center;
+    padding: 24px 0 20px;
+    border-bottom: 1px solid rgba(201,169,110,0.2);
+    margin-bottom: 24px;
+  }
+  .header h1 {
+    font-size: 26px;
+    color: #FFD700;
+    letter-spacing: 2px;
+  }
+  .header p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 6px;
+  }
+  .card {
+    background: linear-gradient(160deg,rgba(10,8,20,0.9),rgba(20,15,35,0.85));
+    border: 1px solid rgba(201,169,110,0.2);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 14px;
+  }
+  .card.done {
+    background: linear-gradient(135deg,rgba(20,50,25,0.85),rgba(10,30,15,0.9));
+    border-color: rgba(74,222,128,0.3);
+  }
+  .card-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 6px;
+  }
+  .card.done .card-title { color: #4ADE80; }
+  .card-pts {
+    font-size: 14px;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 16px;
+  }
+  /* Counter card */
+  .counter-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .counter-num {
+    font-size: 72px;
+    font-weight: 900;
+    color: #FFD700;
+    line-height: 1;
+  }
+  .counter-prog {
+    font-size: 15px;
+    color: rgba(255,255,255,0.35);
+  }
+  .progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 99px;
+    overflow: hidden;
+    margin: 4px 0 8px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg,#C9A96E,#FFD700);
+    border-radius: 99px;
+    transition: width 0.2s;
+  }
+  .btn-sabh {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    background: linear-gradient(135deg,#C9A96E,#F0D898);
+    border: none;
+    font-size: 24px;
+    font-weight: 700;
+    color: #05070F;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 6px 30px rgba(201,169,110,0.5);
+    transition: transform 0.1s, box-shadow 0.1s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-sabh:active {
+    transform: scale(0.94);
+    box-shadow: 0 2px 12px rgba(201,169,110,0.3);
+  }
+  .done-badge {
+    font-size: 48px;
+    text-align: center;
+    padding: 12px 0;
+  }
+  /* Simple tap card */
+  .btn-tap {
+    width: 100%;
+    padding: 14px;
+    background: rgba(201,169,110,0.1);
+    border: 1px solid rgba(201,169,110,0.3);
+    border-radius: 14px;
+    color: #C9A96E;
+    font-size: 18px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-tap:active { background: rgba(201,169,110,0.2); }
+  .btn-tap.done-btn {
+    background: rgba(74,222,128,0.1);
+    border-color: rgba(74,222,128,0.3);
+    color: #4ADE80;
+    cursor: default;
+  }
+  .pts-badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 99px;
+    font-size: 15px;
+    font-weight: 700;
+    background: rgba(255,215,0,0.1);
+    border: 1px solid rgba(255,215,0,0.3);
+    color: #FFD700;
+    margin-top: 8px;
+  }
+  .pts-badge.done { background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.3); color: #4ADE80; }
+  .total-box {
+    background: linear-gradient(135deg,rgba(255,200,0,0.1),rgba(201,169,110,0.05));
+    border: 1px solid rgba(255,200,0,0.25);
+    border-radius: 16px;
+    padding: 16px;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .total-box .label { font-size: 14px; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+  .total-box .score { font-size: 36px; font-weight: 900; color: #FFD700; }
+  .ornament { color: #C9A96E; margin: 0 6px; }
+  .reset-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    color: rgba(255,255,255,0.35);
+    font-size: 15px;
+    font-family: inherit;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  .fly {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 32px;
+    font-weight: 900;
+    color: #FFD700;
+    pointer-events: none;
+    animation: flyUp 0.9s ease forwards;
+    z-index: 999;
+  }
+  @keyframes flyUp {
+    0%   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-80px); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>۞ عبادات الجمعة ۞</h1>
+  <p>جمعة مبارکة — النقاط مضاعفة ✦</p>
+</div>
+
+<div class="total-box">
+  <div class="label">نقاط الجمعة</div>
+  <div class="score" id="totalPts">0</div>
+</div>
+
+<!-- استغفار -->
+<div class="card" id="card-istighfar">
+  <div class="card-title">استغفر الله 100 مرة</div>
+  <div class="card-pts">اضغط "سبح" مئة مرة</div>
+  <div class="counter-wrap">
+    <div class="counter-num" id="cnt-istighfar">0</div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-istighfar" style="width:0%"></div></div>
+    <div class="counter-prog" id="prog-txt-istighfar">0 / 100</div>
+    <button class="btn-sabh" id="btn-istighfar" onclick="tap('istighfar')">سبح</button>
+    <span class="pts-badge" id="pts-istighfar">+8 نقطة</span>
+  </div>
+</div>
+
+<!-- صلاة على النبي -->
+<div class="card" id="card-salawat">
+  <div class="card-title">الصلاة على النبي ﷺ 100 مرة</div>
+  <div class="card-pts">اضغط "سبح" مئة مرة</div>
+  <div class="counter-wrap">
+    <div class="counter-num" id="cnt-salawat">0</div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-salawat" style="width:0%"></div></div>
+    <div class="counter-prog" id="prog-txt-salawat">0 / 100</div>
+    <button class="btn-sabh" id="btn-salawat" onclick="tap('salawat')">سبح</button>
+    <span class="pts-badge" id="pts-salawat">+8 نقطة</span>
+  </div>
+</div>
+
+<!-- سورة الكهف -->
+<div class="card" id="card-kahf">
+  <div class="card-title">📖 قراءة سورة الكهف</div>
+  <div class="card-pts">يتطلب تحقق بالتلاوة</div>
+  <button class="btn-tap" id="btn-kahf" onclick="tapSimple('kahf')">سجّل القراءة ✓</button>
+  <div><span class="pts-badge" id="pts-kahf">+20 نقطة</span></div>
+</div>
+
+<!-- سورة الملك -->
+<div class="card" id="card-mulk">
+  <div class="card-title">🌙 قراءة سورة الملك</div>
+  <div class="card-pts">يتطلب تحقق بالتلاوة</div>
+  <button class="btn-tap" id="btn-mulk" onclick="tapSimple('mulk')">سجّل القراءة ✓</button>
+  <div><span class="pts-badge" id="pts-mulk">+16 نقطة</span></div>
+</div>
+
+<button class="reset-btn" onclick="resetAll()">↺ إعادة تعيين (للاختبار فقط)</button>
+
+<script>
+const PTS = { istighfar: 8, salawat: 8, kahf: 20, mulk: 16 };
+const TARGET = 100;
+const KEY = 'friday_' + new Date().toDateString();
+
+let state = JSON.parse(localStorage.getItem(KEY) || '{"istighfar":0,"salawat":0,"kahf":false,"mulk":false,"pts":0}');
+
+function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
+
+function showFly(txt) {
+  const el = document.createElement('div');
+  el.className = 'fly';
+  el.textContent = txt;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 900);
+}
+
+function tap(id) {
+  if (state[id] >= TARGET) return;
+  state[id]++;
+  save();
+  render();
+  if (state[id] >= TARGET) {
+    state.pts += PTS[id];
+    save();
+    render();
+    showFly('+' + PTS[id] + ' ۞');
+    navigator.vibrate && navigator.vibrate(60);
+  } else {
+    navigator.vibrate && navigator.vibrate(20);
+    if (state[id] % 10 === 0) showFly(state[id] + '...');
+  }
+}
+
+function tapSimple(id) {
+  if (state[id]) return;
+  state[id] = true;
+  state.pts += PTS[id];
+  save();
+  render();
+  showFly('+' + PTS[id] + ' ۞');
+}
+
+function render() {
+  // counters
+  ['istighfar','salawat'].forEach(id => {
+    const cnt = Math.min(state[id], TARGET);
+    const done = cnt >= TARGET;
+    document.getElementById('cnt-' + id).textContent = cnt;
+    document.getElementById('prog-' + id).style.width = (cnt / TARGET * 100) + '%';
+    document.getElementById('prog-txt-' + id).textContent = cnt + ' / ' + TARGET;
+    const btn = document.getElementById('btn-' + id);
+    const card = document.getElementById('card-' + id);
+    const pts = document.getElementById('pts-' + id);
+    if (done) {
+      btn.disabled = true;
+      btn.textContent = '✓';
+      btn.style.background = 'linear-gradient(135deg,rgba(74,222,128,0.3),rgba(74,222,128,0.1))';
+      btn.style.color = '#4ADE80';
+      card.className = 'card done';
+      pts.className = 'pts-badge done';
+      pts.textContent = '✓ مكتمل';
+    }
+  });
+  // simple
+  ['kahf','mulk'].forEach(id => {
+    const done = state[id];
+    const btn = document.getElementById('btn-' + id);
+    const card = document.getElementById('card-' + id);
+    const pts = document.getElementById('pts-' + id);
+    if (done) {
+      btn.className = 'btn-tap done-btn';
+      btn.textContent = '✓ مكتملة';
+      card.className = 'card done';
+      pts.className = 'pts-badge done';
+      pts.textContent = '✓ مكتمل';
+    }
+  });
+  document.getElementById('totalPts').textContent = state.pts;
+}
+
+function resetAll() {
+  if (!confirm('إعادة تعيين كل عبادات الجمعة؟')) return;
+  localStorage.removeItem(KEY);
+  location.reload();
+}
+
+render();
+</script>
+</body>
+</html>
