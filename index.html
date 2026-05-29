@@ -686,6 +686,11 @@ function App() {
     );
   };
   const [compassActive, setCompassActive] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
+  const [cName, setCName] = useState("");
+  const [cSubj, setCSubj] = useState("");
+  const [cMsg, setCMsg] = useState("");
+  const [cSent, setCSent] = useState(false);
   const startCompass = () => {
     const handler = (e) => {
       let h = 0;
@@ -982,6 +987,14 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
         setTimeout(() => showRewardedAd(e.id, e.ar, e.pts), 800);
       }
     }
+  };
+  const sendContact = () => {
+    if (!cName.trim() || !cMsg.trim()) return;
+    const subject = encodeURIComponent((cSubj || "\u0631\u0633\u0627\u0644\u0629 \u0645\u0646 Islam Rising") + " - " + cName);
+    const body = encodeURIComponent("\u0627\u0644\u0627\u0633\u0645: " + cName + "\n\n" + cMsg);
+    window.location.href = "mailto:montecarlo.news24@gmail.com?subject=" + subject + "&body=" + body;
+    setCSent(true);
+    setTimeout(() => { setContactOpen(false); setCSent(false); setCName(""); setCSubj(""); setCMsg(""); }, 2000);
   };
   const confirmVerify = () => {
     if (vInput.trim().slice(0, 5) === modal.verify.slice(0, 5)) {
@@ -2199,7 +2212,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
     background: "linear-gradient(transparent,rgba(5,7,15,0.98))",
     pointerEvents: "none",
     zIndex: 5
-  } })));
+  } }), /* @__PURE__ */ React.createElement("button", { onClick: () => setContactOpen(true), style: { position: "fixed", bottom: 24, left: 20, zIndex: 100, width: 50, height: 50, borderRadius: "50%", background: "linear-gradient(135deg,#C9A96E,#F0D898)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, boxShadow: "0 4px 20px rgba(201,169,110,0.5)" } }, "\u2709\uFE0F"), contactOpen && /* @__PURE__ */ React.createElement("div", { style: { position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.8)", display: "flex", alignItems: "flex-end" } }, /* @__PURE__ */ React.createElement("div", { style: { width: "100%", background: "linear-gradient(160deg,#0D0E1A,#0A0B16)", border: "1px solid rgba(201,169,110,0.2)", borderRadius: "24px 24px 0 0", padding: "24px 20px 40px", fontFamily: "Noto Naskh Arabic,serif" } }, /* @__PURE__ */ React.createElement("div", { style: { width: 40, height: 4, background: "rgba(255,255,255,0.15)", borderRadius: 99, margin: "0 auto 20px" } }), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 20, fontWeight: 700, color: "#C9A96E", textAlign: "center", marginBottom: 20, letterSpacing: 1 } }, "\u2709\uFE0F \u062A\u0648\u0627\u0635\u0644 \u0645\u0639\u0646\u0627"), cSent ? /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", fontSize: 18, color: "#4ADE80", padding: "20px 0" } }, "\u2705 \u062A\u0645 \u0641\u062A\u062D \u0627\u0644\u0628\u0631\u064A\u062F \u2014 \u0623\u0631\u0633\u0644 \u0627\u0644\u0631\u0633\u0627\u0644\u0629") : /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("input", { value: cName, onChange: (e) => setCName(e.target.value), placeholder: "\u0627\u0633\u0645\u0643", style: { width: "100%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(201,169,110,0.25)", borderRadius: 12, padding: "12px 16px", color: "white", fontSize: 16, fontFamily: "inherit", marginBottom: 10, direction: "rtl", outline: "none" } }), /* @__PURE__ */ React.createElement("input", { value: cSubj, onChange: (e) => setCSubj(e.target.value), placeholder: "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0631\u0633\u0627\u0644\u0629", style: { width: "100%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(201,169,110,0.25)", borderRadius: 12, padding: "12px 16px", color: "white", fontSize: 16, fontFamily: "inherit", marginBottom: 10, direction: "rtl", outline: "none" } }), /* @__PURE__ */ React.createElement("textarea", { value: cMsg, onChange: (e) => setCMsg(e.target.value), placeholder: "\u0645\u062D\u062A\u0648\u0649 \u0627\u0644\u0631\u0633\u0627\u0644\u0629", rows: 4, style: { width: "100%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(201,169,110,0.25)", borderRadius: 12, padding: "12px 16px", color: "white", fontSize: 16, fontFamily: "inherit", marginBottom: 16, direction: "rtl", outline: "none", resize: "none" } }), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 10 } }, /* @__PURE__ */ React.createElement("button", { onClick: sendContact, style: { flex: 1, padding: "14px", background: "linear-gradient(135deg,#C9A96E,#F0D898)", border: "none", borderRadius: 14, fontSize: 17, fontWeight: 700, color: "#05070F", cursor: "pointer", fontFamily: "inherit" } }, "\u0625\u0631\u0633\u0627\u0644 \u2709\uFE0F"), /* @__PURE__ */ React.createElement("button", { onClick: () => setContactOpen(false), style: { padding: "14px 20px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 14, fontSize: 17, color: "rgba(255,255,255,0.6)", cursor: "pointer", fontFamily: "inherit" } }, "\u0625\u0644\u063A\u0627\u0621")))))));
 }
 const _root = document.getElementById("root");
 if (_root && !_root._reactRootContainer) {
