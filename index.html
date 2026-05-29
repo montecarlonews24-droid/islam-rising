@@ -1606,7 +1606,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
     padding: "12px 20px",
     background: "linear-gradient(to bottom,rgba(5,7,15,0.92) 60%,transparent)",
     backdropFilter: "blur(20px)"
-  } }, /* @__PURE__ */ React.createElement("div", { className: "glass", style: { display: "flex", borderRadius: 99, padding: 4, gap: 2 } }, ["\u0627\u0644\u0631\u0626\u064A\u0633\u064A\u0629", "\u0639\u0628\u0627\u062F\u0627\u062A\u064A", "\u0627\u0644\u0645\u062A\u0635\u062F\u0631\u0648\u0646", "SENTINEL"].map((t, i) => /* @__PURE__ */ React.createElement("button", { key: i, className: "btn", onClick: () => setTab(i), style: {
+  } }, /* @__PURE__ */ React.createElement("div", { className: "glass", style: { display: "flex", borderRadius: 99, padding: 4, gap: 2, overflowX: "auto", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", msOverflowStyle: "none" } }, ["\u0627\u0644\u0631\u0626\u064A\u0633\u064A\u0629", "\u0639\u0628\u0627\u062F\u0627\u062A\u064A", "\u0627\u0644\u0645\u062A\u0635\u062F\u0631\u0648\u0646", "SENTINEL", "\u06DE \u0627\u0644\u0642\u0631\u0622\u0646"].map((t, i) => /* @__PURE__ */ React.createElement("button", { key: i, className: "btn", onClick: () => i === 4 ? window.location.href = "quran.html" : setTab(i), style: {
     flex: 1,
     padding: "9px 2px",
     border: "none",
@@ -1615,9 +1615,9 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
     fontSize: 16,
     fontWeight: 700,
     fontFamily: "Noto Naskh Arabic",
-    background: tab === i ? i === 3 && !isPremium ? "linear-gradient(135deg,#7B5EA7,#9B7EC7)" : "linear-gradient(135deg,#C9A96E,#F0D898)" : "transparent",
+    background: tab === i ? i === 3 && !isPremium ? "linear-gradient(135deg,#7B5EA7,#9B7EC7)" : "linear-gradient(135deg,#C9A96E,#F0D898)" : i === 4 ? "rgba(201,169,110,0.08)" : "transparent",
     color: tab === i ? "#05070F" : "var(--muted)",
-    boxShadow: tab === i ? i === 3 && !isPremium ? "0 4px 16px rgba(123,94,167,0.4)" : "0 4px 16px rgba(201,169,110,0.4)" : "none",
+    boxShadow: tab === i ? i === 3 && !isPremium ? "0 4px 16px rgba(123,94,167,0.4)" : "0 4px 16px rgba(201,169,110,0.4)" : "none", flexShrink: 0,
     transition: "all 0.3s cubic-bezier(0.34,1.56,0.64,1)"
   } }, t)))), /* @__PURE__ */ React.createElement("div", { style: { position: "relative", zIndex: 1, padding: "4px 20px 110px" } }, tab === 0 && /* @__PURE__ */ React.createElement("div", { key: "home", style: { animation: "floatUp 0.3s ease" } }, (() => {
     const mTimes = meccaTimes;
