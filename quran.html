@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=360,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>القرآن الكريم</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:#05070F;
+  color:white;
+  font-family:'Noto Naskh Arabic',Georgia,serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── Header ── */
+.header {
+  position:sticky;
+  top:0;
+  z-index:50;
+  background:rgba(5,7,15,0.97);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(201,169,110,0.15);
+  padding:14px 16px 10px;
+}
+.header-top {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:10px;
+}
+.header-title {
+  font-size:20px;
+  font-weight:700;
+  color:#C9A96E;
+  letter-spacing:1px;
+}
+.back-btn {
+  background:rgba(201,169,110,0.1);
+  border:1px solid rgba(201,169,110,0.25);
+  border-radius:10px;
+  color:#C9A96E;
+  font-size:14px;
+  padding:6px 12px;
+  cursor:pointer;
+  font-family:inherit;
+  text-decoration:none;
+  display:inline-block;
+}
+
+/* ── Search ── */
+.search-wrap {
+  position:relative;
+}
+.search-input {
+  width:100%;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(201,169,110,0.2);
+  border-radius:12px;
+  padding:10px 16px;
+  color:white;
+  font-size:16px;
+  font-family:inherit;
+  outline:none;
+  direction:rtl;
+}
+.search-input::placeholder { color:rgba(255,255,255,0.3); }
+.search-input:focus { border-color:rgba(201,169,110,0.5); }
+
+/* ── Surah List ── */
+.surah-list {
+  padding:12px 12px 100px;
+}
+.surah-card {
+  background:linear-gradient(160deg,rgba(10,8,20,0.9),rgba(18,14,32,0.85));
+  border:1px solid rgba(201,169,110,0.12);
+  border-radius:16px;
+  padding:14px 16px;
+  margin-bottom:8px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  cursor:pointer;
+  transition:border-color 0.2s, background 0.2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.surah-card:active {
+  background:linear-gradient(160deg,rgba(20,16,40,0.9),rgba(30,24,52,0.85));
+  border-color:rgba(201,169,110,0.35);
+}
+.surah-num {
+  width:42px;
+  height:42px;
+  border-radius:10px;
+  background:rgba(201,169,110,0.08);
+  border:1px solid rgba(201,169,110,0.2);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:15px;
+  font-weight:700;
+  color:#C9A96E;
+  flex-shrink:0;
+}
+.surah-info { flex:1; }
+.surah-name { font-size:19px; font-weight:700; color:white; margin-bottom:2px; }
+.surah-meta { font-size:13px; color:rgba(255,255,255,0.4); }
+.surah-eng { font-size:13px; color:rgba(201,169,110,0.6); font-family:Georgia,serif; }
+
+/* ── Surah View ── */
+.surah-view { display:none; padding:0 0 100px; }
+.surah-header {
+  text-align:center;
+  padding:24px 16px 20px;
+  border-bottom:1px solid rgba(201,169,110,0.15);
+  margin-bottom:8px;
+}
+.surah-header h2 { font-size:26px; font-weight:700; color:#C9A96E; margin-bottom:4px; }
+.surah-header p { font-size:14px; color:rgba(255,255,255,0.4); }
+.bismillah {
+  text-align:center;
+  font-family:'Amiri Quran',serif;
+  font-size:26px;
+  color:#C9A96E;
+  padding:16px;
+  opacity:0.9;
+}
+.ayah-wrap {
+  padding:0 12px;
+}
+.ayah-item {
+  background:rgba(255,255,255,0.025);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:14px;
+  padding:14px 16px;
+  margin-bottom:8px;
+  cursor:pointer;
+  transition:background 0.2s, border-color 0.2s;
+  -webkit-tap-highlight-color:transparent;
+  position:relative;
+}
+.ayah-item:active, .ayah-item.active {
+  background:rgba(201,169,110,0.06);
+  border-color:rgba(201,169,110,0.3);
+}
+.ayah-text {
+  font-family:'Amiri Quran',serif;
+  font-size:22px;
+  line-height:2;
+  color:white;
+  text-align:right;
+  margin-bottom:6px;
+}
+.ayah-num {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:rgba(201,169,110,0.12);
+  border:1px solid rgba(201,169,110,0.25);
+  font-size:12px;
+  color:#C9A96E;
+  float:left;
+  margin-top:4px;
+}
+.tap-hint {
+  font-size:12px;
+  color:rgba(255,255,255,0.25);
+  text-align:center;
+  padding:8px;
+  margin-bottom:8px;
+}
+
+/* ── Tafsir Popup ── */
+.popup-overlay {
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:200;
+  background:rgba(0,0,0,0.75);
+  backdrop-filter:blur(4px);
+}
+.popup-overlay.show { display:flex; align-items:flex-end; }
+.popup-box {
+  width:100%;
+  max-height:70vh;
+  background:linear-gradient(160deg,#0D0E1A,#0A0B16);
+  border:1px solid rgba(201,169,110,0.2);
+  border-radius:24px 24px 0 0;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  animation:slideUp 0.25s ease;
+}
+@keyframes slideUp {
+  from { transform:translateY(100%); }
+  to { transform:translateY(0); }
+}
+.popup-handle {
+  width:40px;
+  height:4px;
+  background:rgba(255,255,255,0.15);
+  border-radius:99px;
+  margin:12px auto 0;
+  flex-shrink:0;
+}
+.popup-header {
+  padding:12px 20px 10px;
+  border-bottom:1px solid rgba(201,169,110,0.1);
+  flex-shrink:0;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.popup-title { font-size:15px; color:rgba(255,255,255,0.5); }
+.popup-close {
+  background:rgba(255,255,255,0.08);
+  border:none;
+  border-radius:8px;
+  color:white;
+  font-size:18px;
+  width:32px;
+  height:32px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.popup-scroll { overflow-y:auto; padding:16px 20px 32px; flex:1; }
+.popup-ayah {
+  font-family:'Amiri Quran',serif;
+  font-size:22px;
+  line-height:2;
+  color:white;
+  text-align:right;
+  margin-bottom:16px;
+  padding-bottom:16px;
+  border-bottom:1px solid rgba(201,169,110,0.1);
+}
+.tafsir-label {
+  font-size:13px;
+  color:#C9A96E;
+  letter-spacing:1px;
+  margin-bottom:8px;
+}
+.tafsir-text {
+  font-size:17px;
+  line-height:2;
+  color:rgba(255,255,255,0.85);
+  text-align:right;
+}
+.tafsir-loading {
+  text-align:center;
+  color:rgba(255,255,255,0.3);
+  font-size:15px;
+  padding:20px;
+}
+
+/* ── Loading ── */
+.loading {
+  text-align:center;
+  padding:60px 20px;
+  color:rgba(255,255,255,0.3);
+  font-size:16px;
+}
+.spinner {
+  width:40px;
+  height:40px;
+  border:3px solid rgba(201,169,110,0.2);
+  border-top-color:#C9A96E;
+  border-radius:50%;
+  animation:spin 0.8s linear infinite;
+  margin:0 auto 16px;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* ── Error ── */
+.error-box {
+  text-align:center;
+  padding:40px 20px;
+  color:rgba(255,80,80,0.8);
+  font-size:15px;
+}
+.retry-btn {
+  margin-top:12px;
+  background:rgba(201,169,110,0.1);
+  border:1px solid rgba(201,169,110,0.3);
+  border-radius:10px;
+  color:#C9A96E;
+  padding:8px 20px;
+  font-size:15px;
+  font-family:inherit;
+  cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <a href="index.html" class="back-btn">→ رجوع</a>
+    <div class="header-title">۞ القرآن الكريم ۞</div>
+    <div style="width:60px"></div>
+  </div>
+  <div class="search-wrap" id="searchWrap">
+    <input class="search-input" id="searchInput" type="text" placeholder="ابحث عن سورة..." oninput="filterSurahs(this.value)">
+  </div>
+</div>
+
+<!-- Surah List -->
+<div class="surah-list" id="surahList">
+  <div class="loading"><div class="spinner"></div>جارٍ تحميل السور...</div>
+</div>
+
+<!-- Surah View -->
+<div class="surah-view" id="surahView">
+  <div class="surah-header" id="surahViewHeader"></div>
+  <div class="bismillah" id="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+  <div class="tap-hint">اضغط على أي آية لعرض تفسيرها</div>
+  <div class="ayah-wrap" id="ayahWrap">
+    <div class="loading"><div class="spinner"></div>جارٍ تحميل الآيات...</div>
+  </div>
+</div>
+
+<!-- Tafsir Popup -->
+<div class="popup-overlay" id="popupOverlay" onclick="closePopup(event)">
+  <div class="popup-box" id="popupBox">
+    <div class="popup-handle"></div>
+    <div class="popup-header">
+      <div class="popup-title" id="popupTitle"></div>
+      <button class="popup-close" onclick="closePopup()">✕</button>
+    </div>
+    <div class="popup-scroll">
+      <div class="popup-ayah" id="popupAyah"></div>
+      <div class="tafsir-label">۞ التفسير الميسر</div>
+      <div class="tafsir-text" id="popupTafsir"><div class="tafsir-loading">جارٍ تحميل التفسير...</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const BASE = 'https://api.alquran.cloud/v1';
+const TAFSIR_EDITION = 'ar.muyassar'; // تفسير الميسر
+
+let allSurahs = [];
+let currentSurah = null;
+let tafsirCache = {};
+
+// Load surah list
+async function loadSurahs() {
+  try {
+    const res = await fetch(BASE + '/surah');
+    const data = await res.json();
+    if (data.code !== 200) throw new Error('API error');
+    allSurahs = data.data;
+    renderSurahList(allSurahs);
+  } catch(e) {
+    document.getElementById('surahList').innerHTML = 
+      '<div class="error-box">تعذّر تحميل السور<br><small>تأكد من الاتصال بالإنترنت</small><br><button class="retry-btn" onclick="loadSurahs()">إعادة المحاولة</button></div>';
+  }
+}
+
+function renderSurahList(surahs) {
+  const types = { 'Meccan': 'مكية', 'Medinan': 'مدنية' };
+  document.getElementById('surahList').innerHTML = surahs.map(s => `
+    <div class="surah-card" onclick="openSurah(${s.number})">
+      <div class="surah-num">${s.number}</div>
+      <div class="surah-info">
+        <div class="surah-name">${s.name}</div>
+        <div class="surah-meta">${types[s.revelationType] || ''} · ${s.numberOfAyahs} آية</div>
+      </div>
+      <div class="surah-eng">${s.englishName}</div>
+    </div>
+  `).join('');
+}
+
+function filterSurahs(q) {
+  if (!q.trim()) { renderSurahList(allSurahs); return; }
+  const filtered = allSurahs.filter(s =>
+    s.name.includes(q) ||
+    s.englishName.toLowerCase().includes(q.toLowerCase()) ||
+    String(s.number) === q.trim()
+  );
+  renderSurahList(filtered);
+}
+
+// Open surah
+async function openSurah(num) {
+  document.getElementById('surahList').style.display = 'none';
+  document.getElementById('searchWrap').style.display = 'none';
+  document.getElementById('surahView').style.display = 'block';
+  currentSurah = num;
+
+  const surah = allSurahs.find(s => s.number === num);
+  const types = { 'Meccan': 'مكية', 'Medinan': 'مدنية' };
+  document.getElementById('surahViewHeader').innerHTML = `
+    <h2>${surah.name}</h2>
+    <p>${types[surah.revelationType] || ''} · ${surah.numberOfAyahs} آية · ${surah.englishName}</p>
+  `;
+
+  // Hide bismillah for Al-Fatiha (already contains it) and At-Tawbah (no bismillah)
+  const bismillah = document.getElementById('bismillah');
+  bismillah.style.display = (num === 9) ? 'none' : 'block';
+
+  document.getElementById('ayahWrap').innerHTML = '<div class="loading"><div class="spinner"></div>جارٍ تحميل الآيات...</div>';
+
+  try {
+    const res = await fetch(`${BASE}/surah/${num}/ar.alafasy`);
+    const data = await res.json();
+    if (data.code !== 200) throw new Error('API error');
+    renderAyahs(data.data.ayahs, num);
+  } catch(e) {
+    document.getElementById('ayahWrap').innerHTML =
+      '<div class="error-box">تعذّر تحميل الآيات<br><button class="retry-btn" onclick="openSurah(' + num + ')">إعادة المحاولة</button></div>';
+  }
+}
+
+function renderAyahs(ayahs, surahNum) {
+  document.getElementById('ayahWrap').innerHTML = ayahs.map(a => `
+    <div class="ayah-item" onclick="showTafsir(${surahNum}, ${a.numberInSurah}, this)">
+      <span class="ayah-num">${a.numberInSurah}</span>
+      <div class="ayah-text">${a.text}</div>
+    </div>
+  `).join('');
+}
+
+// Show tafsir popup
+async function showTafsir(surahNum, ayahNum, el) {
+  // Highlight
+  document.querySelectorAll('.ayah-item.active').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+
+  const surah = allSurahs.find(s => s.number === surahNum);
+  document.getElementById('popupTitle').textContent = `${surah.name} : ${ayahNum}`;
+  document.getElementById('popupAyah').textContent = el.querySelector('.ayah-text').textContent;
+  document.getElementById('popupTafsir').innerHTML = '<div class="tafsir-loading">جارٍ تحميل التفسير...</div>';
+  document.getElementById('popupOverlay').classList.add('show');
+
+  const key = `${surahNum}:${ayahNum}`;
+  if (tafsirCache[key]) {
+    document.getElementById('popupTafsir').textContent = tafsirCache[key];
+    return;
+  }
+
+  try {
+    const ref = `${surahNum}:${ayahNum}`;
+    const res = await fetch(`${BASE}/ayah/${ref}/${TAFSIR_EDITION}`);
+    const data = await res.json();
+    if (data.code !== 200) throw new Error();
+    const text = data.data.text;
+    tafsirCache[key] = text;
+    document.getElementById('popupTafsir').textContent = text;
+  } catch(e) {
+    document.getElementById('popupTafsir').innerHTML = '<span style="color:rgba(255,100,100,0.7)">تعذّر تحميل التفسير</span>';
+  }
+}
+
+function closePopup(e) {
+  if (e && e.target !== document.getElementById('popupOverlay')) return;
+  document.getElementById('popupOverlay').classList.remove('show');
+  document.querySelectorAll('.ayah-item.active').forEach(el => el.classList.remove('active'));
+}
+
+// Back to surah list
+function backToList() {
+  document.getElementById('surahView').style.display = 'none';
+  document.getElementById('surahList').style.display = 'block';
+  document.getElementById('searchWrap').style.display = 'block';
+  currentSurah = null;
+}
+
+// Override back button behavior
+window.addEventListener('popstate', () => {
+  if (currentSurah) { backToList(); history.pushState(null, ''); }
+});
+history.pushState(null, '');
+
+// Handle back-to-list from surah view header
+document.getElementById('surahViewHeader').addEventListener('click', () => {});
+
+// Override the header back button when in surah view
+document.querySelector('.back-btn').addEventListener('click', (e) => {
+  if (currentSurah) {
+    e.preventDefault();
+    backToList();
+  }
+});
+
+loadSurahs();
+</script>
+</body>
+</html>
