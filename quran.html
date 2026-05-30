@@ -55,66 +55,120 @@ body{background:#05070F;color:white;font-family:'Noto Naskh Arabic',Georgia,seri
 /* ── Mushaf View ── */
 #mushafView{display:none;position:fixed;inset:0;z-index:30;overflow:hidden}
 .mushaf-header{position:fixed;top:0;left:0;right:0;z-index:40;background:#0d1117;border-bottom:1px solid rgba(255,255,255,0.07);padding:0}
-.mushaf-top{display:flex;align-items:center;justify-content:space-between;padding:6px 14px}.mushaf-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:0}
+.mushaf-top{display:flex;align-items:center;justify-content:space-between;padding:7px 14px;gap:6px}
 .nav-btn{background:none;border:none;color:#4DB6AC;font-size:26px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:0}
 .nav-btn:active{background:rgba(77,182,172,0.2)}
 .nav-btn:disabled{opacity:0.3;cursor:default}
-.page-info{text-align:center}
-.page-num{font-size:15px;font-weight:700;color:white;min-width:30px;text-align:center}
+.page-num{font-size:16px;font-weight:700;color:white;min-width:28px;text-align:center}
 .page-meta{display:none}
-.mushaf-surah-info{display:none}.m-surah-en{font-size:13px;color:rgba(255,255,255,0.65);font-family:Georgia,serif}.m-juz-en{font-size:13px;color:rgba(255,255,255,0.65);font-family:Georgia,serif}
+.mushaf-surah-info{display:none}
+.m-surah-en{font-size:13px;color:rgba(255,255,255,0.7);font-family:Georgia,serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+.m-juz-en{font-size:13px;color:rgba(255,255,255,0.7);font-family:Georgia,serif;white-space:nowrap}
 
 /* ── Mushaf Page ── */
-.mushaf-page{background:#faf6ec;position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;padding:10px 16px 6px;overflow:hidden}
-.mushaf-page::before{content:'';position:absolute;inset:4px;border:1px solid rgba(100,160,140,0.3);pointer-events:none;z-index:0}
+.mushaf-page{
+  background:#faf6ec;
+  position:absolute;top:0;left:0;right:0;bottom:0;
+  display:flex;flex-direction:column;
+  padding:14px 18px 8px;
+  overflow:hidden;
+}
+/* outer border frame */
+.mushaf-page::before{
+  content:'';position:absolute;inset:6px;
+  border:1.5px solid rgba(74,158,138,0.35);
+  pointer-events:none;z-index:0;
+}
 
-/* Surah header inside page */
+/* Surah banner — ornate frame matching real mushaf */
 .page-surah-name{
-  text-align:center;
-  font-family:'Amiri Quran',serif;
-  font-size:20px;
-  color:#1a0e05;
-  padding:6px 8px;
-  margin-bottom:10px;
   flex-shrink:0;
   position:relative;
   z-index:1;
+  margin: 6px 0 8px;
   display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
+  align-items:stretch;
+  height:40px;
+  border:1.5px solid #3d9e8a;
+  background:linear-gradient(90deg, rgba(74,158,138,0.08) 0%, rgba(255,250,235,0.5) 50%, rgba(74,158,138,0.08) 100%);
 }
-.page-surah-name::before,
-.page-surah-name::after {
+/* left ornament */
+.page-surah-name::before{
   content:'';
+  width:56px;
+  flex-shrink:0;
+  background:
+    radial-gradient(circle at 14px 20px, #3d9e8a 5px, transparent 5px),
+    radial-gradient(circle at 14px 20px, transparent 8px, rgba(74,158,138,0.35) 8px, rgba(74,158,138,0.35) 10px, transparent 10px),
+    radial-gradient(circle at 42px 20px, #3d9e8a 5px, transparent 5px),
+    radial-gradient(circle at 42px 20px, transparent 8px, rgba(74,158,138,0.35) 8px, rgba(74,158,138,0.35) 10px, transparent 10px),
+    linear-gradient(180deg, rgba(74,158,138,0.5) 1px, transparent 1px) 0 13px / 100% 1px no-repeat,
+    linear-gradient(180deg, rgba(74,158,138,0.5) 1px, transparent 1px) 0 26px / 100% 1px no-repeat;
+  border-left:3px solid #3d9e8a;
+  border-right:1px solid rgba(74,158,138,0.3);
+}
+/* right ornament */
+.page-surah-name::after{
+  content:'';
+  width:56px;
+  flex-shrink:0;
+  background:
+    radial-gradient(circle at 42px 20px, #3d9e8a 5px, transparent 5px),
+    radial-gradient(circle at 42px 20px, transparent 8px, rgba(74,158,138,0.35) 8px, rgba(74,158,138,0.35) 10px, transparent 10px),
+    radial-gradient(circle at 14px 20px, #3d9e8a 5px, transparent 5px),
+    radial-gradient(circle at 14px 20px, transparent 8px, rgba(74,158,138,0.35) 8px, rgba(74,158,138,0.35) 10px, transparent 10px),
+    linear-gradient(180deg, rgba(74,158,138,0.5) 1px, transparent 1px) 0 13px / 100% 1px no-repeat,
+    linear-gradient(180deg, rgba(74,158,138,0.5) 1px, transparent 1px) 0 26px / 100% 1px no-repeat;
+  border-right:3px solid #3d9e8a;
+  border-left:1px solid rgba(74,158,138,0.3);
+}
+.page-surah-name span{
   flex:1;
-  height:28px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 28'%3E%3Crect x='0' y='12' width='60' height='4' rx='2' fill='%234a9e8a' opacity='0.5'/%3E%3Ccircle cx='8' cy='14' r='6' fill='none' stroke='%234a9e8a' stroke-width='1.5' opacity='0.7'/%3E%3Ccircle cx='8' cy='14' r='3' fill='%234a9e8a' opacity='0.4'/%3E%3Cellipse cx='30' cy='14' rx='10' ry='7' fill='none' stroke='%234a9e8a' stroke-width='1.5' opacity='0.6'/%3E%3Cellipse cx='30' cy='14' rx='5' ry='3' fill='%234a9e8a' opacity='0.3'/%3E%3Ccircle cx='52' cy='14' r='6' fill='none' stroke='%234a9e8a' stroke-width='1.5' opacity='0.7'/%3E%3Ccircle cx='52' cy='14' r='3' fill='%234a9e8a' opacity='0.4'/%3E%3C/svg%3E");
-  background-size:contain;
-  background-repeat:no-repeat;
-  background-position:center;
-  border-top:1.5px solid #4a9e8a;
-  border-bottom:1.5px solid #4a9e8a;
-  opacity:0.8;
-}
-.page-surah-name span {
-  border:1.5px solid #4a9e8a;
-  padding:4px 16px;
-  border-radius:2px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Amiri Quran',serif;
+  font-size:21px;
+  color:#1a4a3a;
   white-space:nowrap;
-  background:rgba(74,158,138,0.04);
+  letter-spacing:1px;
 }
-.page-bismillah{text-align:center;font-family:'Amiri Quran',serif;font-size:20px;color:#1a0e05;padding:3px 0 8px;flex-shrink:0;position:relative;z-index:1}
+.page-bismillah{
+  text-align:center;font-family:'Amiri Quran',serif;
+  font-size:22px;color:#1a0e05;
+  padding:2px 0 6px;flex-shrink:0;position:relative;z-index:1;
+}
 
-/* Ayah text */
-.mushaf-text{font-family:'Amiri Quran',serif;font-size:20px;line-height:2.2;color:#1a0e05;text-align:justify;direction:rtl;word-spacing:1px;overflow:hidden;position:relative;z-index:1}
+/* Ayah text — bigger, filling the page */
+.mushaf-text{
+  font-family:'Amiri Quran',serif;
+  font-size:23px;
+  line-height:2.4;
+  color:#1a0e05;
+  text-align:justify;
+  direction:rtl;
+  word-spacing:2px;
+  flex:1;
+  overflow:hidden;
+  position:relative;z-index:1;
+}
 .aya{cursor:pointer;border-radius:3px;padding:0 1px;transition:background 0.15s;display:inline}
 .aya:active,.aya.aya-active{background:rgba(77,182,172,0.25)}
-.aya-marker{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;border:1.5px solid #3d9e8a;color:#3d9e8a;font-size:10px;font-family:'Noto Naskh Arabic',serif;vertical-align:middle;margin:0 1px;cursor:pointer;background:transparent;flex-shrink:0}
+.aya-marker{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:24px;height:24px;border-radius:50%;
+  border:1.5px solid #3d9e8a;color:#3d9e8a;
+  font-size:11px;font-family:'Noto Naskh Arabic',serif;
+  vertical-align:middle;margin:0 2px;
+  cursor:pointer;background:transparent;flex-shrink:0;
+}
 .aya-marker:active{background:rgba(77,182,172,0.15)}
 
 /* Page number bottom */
-.page-bottom-num{text-align:center;font-size:13px;color:rgba(26,14,5,0.4);font-family:Georgia,serif;flex-shrink:0;position:relative;z-index:1;margin-top:auto;padding:6px 0 2px}
+.page-bottom-num{
+  text-align:center;font-size:13px;
+  color:rgba(26,14,5,0.4);font-family:Georgia,serif;
+  flex-shrink:0;position:relative;z-index:1;
+  padding:4px 0 2px;
+}
 
 /* ── Popup ── */
 .popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:100;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity 0.25s}
@@ -593,25 +647,55 @@ function renderPage(ayahs, pageNum) {
     document.getElementById('surahRight').textContent = _sr ? 'Surah ' + _sr.englishName : groups[0].name;
   }
 
-  let html = '<div class="mushaf-page"><div class="mushaf-text">';
-  groups.forEach((g, gi) => {
-    // Show surah header if first ayah is 1
+  const newSurahCount = groups.filter(g => g.ayahs[0].numberInSurah === 1).length;
+
+  let html = '<div class="mushaf-page">';
+  let firstTextStarted = false;
+
+  groups.forEach((g) => {
     if (g.ayahs[0].numberInSurah === 1) {
-      html += `</div><div class="page-surah-name"><span>سُورَةُ ${g.name}</span></div>`;
+      if (firstTextStarted) html += '</div>';
+      html += `<div class="page-surah-name"><span>سُورَةُ ${g.name}</span></div>`;
       if (g.surah !== 1 && g.surah !== 9) {
         html += `<div class="page-bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>`;
       }
       html += '<div class="mushaf-text">';
+      firstTextStarted = true;
+    } else if (!firstTextStarted) {
+      html += '<div class="mushaf-text">';
+      firstTextStarted = true;
     }
-    // All ayahs flow together in one paragraph
     g.ayahs.forEach(a => {
       const num = toArabicNum(a.numberInSurah);
-      html += `<span class="aya" onclick="showTafsir(${a.surah.number},${a.numberInSurah},this)">${a.text} <span class="aya-marker" onclick="showTafsir(${a.surah.number},${a.numberInSurah},this.parentElement)">${num}</span></span>`;
+      html += `<span class="aya" onclick="showTafsir(${a.surah.number},${a.numberInSurah},this)">${a.text} <span class="aya-marker" onclick="showTafsir(${a.surah.number},${a.numberInSurah},this.parentElement)">${num}</span></span> `;
     });
   });
-  html += `</div><div class="page-bottom-num">${pageNum}</div></div>`;
+
+  if (firstTextStarted) html += '</div>';
+  html += `<div class="page-bottom-num">${pageNum}</div></div>`;
   document.getElementById('mushafContent').innerHTML = html;
   fixContentPosition();
+
+  // Dynamic font: scale up for short pages (few ayahs)
+  requestAnimationFrame(() => {
+    const textEl = document.querySelector('.mushaf-text');
+    const page = document.querySelector('.mushaf-page');
+    if (!page || !textEl) return;
+    const pageH = page.clientHeight;
+    const fixedH = (newSurahCount * 48) + (newSurahCount * 32) + 50;
+    const availH = pageH - fixedH;
+    let fs = 23;
+    textEl.style.fontSize = fs + 'px';
+    if (ayahs.length <= 10) {
+      for (let i = 0; i < 30; i++) {
+        textEl.style.fontSize = (fs + 0.5) + 'px';
+        if (textEl.scrollHeight > availH) break;
+        fs += 0.5;
+      }
+      textEl.style.fontSize = fs + 'px';
+      textEl.style.lineHeight = ayahs.length <= 5 ? '3.2' : ayahs.length <= 8 ? '2.8' : '2.4';
+    }
+  });
 }
 
 // ── Tafsir ──
