@@ -81,9 +81,10 @@ body{background:#05070F;color:white;font-family:'Noto Naskh Arabic',serif;min-he
   display:flex;
   flex-direction:column;
   justify-content:space-between;
-  padding:8px 14px 6px;
+  padding:8px 12px 4px;
   position:relative;
   overflow:hidden;
+  box-sizing:border-box;
 }
 /* thin outer border */
 .qpage::before{
@@ -144,10 +145,11 @@ body{background:#05070F;color:white;font-family:'Noto Naskh Arabic',serif;min-he
   justify-content:center;
   align-items:center;
   direction:rtl;
-  gap:0;
   flex:1;
   position:relative;z-index:1;
+  white-space:nowrap;
   overflow:hidden;
+  min-height:0;
 }
 .qline.centered{ justify-content:center; }
 .qline.justified{ justify-content:space-between; }
@@ -161,12 +163,14 @@ body{background:#05070F;color:white;font-family:'Noto Naskh Arabic',serif;min-he
   -webkit-tap-highlight-color:transparent;
   transition:background 0.15s;
   border-radius:3px;
-  padding:0 1px;
+  padding:0;
+  flex-shrink:0;
 }
 .qword:active, .qword.active{ background:rgba(77,182,172,0.25); }
 .qword.end-marker{
   color:#3d9e8a;
   cursor:pointer;
+  flex-shrink:0;
 }
 
 /* Page number */
@@ -501,7 +505,7 @@ async function renderPageData(data, pageNum){
   const reservedH = surahHeaderCount*52 + 42;
   const textH = availH - reservedH;
   const lineH = Math.floor(textH / Math.max(ayahLineCount,1));
-  const fs = Math.max(14, Math.min(26, Math.floor(lineH * 0.68)));
+  const fs = Math.max(13, Math.min(22, Math.floor(lineH * 0.58)));
 
   let html=`<div class="qpage" style="animation:fadeIn 0.2s ease">`;
 
