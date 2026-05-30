@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>القرآن الكريم</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#05070F;color:white;font-family:'Noto Naskh Arabic',serif;min-height:100vh;overflow-x:hidden}
@@ -42,75 +42,125 @@ body{background:#05070F;color:white;font-family:'Noto Naskh Arabic',serif;min-he
 .goto-input{flex:1;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:white;font-size:15px;padding:7px 12px;font-family:inherit;outline:none;text-align:center}
 .goto-btn{background:rgba(77,182,172,0.15);border:1px solid rgba(77,182,172,0.3);border-radius:10px;color:#4DB6AC;font-size:14px;padding:7px 14px;cursor:pointer;font-family:inherit;font-weight:700}
 
+/* ── Loading ── */
+.loading{background:#faf6ec;position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:rgba(26,14,5,0.4);font-size:14px}
+.spinner{width:30px;height:30px;border:2px solid rgba(74,158,138,0.2);border-top-color:#3d9e8a;border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
 /* ── Mushaf View ── */
-#mushafView{display:none;position:fixed;inset:0;z-index:30;background:#000;flex-direction:column}
-.mushaf-header{background:#0d1117;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0}
+#mushafView{display:none;position:fixed;inset:0;z-index:30;overflow:hidden}
+.mushaf-header{position:fixed;top:0;left:0;right:0;z-index:40;background:#0d1117;border-bottom:1px solid rgba(255,255,255,0.08)}
 .mushaf-top{display:flex;align-items:center;justify-content:space-between;padding:8px 14px}
-.nav-btn{background:none;border:none;color:#4DB6AC;font-size:28px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:0}
+.nav-btn{background:none;border:none;color:#4DB6AC;font-size:28px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:0}
 .nav-btn:active{background:rgba(77,182,172,0.15);border-radius:8px}
 .nav-btn:disabled{opacity:0.25}
 .page-num-display{font-size:16px;font-weight:700;color:white;min-width:28px;text-align:center}
 .m-label{font-size:12px;color:rgba(255,255,255,0.65);font-family:Georgia,serif;white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis}
 
-/* ── Page image container ── */
-#pageContainer{
-  flex:1;
-  overflow:hidden;
-  position:relative;
-  background:#faf6ec;
-  display:flex;align-items:center;justify-content:center;
-}
-#pageImg{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  object-position:center;
-  display:block;
-  user-select:none;
-  -webkit-user-drag:none;
-}
-.page-loading{
-  position:absolute;inset:0;
-  background:#faf6ec;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:12px;font-size:14px;color:rgba(26,14,5,0.4);
-}
-.spinner{width:30px;height:30px;border:2px solid rgba(74,158,138,0.2);border-top-color:#3d9e8a;border-radius:50%;animation:spin 0.8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
+/* ── Mushaf Content ── */
+#mushafContent{position:fixed;left:0;right:0;bottom:0;overflow-y:auto;background:#faf6ec}
 
-/* ── Tafsir popup ── */
+/* ── Mushaf Page ── */
+.mushaf-page{
+  background:#faf6ec;
+  min-height:100%;
+  padding:14px 16px 20px;
+  position:relative;
+}
+.mushaf-page::before{
+  content:'';position:absolute;inset:6px;
+  border:1px solid rgba(74,158,138,0.2);
+  pointer-events:none;z-index:0;
+}
+
+/* ── Surah Banner ── */
+.surah-banner{
+  display:flex;align-items:stretch;
+  height:46px;
+  margin:4px 0 6px;
+  border-top:1.5px solid #3d9e8a;
+  border-bottom:1.5px solid #3d9e8a;
+  background:linear-gradient(90deg,rgba(74,158,138,0.1) 0%,rgba(250,246,236,0.8) 20%,rgba(250,246,236,0.8) 80%,rgba(74,158,138,0.1) 100%);
+  position:relative;z-index:1;
+  flex-shrink:0;
+}
+.banner-ornament{
+  width:58px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.banner-ornament.right{border-left:2.5px solid #3d9e8a;}
+.banner-ornament.left{border-right:2.5px solid #3d9e8a;}
+.banner-ornament svg{width:50px;height:38px;}
+.banner-text{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  font-family:'Amiri Quran',serif;font-size:20px;
+  color:#1a3a2a;white-space:nowrap;
+}
+
+/* ── Bismillah ── */
+.bismillah{
+  text-align:center;font-family:'Amiri Quran',serif;
+  font-size:20px;color:#1a0e05;
+  padding:4px 0 8px;
+  position:relative;z-index:1;
+}
+
+/* ── Ayah text ── */
+.mushaf-text{
+  font-family:'Amiri Quran',serif;
+  font-size:18px;
+  line-height:2.4;
+  color:#1a0e05;
+  text-align:justify;
+  direction:rtl;
+  position:relative;z-index:1;
+}
+
+/* Each ayah span — clickable */
+.aya{
+  display:inline;
+  cursor:pointer;
+  border-radius:4px;
+  padding:1px 2px;
+  transition:background 0.15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.aya:active,.aya.active{background:rgba(77,182,172,0.3);}
+
+/* Ayah number circle */
+.aya-num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:26px;height:26px;border-radius:50%;
+  border:1.5px solid #3d9e8a;color:#3d9e8a;
+  font-size:11px;font-family:'Noto Naskh Arabic',serif;
+  vertical-align:middle;margin:0 2px;
+  cursor:pointer;flex-shrink:0;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* Page number */
+.page-num-bottom{
+  text-align:center;font-size:13px;
+  color:rgba(26,14,5,0.35);font-family:Georgia,serif;
+  padding:12px 0 4px;
+  position:relative;z-index:1;
+}
+
+/* ── Tafsir Popup ── */
 .popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:100;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity 0.25s}
 .popup-overlay.show{opacity:1;pointer-events:all}
-.popup-box{background:linear-gradient(160deg,#0E1525,#0A0F1E);border:1px solid rgba(201,169,110,0.2);border-radius:24px 24px 0 0;width:100%;max-height:80vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.32,0.72,0,1)}
+.popup-box{background:linear-gradient(160deg,#0E1525,#0A0F1E);border:1px solid rgba(201,169,110,0.2);border-radius:24px 24px 0 0;width:100%;max-height:78vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.32,0.72,0,1)}
 .popup-overlay.show .popup-box{transform:translateY(0)}
 .popup-handle{width:36px;height:4px;background:rgba(255,255,255,0.15);border-radius:2px;margin:12px auto 0}
 .popup-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px}
 .popup-title{font-size:16px;font-weight:700;color:#C9A96E}
 .popup-close{background:rgba(255,255,255,0.08);border:none;border-radius:8px;color:rgba(255,255,255,0.6);font-size:16px;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .popup-scroll{overflow-y:auto;padding:0 16px 24px;flex:1}
-.popup-ayah{font-family:'Noto Naskh Arabic',serif;font-size:18px;line-height:2;color:white;text-align:right;padding:12px;background:rgba(255,255,255,0.04);border-radius:12px;margin-bottom:12px;direction:rtl}
+.popup-ayah{font-family:'Amiri Quran',serif;font-size:19px;line-height:2;color:white;text-align:right;padding:12px;background:rgba(255,255,255,0.04);border-radius:12px;margin-bottom:12px;direction:rtl}
 .tafsir-label{font-size:13px;font-weight:700;color:#4DB6AC;margin-bottom:8px;letter-spacing:1px}
-.tafsir-text{font-size:15px;line-height:2;color:rgba(255,255,255,0.8);direction:rtl;text-align:right;font-family:'Noto Naskh Arabic',serif}
-.tafsir-loading{color:rgba(255,255,255,0.3);font-size:14px;text-align:center;padding:16px}
-
-/* Ayah number selector buttons (shown after tap) */
-.ayah-picker{
-  position:absolute;bottom:16px;left:50%;transform:translateX(-50%);
-  background:rgba(13,17,23,0.95);border:1px solid rgba(77,182,172,0.3);
-  border-radius:16px;padding:10px 14px;
-  display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;
-  max-width:90%;z-index:10;
-  animation:fadeIn 0.2s ease;
-}
-@keyframes fadeIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-.ayah-picker-btn{
-  background:rgba(77,182,172,0.1);border:1px solid rgba(77,182,172,0.3);
-  border-radius:8px;color:#4DB6AC;font-size:14px;padding:6px 12px;
-  cursor:pointer;font-family:'Noto Naskh Arabic',serif;white-space:nowrap;
-}
-.ayah-picker-btn:active{background:rgba(77,182,172,0.3)}
-.ayah-picker-label{font-size:12px;color:rgba(255,255,255,0.5);width:100%;text-align:center;margin-bottom:2px}
-.ayah-picker-close{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:rgba(255,255,255,0.5);font-size:13px;padding:6px 10px;cursor:pointer}
+.tafsir-text{font-size:15px;line-height:2;color:rgba(255,255,255,0.85);direction:rtl;text-align:right;font-family:'Noto Naskh Arabic',serif}
+.tafsir-loading{color:rgba(255,255,255,0.3);font-size:14px;text-align:center;padding:20px}
 </style>
 </head>
 <body>
@@ -150,7 +200,7 @@ body{background:#05070F;color:white;font-family:'Noto Naskh Arabic',serif;min-he
 </div>
 
 <!-- Mushaf View -->
-<div id="mushafView" style="display:none;position:fixed;inset:0;z-index:30;background:#000;display:none;flex-direction:column">
+<div id="mushafView">
   <div class="mushaf-header">
     <div class="mushaf-top">
       <span class="m-label" id="labelRight">...</span>
@@ -162,11 +212,8 @@ body{background:#05070F;color:white;font-family:'Noto Naskh Arabic',serif;min-he
       <span class="m-label" id="labelLeft">Juz' 1</span>
     </div>
   </div>
-  <div id="pageContainer">
-    <div class="page-loading" id="pageLoading">
-      <div class="spinner"></div>جارٍ تحميل الصفحة...
-    </div>
-    <img id="pageImg" src="" alt="" style="display:none" onload="onImgLoad()" onerror="onImgError()">
+  <div id="mushafContent">
+    <div class="loading"><div class="spinner"></div>جارٍ تحميل...</div>
   </div>
 </div>
 
@@ -187,16 +234,14 @@ body{background:#05070F;color:white;font-family:'Noto Naskh Arabic',serif;min-he
 </div>
 
 <script>
-// ═══════════════════════════════════════
-//  DATA
-// ═══════════════════════════════════════
-const IMG_BASE = 'https://raw.githubusercontent.com/GovarJabbar/Quran-PNG/master/';
+const QURAN_API = 'https://api.quran.com/api/v4';
 const TAFSIR_API = 'https://api.alquran.cloud/v1';
 const SURAH_API  = 'https://api.alquran.cloud/v1/surah';
 
 let currentPage = 1;
 let allSurahs = [];
 let tafsirCache = {};
+let pageCache = {};
 
 const JUZ_DATA = [
   [1,1,'الفاتحة'],[2,22,'البقرة'],[3,42,'البقرة'],[4,62,'آل عمران'],
@@ -224,13 +269,19 @@ const SURAH_PAGE = {
   110:603,111:603,112:604,113:604,114:604
 };
 
-// Ayahs per page data (for tafsir picker)
-const PAGE_AYAHS = {};
-// We'll build this from allSurahs data
+// SVG ornament for surah banner
+const ORNAMENT_SVG = `<svg viewBox="0 0 50 38" xmlns="http://www.w3.org/2000/svg">
+  <line x1="0" y1="10" x2="50" y2="10" stroke="#3d9e8a" stroke-width="1" opacity="0.5"/>
+  <line x1="0" y1="28" x2="50" y2="28" stroke="#3d9e8a" stroke-width="1" opacity="0.5"/>
+  <circle cx="25" cy="19" r="8" fill="none" stroke="#3d9e8a" stroke-width="1.5" opacity="0.8"/>
+  <circle cx="25" cy="19" r="3.5" fill="#3d9e8a" opacity="0.5"/>
+  <circle cx="8"  cy="19" r="4.5" fill="none" stroke="#3d9e8a" stroke-width="1.2" opacity="0.7"/>
+  <circle cx="8"  cy="19" r="2"   fill="#3d9e8a" opacity="0.5"/>
+  <circle cx="42" cy="19" r="4.5" fill="none" stroke="#3d9e8a" stroke-width="1.2" opacity="0.7"/>
+  <circle cx="42" cy="19" r="2"   fill="#3d9e8a" opacity="0.5"/>
+</svg>`;
 
-// ═══════════════════════════════════════
-//  INDEX
-// ═══════════════════════════════════════
+// ── Tab switching ──
 function switchTab(tab){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab'+tab.charAt(0).toUpperCase()+tab.slice(1)).classList.add('active');
@@ -240,6 +291,7 @@ function switchTab(tab){
   document.getElementById('searchWrap').style.display= tab==='surahs'?'block':'none';
 }
 
+// ── Load surahs ──
 async function loadSurahs(){
   try{
     const res=await fetch(SURAH_API);
@@ -295,16 +347,14 @@ function gotoPageDirect(){
   if(p>=1&&p<=604) openPage(p);
 }
 
-// ═══════════════════════════════════════
-//  MUSHAF OPEN/CLOSE/NAVIGATE
-// ═══════════════════════════════════════
+// ── Open/Close/Navigate ──
 function openPage(pageNum){
   currentPage=Math.max(1,Math.min(604,pageNum));
   document.getElementById('indexView').style.display='none';
   document.getElementById('mainHeader').style.display='none';
-  const mv=document.getElementById('mushafView');
-  mv.style.display='flex';
+  document.getElementById('mushafView').style.display='block';
   document.getElementById('backBtn').onclick=closeMushaf;
+  setTimeout(positionContent, 20);
   loadPage(currentPage);
   history.pushState({page:currentPage},'');
 }
@@ -315,126 +365,115 @@ function closeMushaf(){
   document.getElementById('mainHeader').style.display='block';
   document.getElementById('backBtn').href='index.html';
   document.getElementById('backBtn').onclick=null;
-  hidePicker();
+}
+
+function positionContent(){
+  const hdr=document.querySelector('.mushaf-header');
+  const mc=document.getElementById('mushafContent');
+  if(hdr&&mc) mc.style.top=hdr.offsetHeight+'px';
 }
 
 function changePage(dir){
   const np=currentPage+dir;
   if(np<1||np>604) return;
   currentPage=np;
-  hidePicker();
+  document.getElementById('mushafContent').scrollTop=0;
   loadPage(currentPage);
   history.pushState({page:currentPage},'');
 }
 
-// ═══════════════════════════════════════
-//  LOAD PAGE IMAGE
-// ═══════════════════════════════════════
-function loadPage(pageNum){
+// ── Load page ──
+async function loadPage(pageNum){
   document.getElementById('pageNumDisplay').textContent=pageNum;
   document.getElementById('prevBtn').disabled=pageNum<=1;
   document.getElementById('nextBtn').disabled=pageNum>=604;
-
   let juz=1;
   for(let i=JUZ_DATA.length-1;i>=0;i--){if(JUZ_DATA[i][1]<=pageNum){juz=JUZ_DATA[i][0];break;}}
   document.getElementById('labelLeft').textContent=`Juz' ${juz}`;
 
-  // Find surah for this page
-  let surahName='';
-  for(let s=114;s>=1;s--){
-    if(SURAH_PAGE[s]<=pageNum){
-      const sr=allSurahs.find(x=>x.number===s);
-      surahName=sr?'Surah '+sr.englishName:'';
-      break;
-    }
+  document.getElementById('mushafContent').innerHTML=
+    '<div class="loading"><div class="spinner"></div>جارٍ تحميل الصفحة...</div>';
+  positionContent();
+
+  if(pageCache[pageNum]){ renderPage(pageCache[pageNum],pageNum); return; }
+
+  try{
+    const res=await fetch(`${QURAN_API}/verses/by_page/${pageNum}?language=ar&words=false&fields=text_uthmani,verse_key&per_page=50`);
+    const data=await res.json();
+    if(!data.verses) throw new Error();
+    const ayahs=data.verses.map(v=>{
+      const [s,a]=v.verse_key.split(':');
+      const sNum=parseInt(s);
+      const sr=allSurahs.find(x=>x.number===sNum);
+      return {text:v.text_uthmani, num:parseInt(a), surah:sNum, surahName:sr?sr.name:''};
+    });
+    pageCache[pageNum]=ayahs;
+    renderPage(ayahs,pageNum);
+  }catch(e){
+    document.getElementById('mushafContent').innerHTML=
+      `<div class="loading">تعذّر تحميل الصفحة<br><br>
+       <button onclick="loadPage(${pageNum})" style="background:rgba(77,182,172,0.15);border:1px solid rgba(77,182,172,0.3);border-radius:10px;color:#4DB6AC;padding:8px 20px;cursor:pointer;font-family:inherit">إعادة المحاولة</button></div>`;
   }
-  document.getElementById('labelRight').textContent=surahName;
-
-  // Show loading, hide image
-  document.getElementById('pageLoading').style.display='flex';
-  document.getElementById('pageImg').style.display='none';
-
-  // Load image
-  const padded=String(pageNum).padStart(3,'0');
-  document.getElementById('pageImg').src=IMG_BASE+padded+'.png';
 }
 
-function onImgLoad(){
-  document.getElementById('pageLoading').style.display='none';
-  document.getElementById('pageImg').style.display='block';
-}
+function toAr(n){ return n.toString().replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]); }
 
-function onImgError(){
-  document.getElementById('pageLoading').innerHTML=
-    `<div style="color:rgba(26,14,5,0.5);text-align:center">
-      تعذّر تحميل الصفحة<br><br>
-      <button onclick="loadPage(${currentPage})" style="background:rgba(77,182,172,0.15);border:1px solid rgba(77,182,172,0.3);border-radius:10px;color:#4DB6AC;padding:8px 20px;cursor:pointer;font-family:inherit">إعادة المحاولة</button>
-    </div>`;
-}
-
-// ═══════════════════════════════════════
-//  TAFSIR — tap image → pick ayah
-// ═══════════════════════════════════════
-document.getElementById('pageContainer').addEventListener('click', e=>{
-  if(e.target.closest('.ayah-picker')) return;
-  showAyahPicker();
-});
-
-function showAyahPicker(){
-  hidePicker();
-  // Get ayahs on current page
-  const ayahsOnPage=[];
-  allSurahs.forEach(s=>{
-    const sPage=SURAH_PAGE[s.number];
-    // Check if this surah appears on currentPage
-    // Simple approach: check each ayah's page would need API
-    // Instead show the surahs that start on or before this page and end on or after
+// ── Render page ──
+function renderPage(ayahs, pageNum){
+  // Group by surah
+  const groups=[];
+  let cur=null;
+  ayahs.forEach(a=>{
+    if(!cur||cur.surah!==a.surah){
+      cur={surah:a.surah,name:a.surahName,ayahs:[]};
+      groups.push(cur);
+    }
+    cur.ayahs.push(a);
   });
 
-  // Find surahs on this page
-  const surahsOnPage=[];
-  allSurahs.forEach(s=>{
-    const startP=SURAH_PAGE[s.number];
-    const nextS=allSurahs.find(x=>x.number===s.number+1);
-    const endP=nextS?SURAH_PAGE[nextS.number]-1:604;
-    if(startP<=currentPage && endP>=currentPage){
-      surahsOnPage.push(s);
+  // Update header label
+  const firstSr=allSurahs.find(s=>s.number===groups[0].surah);
+  document.getElementById('labelRight').textContent=firstSr?'Surah '+firstSr.englishName:'';
+
+  let html='<div class="mushaf-page">';
+
+  groups.forEach((g,gi)=>{
+    const startsNew=g.ayahs[0].num===1;
+    if(startsNew){
+      if(gi>0) html+='</div>';
+      // Surah banner with SVG ornaments
+      html+=`<div class="surah-banner">
+        <div class="banner-ornament right">${ORNAMENT_SVG}</div>
+        <div class="banner-text">سُورَةُ ${g.name}</div>
+        <div class="banner-ornament left">${ORNAMENT_SVG}</div>
+      </div>`;
+      // Bismillah (not for Al-Fatiha=1 and At-Tawba=9)
+      if(g.surah!==1&&g.surah!==9){
+        html+=`<div class="bismillah">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>`;
+      }
+      html+='<div class="mushaf-text">';
+    } else if(gi===0){
+      html+='<div class="mushaf-text">';
     }
+
+    g.ayahs.forEach(a=>{
+      const num=toAr(a.num);
+      html+=`<span class="aya" onclick="showTafsir(${a.surah},${a.num},this)">${a.text}&nbsp;<span class="aya-num">${num}</span></span> `;
+    });
   });
 
-  let html=`<div class="ayah-picker">
-    <div class="ayah-picker-label">اختر السورة والآية للتفسير</div>`;
-
-  surahsOnPage.forEach(s=>{
-    // Show range of ayahs visible
-    const startAyah = SURAH_PAGE[s.number]===currentPage ? 1 : 1;
-    // Show a few ayah buttons
-    const maxAyah=Math.min(s.numberOfAyahs, 20);
-    html+=`<div style="width:100%;font-size:13px;color:rgba(255,255,255,0.6);margin:4px 0 2px;text-align:center">${s.name}</div>`;
-    for(let a=1;a<=maxAyah;a++){
-      html+=`<button class="ayah-picker-btn" onclick="fetchAndShowTafsir(${s.number},${a},'${s.name}')">آية ${a}</button>`;
-    }
-    if(s.numberOfAyahs>20){
-      html+=`<div style="color:rgba(255,255,255,0.3);font-size:11px;width:100%;text-align:center">... أدخل رقم الآية مباشرة</div>`;
-    }
-  });
-
-  html+=`<button class="ayah-picker-close" onclick="hidePicker()">✕ إغلاق</button></div>`;
-  const pc=document.getElementById('pageContainer');
-  const div=document.createElement('div');
-  div.id='ayahPicker';
-  div.innerHTML=html;
-  pc.appendChild(div);
+  html+=`</div><div class="page-num-bottom">— ${pageNum} —</div></div>`;
+  document.getElementById('mushafContent').innerHTML=html;
+  positionContent();
 }
 
-function hidePicker(){
-  const p=document.getElementById('ayahPicker');
-  if(p) p.remove();
-}
+// ── Tafsir ──
+async function showTafsir(surahNum, ayahNum, el){
+  document.querySelectorAll('.aya.active').forEach(e=>e.classList.remove('active'));
+  if(el) el.classList.add('active');
 
-async function fetchAndShowTafsir(surahNum, ayahNum, surahName){
-  hidePicker();
-  document.getElementById('popupTitle').textContent=`${surahName} : الآية ${ayahNum}`;
+  const surah=allSurahs.find(s=>s.number===surahNum);
+  document.getElementById('popupTitle').textContent=`${surah?surah.name:'سورة '+surahNum} : الآية ${ayahNum}`;
   document.getElementById('popupAyah').textContent='';
   document.getElementById('popupTafsir').innerHTML='<div class="tafsir-loading">جارٍ تحميل التفسير...</div>';
   document.getElementById('popupOverlay').classList.add('show');
@@ -464,16 +503,15 @@ async function fetchAndShowTafsir(surahNum, ayahNum, surahName){
 function closePopup(e){
   if(e&&e.target!==document.getElementById('popupOverlay')) return;
   document.getElementById('popupOverlay').classList.remove('show');
+  document.querySelectorAll('.aya.active').forEach(el=>el.classList.remove('active'));
 }
 
-// ═══════════════════════════════════════
-//  SWIPE
-// ═══════════════════════════════════════
+// ── Swipe ──
 (function(){
   let sx=0,sy=0;
-  const pc=document.getElementById('pageContainer');
-  pc.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
-  pc.addEventListener('touchend',e=>{
+  const mc=document.getElementById('mushafContent');
+  mc.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
+  mc.addEventListener('touchend',e=>{
     const dx=e.changedTouches[0].clientX-sx;
     const dy=e.changedTouches[0].clientY-sy;
     if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.5){
@@ -484,7 +522,7 @@ function closePopup(e){
 })();
 
 window.addEventListener('popstate',()=>{
-  if(document.getElementById('mushafView').style.display==='flex'){
+  if(document.getElementById('mushafView').style.display!=='none'){
     closeMushaf();history.pushState(null,'');
   }
 });
