@@ -54,94 +54,92 @@ body{background:#05070F;color:white;font-family:'Noto Naskh Arabic',Georgia,seri
 
 /* ── Mushaf View ── */
 #mushafView{display:none;position:fixed;inset:0;z-index:30;overflow:hidden}
-.mushaf-header{position:fixed;top:0;left:0;right:0;z-index:40;background:#0d1117;border-bottom:1px solid rgba(255,255,255,0.07);padding:0}
-.mushaf-top{display:flex;align-items:center;justify-content:space-between;padding:7px 14px;gap:6px}
-.nav-btn{background:none;border:none;color:#4DB6AC;font-size:26px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:0}
-.nav-btn:active{background:rgba(77,182,172,0.2)}
+.mushaf-header{position:fixed;top:0;left:0;right:0;z-index:40;background:#0d1117;border-bottom:1px solid rgba(255,255,255,0.1);padding:0}
+.mushaf-top{display:flex;align-items:center;justify-content:space-between;padding:8px 14px}
+.nav-btn{background:none;border:none;color:#4DB6AC;font-size:26px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:0}
+.nav-btn:active{background:rgba(77,182,172,0.2);border-radius:8px}
 .nav-btn:disabled{opacity:0.3;cursor:default}
-.page-num{font-size:16px;font-weight:700;color:white;min-width:28px;text-align:center}
+.page-num{font-size:17px;font-weight:700;color:white;min-width:32px;text-align:center}
 .page-meta{display:none}
 .mushaf-surah-info{display:none}
-.m-surah-en{font-size:13px;color:rgba(255,255,255,0.7);font-family:Georgia,serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
-.m-juz-en{font-size:13px;color:rgba(255,255,255,0.7);font-family:Georgia,serif;white-space:nowrap}
+.m-surah-en{font-size:13px;color:rgba(255,255,255,0.7);font-family:Georgia,serif}
+.m-juz-en{font-size:13px;color:rgba(255,255,255,0.7);font-family:Georgia,serif}
+
+/* ── Mushaf Content Container ── */
+#mushafContent{position:absolute;left:0;right:0;bottom:0;overflow:hidden;background:#faf6ec}
 
 /* ── Mushaf Page ── */
 .mushaf-page{
+  width:100%;height:100%;
   background:#faf6ec;
-  position:absolute;top:0;left:0;right:0;bottom:0;
-  display:flex;flex-direction:column;
-  padding:14px 18px 8px;
+  display:flex;
+  flex-direction:column;
+  padding:16px 20px 8px;
+  box-sizing:border-box;
+  position:relative;
   overflow:hidden;
 }
-/* outer border frame */
+/* outer thin border */
 .mushaf-page::before{
-  content:'';position:absolute;inset:6px;
-  border:1.5px solid rgba(74,158,138,0.35);
+  content:'';position:absolute;inset:8px;
+  border:1px solid rgba(74,158,138,0.25);
   pointer-events:none;z-index:0;
 }
 
-/* Surah banner — ornate frame matching real mushaf */
+/* ── Surah ornate banner ── */
 .page-surah-name{
   flex-shrink:0;
   position:relative;
-  z-index:1;
-  margin: 6px 0 8px;
+  z-index:2;
+  margin:4px 0 6px;
+  height:44px;
   display:flex;
   align-items:stretch;
-  height:40px;
-  border:1.5px solid #3d9e8a;
-  background:linear-gradient(90deg, rgba(74,158,138,0.08) 0%, rgba(255,250,235,0.5) 50%, rgba(74,158,138,0.08) 100%);
+  border-top:1.5px solid #3d9e8a;
+  border-bottom:1.5px solid #3d9e8a;
+  background:linear-gradient(90deg,rgba(74,158,138,0.1) 0%,rgba(250,246,236,0.9) 30%,rgba(250,246,236,0.9) 70%,rgba(74,158,138,0.1) 100%);
 }
-/* left ornament */
+/* SVG ornament RIGHT side */
 .page-surah-name::before{
   content:'';
-  width:56px;
+  width:64px;
   flex-shrink:0;
-  background:
-    radial-gradient(circle at 14px 20px, #3d9e8a 5px, transparent 5px),
-    radial-gradient(circle at 14px 20px, transparent 8px, rgba(74,158,138,0.35) 8px, rgba(74,158,138,0.35) 10px, transparent 10px),
-    radial-gradient(circle at 42px 20px, #3d9e8a 5px, transparent 5px),
-    radial-gradient(circle at 42px 20px, transparent 8px, rgba(74,158,138,0.35) 8px, rgba(74,158,138,0.35) 10px, transparent 10px),
-    linear-gradient(180deg, rgba(74,158,138,0.5) 1px, transparent 1px) 0 13px / 100% 1px no-repeat,
-    linear-gradient(180deg, rgba(74,158,138,0.5) 1px, transparent 1px) 0 26px / 100% 1px no-repeat;
-  border-left:3px solid #3d9e8a;
-  border-right:1px solid rgba(74,158,138,0.3);
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 44'%3E%3C!-- horizontal lines --%3E%3Crect x='0' y='14' width='64' height='1.5' fill='%233d9e8a' opacity='0.5'/%3E%3Crect x='0' y='28' width='64' height='1.5' fill='%233d9e8a' opacity='0.5'/%3E%3C!-- large circle --%3E%3Ccircle cx='32' cy='22' r='10' fill='none' stroke='%233d9e8a' stroke-width='1.5' opacity='0.8'/%3E%3Ccircle cx='32' cy='22' r='5' fill='%233d9e8a' opacity='0.4'/%3E%3C!-- small left flower --%3E%3Ccircle cx='10' cy='22' r='5' fill='none' stroke='%233d9e8a' stroke-width='1.5' opacity='0.7'/%3E%3Ccircle cx='10' cy='22' r='2.5' fill='%233d9e8a' opacity='0.5'/%3E%3C!-- petals left --%3E%3Cellipse cx='10' cy='15' rx='2' ry='3.5' fill='%233d9e8a' opacity='0.3'/%3E%3Cellipse cx='10' cy='29' rx='2' ry='3.5' fill='%233d9e8a' opacity='0.3'/%3E%3Cellipse cx='3' cy='22' rx='3.5' ry='2' fill='%233d9e8a' opacity='0.3'/%3E%3Cellipse cx='17' cy='22' rx='3.5' ry='2' fill='%233d9e8a' opacity='0.3'/%3E%3C!-- small right flower --%3E%3Ccircle cx='54' cy='22' r='5' fill='none' stroke='%233d9e8a' stroke-width='1.5' opacity='0.7'/%3E%3Ccircle cx='54' cy='22' r='2.5' fill='%233d9e8a' opacity='0.5'/%3E%3Cellipse cx='54' cy='15' rx='2' ry='3.5' fill='%233d9e8a' opacity='0.3'/%3E%3Cellipse cx='54' cy='29' rx='2' ry='3.5' fill='%233d9e8a' opacity='0.3'/%3E%3Cellipse cx='47' cy='22' rx='3.5' ry='2' fill='%233d9e8a' opacity='0.3'/%3E%3Cellipse cx='61' cy='22' rx='3.5' ry='2' fill='%233d9e8a' opacity='0.3'/%3E%3C/svg%3E") center/contain no-repeat;
+  border-left:2.5px solid #3d9e8a;
 }
-/* right ornament */
+/* SVG ornament LEFT side (mirror) */
 .page-surah-name::after{
   content:'';
-  width:56px;
+  width:64px;
   flex-shrink:0;
-  background:
-    radial-gradient(circle at 42px 20px, #3d9e8a 5px, transparent 5px),
-    radial-gradient(circle at 42px 20px, transparent 8px, rgba(74,158,138,0.35) 8px, rgba(74,158,138,0.35) 10px, transparent 10px),
-    radial-gradient(circle at 14px 20px, #3d9e8a 5px, transparent 5px),
-    radial-gradient(circle at 14px 20px, transparent 8px, rgba(74,158,138,0.35) 8px, rgba(74,158,138,0.35) 10px, transparent 10px),
-    linear-gradient(180deg, rgba(74,158,138,0.5) 1px, transparent 1px) 0 13px / 100% 1px no-repeat,
-    linear-gradient(180deg, rgba(74,158,138,0.5) 1px, transparent 1px) 0 26px / 100% 1px no-repeat;
-  border-right:3px solid #3d9e8a;
-  border-left:1px solid rgba(74,158,138,0.3);
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 44'%3E%3Crect x='0' y='14' width='64' height='1.5' fill='%233d9e8a' opacity='0.5'/%3E%3Crect x='0' y='28' width='64' height='1.5' fill='%233d9e8a' opacity='0.5'/%3E%3Ccircle cx='32' cy='22' r='10' fill='none' stroke='%233d9e8a' stroke-width='1.5' opacity='0.8'/%3E%3Ccircle cx='32' cy='22' r='5' fill='%233d9e8a' opacity='0.4'/%3E%3Ccircle cx='54' cy='22' r='5' fill='none' stroke='%233d9e8a' stroke-width='1.5' opacity='0.7'/%3E%3Ccircle cx='54' cy='22' r='2.5' fill='%233d9e8a' opacity='0.5'/%3E%3Cellipse cx='54' cy='15' rx='2' ry='3.5' fill='%233d9e8a' opacity='0.3'/%3E%3Cellipse cx='54' cy='29' rx='2' ry='3.5' fill='%233d9e8a' opacity='0.3'/%3E%3Cellipse cx='47' cy='22' rx='3.5' ry='2' fill='%233d9e8a' opacity='0.3'/%3E%3Cellipse cx='61' cy='22' rx='3.5' ry='2' fill='%233d9e8a' opacity='0.3'/%3E%3Ccircle cx='10' cy='22' r='5' fill='none' stroke='%233d9e8a' stroke-width='1.5' opacity='0.7'/%3E%3Ccircle cx='10' cy='22' r='2.5' fill='%233d9e8a' opacity='0.5'/%3E%3Cellipse cx='10' cy='15' rx='2' ry='3.5' fill='%233d9e8a' opacity='0.3'/%3E%3Cellipse cx='10' cy='29' rx='2' ry='3.5' fill='%233d9e8a' opacity='0.3'/%3E%3Cellipse cx='3' cy='22' rx='3.5' ry='2' fill='%233d9e8a' opacity='0.3'/%3E%3Cellipse cx='17' cy='22' rx='3.5' ry='2' fill='%233d9e8a' opacity='0.3'/%3E%3C/svg%3E") center/contain no-repeat;
+  border-right:2.5px solid #3d9e8a;
 }
 .page-surah-name span{
   flex:1;
   display:flex;align-items:center;justify-content:center;
   font-family:'Amiri Quran',serif;
-  font-size:21px;
-  color:#1a4a3a;
+  font-size:22px;
+  color:#1a3a2a;
   white-space:nowrap;
-  letter-spacing:1px;
-}
-.page-bismillah{
-  text-align:center;font-family:'Amiri Quran',serif;
-  font-size:22px;color:#1a0e05;
-  padding:2px 0 6px;flex-shrink:0;position:relative;z-index:1;
 }
 
-/* Ayah text — bigger, filling the page */
+/* Bismillah */
+.page-bismillah{
+  text-align:center;
+  font-family:'Amiri Quran',serif;
+  font-size:22px;
+  color:#1a0e05;
+  padding:3px 0 6px;
+  flex-shrink:0;
+  position:relative;z-index:1;
+}
+
+/* ── Ayah text ── */
 .mushaf-text{
   font-family:'Amiri Quran',serif;
-  font-size:23px;
-  line-height:2.4;
+  font-size:22px;
+  line-height:2.3;
   color:#1a0e05;
   text-align:justify;
   direction:rtl;
@@ -162,12 +160,12 @@ body{background:#05070F;color:white;font-family:'Noto Naskh Arabic',Georgia,seri
 }
 .aya-marker:active{background:rgba(77,182,172,0.15)}
 
-/* Page number bottom */
+/* Page number */
 .page-bottom-num{
   text-align:center;font-size:13px;
   color:rgba(26,14,5,0.4);font-family:Georgia,serif;
   flex-shrink:0;position:relative;z-index:1;
-  padding:4px 0 2px;
+  padding:5px 0 2px;
 }
 
 /* ── Popup ── */
@@ -408,14 +406,15 @@ function openPage(pageNum) {
   document.getElementById('indexView').style.display = 'none';
   document.getElementById('mainHeader').style.display = 'none';
   document.getElementById('mushafView').style.display = 'block';
-  requestAnimationFrame(() => {
+  // Set content area after header renders
+  setTimeout(() => {
     const hdr = document.querySelector('.mushaf-header');
     const mc = document.getElementById('mushafContent');
     if (hdr && mc) {
       const hh = hdr.offsetHeight;
-      mc.style.cssText = `position:absolute;top:${hh}px;left:0;right:0;bottom:0;overflow:hidden`;
+      mc.style.top = hh + 'px';
     }
-  });
+  }, 30);
   document.getElementById('backBtn').onclick = closeMushaf;
   loadPage(currentPage);
   history.pushState({page: currentPage}, '');
@@ -441,7 +440,7 @@ function fixContentPosition() {
   const hdr = document.querySelector('.mushaf-header');
   const mc = document.getElementById('mushafContent');
   if (hdr && mc) {
-    mc.style.cssText = `position:absolute;top:${hdr.offsetHeight}px;left:0;right:0;bottom:0;overflow:hidden`;
+    mc.style.top = hdr.offsetHeight + 'px';
   }
 }
 
@@ -630,70 +629,81 @@ function renderPage(ayahs, pageNum) {
     document.getElementById('mushafContent').innerHTML = '<div class="loading">لا توجد بيانات للصفحة</div>';
     return;
   }
-  // Group by surah
+
+  // Group consecutive ayahs by surah
   const groups = [];
-  let currentGroup = null;
+  let cur = null;
   ayahs.forEach(a => {
-    if (!currentGroup || currentGroup.surah !== a.surah.number) {
-      currentGroup = { surah: a.surah.number, name: a.surah.name, ayahs: [] };
-      groups.push(currentGroup);
+    if (!cur || cur.surah !== a.surah.number) {
+      cur = { surah: a.surah.number, name: a.surah.name, ayahs: [] };
+      groups.push(cur);
     }
-    currentGroup.ayahs.push(a);
+    cur.ayahs.push(a);
   });
 
-  // Update header info
-  if (groups.length > 0) {
-    const _sr = allSurahs.find(s => s.number === groups[0].surah);
-    document.getElementById('surahRight').textContent = _sr ? 'Surah ' + _sr.englishName : groups[0].name;
-  }
+  // Update top header
+  const firstSr = allSurahs.find(s => s.number === groups[0].surah);
+  document.getElementById('surahRight').textContent = firstSr ? 'Surah ' + firstSr.englishName : groups[0].name;
 
+  // Count how many surah headers appear on this page
   const newSurahCount = groups.filter(g => g.ayahs[0].numberInSurah === 1).length;
 
+  // Build HTML
+  // Structure: mushaf-page > [surah-header? bismillah? mushaf-text]+ page-bottom-num
   let html = '<div class="mushaf-page">';
-  let firstTextStarted = false;
 
-  groups.forEach((g) => {
-    if (g.ayahs[0].numberInSurah === 1) {
-      if (firstTextStarted) html += '</div>';
+  groups.forEach((g, gi) => {
+    const startsNewSurah = g.ayahs[0].numberInSurah === 1;
+
+    if (startsNewSurah) {
+      // Close previous text block if open
+      if (gi > 0) html += '</div>';
+      // Surah ornate banner
       html += `<div class="page-surah-name"><span>سُورَةُ ${g.name}</span></div>`;
+      // Bismillah (except Al-Fatiha=1 and At-Tawba=9)
       if (g.surah !== 1 && g.surah !== 9) {
-        html += `<div class="page-bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>`;
+        html += `<div class="page-bismillah">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>`;
       }
+      // Open text block
       html += '<div class="mushaf-text">';
-      firstTextStarted = true;
-    } else if (!firstTextStarted) {
+    } else if (gi === 0) {
+      // Page starts mid-surah — open text block directly
       html += '<div class="mushaf-text">';
-      firstTextStarted = true;
     }
+    // Write ayahs
     g.ayahs.forEach(a => {
       const num = toArabicNum(a.numberInSurah);
-      html += `<span class="aya" onclick="showTafsir(${a.surah.number},${a.numberInSurah},this)">${a.text} <span class="aya-marker" onclick="showTafsir(${a.surah.number},${a.numberInSurah},this.parentElement)">${num}</span></span> `;
+      html += `<span class="aya" onclick="showTafsir(${a.surah.number},${a.numberInSurah},this)">${a.text}&nbsp;<span class="aya-marker" onclick="showTafsir(${a.surah.number},${a.numberInSurah},this.parentElement)">${num}</span></span> `;
     });
   });
 
-  if (firstTextStarted) html += '</div>';
-  html += `<div class="page-bottom-num">${pageNum}</div></div>`;
+  html += `</div><div class="page-bottom-num">${pageNum}</div></div>`;
   document.getElementById('mushafContent').innerHTML = html;
   fixContentPosition();
 
-  // Dynamic font: scale up for short pages (few ayahs)
+  // Scale font up for short pages so text fills the screen
   requestAnimationFrame(() => {
     const textEl = document.querySelector('.mushaf-text');
-    const page = document.querySelector('.mushaf-page');
-    if (!page || !textEl) return;
-    const pageH = page.clientHeight;
-    const fixedH = (newSurahCount * 48) + (newSurahCount * 32) + 50;
-    const availH = pageH - fixedH;
-    let fs = 23;
-    textEl.style.fontSize = fs + 'px';
-    if (ayahs.length <= 10) {
-      for (let i = 0; i < 30; i++) {
+    const pageEl = document.querySelector('.mushaf-page');
+    if (!textEl || !pageEl) return;
+
+    const totalH = pageEl.clientHeight;
+    // Estimate space taken by fixed elements: each surah header ~50px, bismillah ~36px, bottom num ~28px, padding ~30px
+    const fixedH = (newSurahCount * 50) + (newSurahCount * 36) + 58;
+    const availH = totalH - fixedH;
+
+    if (ayahs.length <= 12) {
+      // Scale up gradually
+      let fs = 22;
+      for (let i = 0; i < 40; i++) {
         textEl.style.fontSize = (fs + 0.5) + 'px';
-        if (textEl.scrollHeight > availH) break;
+        if (textEl.scrollHeight > availH - 10) break;
         fs += 0.5;
       }
       textEl.style.fontSize = fs + 'px';
-      textEl.style.lineHeight = ayahs.length <= 5 ? '3.2' : ayahs.length <= 8 ? '2.8' : '2.4';
+      // Spread lines vertically for very short pages
+      const lh = ayahs.length <= 5 ? '3.4' : ayahs.length <= 8 ? '2.9' : '2.5';
+      textEl.style.lineHeight = lh;
     }
   });
 }
