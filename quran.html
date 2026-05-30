@@ -122,51 +122,67 @@ body {
 .bismillah {
   text-align:center;
   font-family:'Amiri Quran',serif;
-  font-size:26px;
+  font-size:28px;
   color:#C9A96E;
-  padding:16px;
-  opacity:0.9;
+  padding:16px 20px 8px;
+  opacity:0.95;
+  background: rgba(201,169,110,0.05);
+  border-radius: 8px;
+  margin: 8px 8px 0;
+  border: 1px solid rgba(201,169,110,0.2);
 }
 .ayah-wrap {
-  padding:0 12px;
+  padding: 8px 4px 80px;
 }
-.ayah-item {
-  background:rgba(255,255,255,0.025);
-  border:1px solid rgba(255,255,255,0.06);
-  border-radius:14px;
-  padding:14px 16px;
-  margin-bottom:8px;
-  cursor:pointer;
-  transition:background 0.2s, border-color 0.2s;
-  -webkit-tap-highlight-color:transparent;
-  position:relative;
+/* ── Mushaf Page Style ── */
+.mushaf-page {
+  background: #F8F3E8;
+  border: 2px solid #C9A96E;
+  border-radius: 8px;
+  padding: 24px 20px;
+  margin: 8px 8px 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  position: relative;
 }
-.ayah-item:active, .ayah-item.active {
-  background:rgba(201,169,110,0.06);
-  border-color:rgba(201,169,110,0.3);
+.mushaf-page::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px solid rgba(201,169,110,0.4);
+  border-radius: 4px;
+  pointer-events: none;
 }
-.ayah-text {
-  font-family:'Amiri Quran',serif;
-  font-size:22px;
-  line-height:2;
-  color:white;
-  text-align:right;
-  margin-bottom:6px;
+.mushaf-text {
+  font-family: 'Amiri Quran', serif;
+  font-size: 24px;
+  line-height: 2.4;
+  color: #1a1008;
+  text-align: justify;
+  direction: rtl;
+  word-spacing: 4px;
 }
-.ayah-num {
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  width:28px;
-  height:28px;
-  border-radius:50%;
-  background:rgba(201,169,110,0.12);
-  border:1px solid rgba(201,169,110,0.25);
-  font-size:12px;
-  color:#C9A96E;
-  float:left;
-  margin-top:4px;
+.mushaf-text .aya {
+  cursor: pointer;
+  transition: background 0.15s;
+  border-radius: 4px;
+  padding: 0 1px;
 }
+.mushaf-text .aya:active,
+.mushaf-text .aya.active {
+  background: rgba(201,169,110,0.35);
+}
+.aya-end {
+  display: inline-block;
+  color: #C9A96E;
+  font-size: 18px;
+  vertical-align: middle;
+  margin: 0 2px;
+  cursor: pointer;
+}
+/* old item style kept for compatibility */
+.ayah-item { display:none; }
+.ayah-text { font-family:'Amiri Quran',serif; }
+.ayah-num { display:none; }
 .tap-hint {
   font-size:12px;
   color:rgba(255,255,255,0.25);
@@ -419,13 +435,49 @@ async function openSurah(num) {
   }
 }
 
+function toArabicNum(n) {
+  return n.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+}
+
 function renderAyahs(ayahs, surahNum) {
-  document.getElementById('ayahWrap').innerHTML = ayahs.map(a => `
-    <div class="ayah-item" onclick="showTafsir(${surahNum}, ${a.numberInSurah}, this)">
-      <span class="ayah-num">${a.numberInSurah}</span>
-      <div class="ayah-text">${a.text}</div>
-    </div>
-  `).join('');
+  // Build mushaf-style flowing text with ayah markers
+  let html = '<div class="mushaf-page"><div class="mushaf-text">';
+  ayahs.forEach(a => {
+    const num = toArabicNum(a.numberInSurah);
+    html += `<span class="aya" data-surah="${surahNum}" data-aya="${a.numberInSurah}" onclick="showTafsirMusaf(${surahNum}, ${a.numberInSurah}, this)">${a.text}</span><span class="aya-end" onclick="showTafsirMusaf(${surahNum}, ${a.numberInSurah}, this.previousElementSibling)"> ۝${num} </span>`;
+  });
+  html += '</div></div>';
+  document.getElementById('ayahWrap').innerHTML = html;
+}
+
+function showTafsirMusaf(surahNum, ayahNum, el) {
+  // Remove previous active
+  document.querySelectorAll('.aya.active').forEach(e => e.classList.remove('active'));
+  if (el) el.classList.add('active');
+
+  const surah = allSurahs.find(s => s.number === surahNum);
+  const ayahText = el ? el.textContent : '';
+  document.getElementById('popupTitle').textContent = `${surah ? surah.name : ''} : ${ayahNum}`;
+  document.getElementById('popupAyah').textContent = ayahText;
+  document.getElementById('popupTafsir').innerHTML = '<div class="tafsir-loading">جارٍ تحميل التفسير...</div>';
+  document.getElementById('popupOverlay').classList.add('show');
+
+  const key = `${surahNum}:${ayahNum}`;
+  if (tafsirCache[key]) {
+    document.getElementById('popupTafsir').textContent = tafsirCache[key];
+    return;
+  }
+
+  fetch(`${BASE}/ayah/${surahNum}:${ayahNum}/${TAFSIR_EDITION}`)
+    .then(r => r.json())
+    .then(data => {
+      if (data.code !== 200) throw new Error();
+      tafsirCache[key] = data.data.text;
+      document.getElementById('popupTafsir').textContent = data.data.text;
+    })
+    .catch(() => {
+      document.getElementById('popupTafsir').innerHTML = '<span style="color:rgba(255,100,100,0.7)">تعذّر تحميل التفسير</span>';
+    });
 }
 
 // Show tafsir popup
