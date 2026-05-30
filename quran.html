@@ -593,6 +593,30 @@ history.pushState(null, '');
 
 loadSurahs();
 checkDownloadStatus();
+
+// ── Swipe to navigate ──
+(function() {
+  let startX = 0, startY = 0, isDragging = false;
+
+  document.getElementById('mushafContent').addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    isDragging = true;
+  }, { passive: true });
+
+  document.getElementById('mushafContent').addEventListener('touchend', e => {
+    if (!isDragging) return;
+    isDragging = false;
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    // Only swipe if horizontal movement > 60px and more horizontal than vertical
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      if (dx > 0 && currentPage > 1) changePage(-1);   // swipe right = prev page
+      if (dx < 0 && currentPage < 604) changePage(1);  // swipe left = next page
+    }
+  }, { passive: true });
+})();
+
 </script>
 </body>
 </html>
