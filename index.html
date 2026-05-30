@@ -36,6 +36,28 @@
   </style>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>emailjs.init("4hU4JT7mCPK4QVVHf");</script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  const firebaseConfig = {
+    apiKey: "AIzaSyAnhbc3kjMk4A7Uv58X1L8py2EZ7Y8JFmU",
+    authDomain: "islam-rising.firebaseapp.com",
+    databaseURL: "https://islam-rising-default-rtdb.firebaseio.com",
+    projectId: "islam-rising",
+    storageBucket: "islam-rising.firebasestorage.app",
+    messagingSenderId: "938076240191",
+    appId: "1:938076240191:web:83a05751245f721acd3b8a"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  window.__fbDB = db;
+  window.__fbRef = ref;
+  window.__fbSet = set;
+  window.__fbOnValue = onValue;
+  window.__fbGet = get;
+  window.__fbReady = true;
+  window.dispatchEvent(new Event('firebase-ready'));
+</script>
 </head>
 <body>
 
@@ -766,6 +788,22 @@ function App() {
     } catch (e) {
     }
     loadBoard();
+    // Real-time listener
+    const setupListener = () => {
+      if (window.__fbDB) {
+        window.__fbOnValue(window.__fbRef(window.__fbDB, "leaderboard"), (snapshot) => {
+          if (snapshot.exists()) {
+            const entries = Object.values(snapshot.val()).filter(Boolean);
+            setBoard(entries.sort((a, b) => b.pts - a.pts));
+          } else {
+            setBoard([]);
+          }
+          setBL(false);
+        });
+      }
+    };
+    if (window.__fbReady) setupListener();
+    else window.addEventListener('firebase-ready', setupListener);
   };
   const loadStreak = async () => {
     try {
@@ -1040,17 +1078,15 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
   const loadBoard = async () => {
     setBL(true);
     try {
-      const res = await window.storage.list("ir-lb:", true);
-      const keys = (res == null ? void 0 : res.keys) || [];
-      const entries = await Promise.all(keys.map(async (k) => {
-        try {
-          const r = await window.storage.get(k, true);
-          return r ? JSON.parse(r.value) : null;
-        } catch (e) {
-          return null;
-        }
-      }));
-      setBoard(entries.filter(Boolean).sort((a, b) => b.pts - a.pts));
+      if (!window.__fbDB) { setBoard([]); setBL(false); return; }
+      const snapshot = await window.__fbGet(window.__fbRef(window.__fbDB, "leaderboard"));
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const entries = Object.values(data).filter(Boolean);
+        setBoard(entries.sort((a, b) => b.pts - a.pts));
+      } else {
+        setBoard([]);
+      }
     } catch (e) {
       setBoard([]);
     }
@@ -1058,14 +1094,17 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
   };
   const saveScore = async (key, name, score) => {
     try {
-      await window.storage.set(key, JSON.stringify({
+      if (!window.__fbDB) return;
+      const entry = {
         name,
         pts: score,
         streak,
         ts: Date.now(),
         title: RANKS[Math.min(Math.floor(score / 200), RANKS.length - 1)],
         premium: isPremium
-      }), true);
+      };
+      const safeKey = key.replace(/[.#$/[\]]/g, "_");
+      await window.__fbSet(window.__fbRef(window.__fbDB, "leaderboard/" + safeKey), entry);
       await loadBoard();
     } catch (e) {
     }
