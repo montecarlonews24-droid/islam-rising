@@ -130,7 +130,22 @@ body{background:#05070F;color:white;font-family:'Noto Naskh Arabic',Georgia,seri
 <!-- Index Views -->
 <div id="indexView">
   <!-- Surahs Tab -->
-  <div id="surahsTab" class="index-list">
+  <!-- Download Bar -->
+<div id="downloadBar" style="margin:8px 12px 0;background:rgba(77,182,172,0.08);border:1px solid rgba(77,182,172,0.2);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px">
+  <div style="flex:1">
+    <div id="dlStatus" style="font-size:14px;color:#4DB6AC;font-weight:700">القرآن الكريم — تحميل للعمل بدون إنترنت</div>
+    <div id="dlSub" style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px">604 صفحة · ~10MB</div>
+    <div id="dlProgress" style="display:none;margin-top:8px">
+      <div style="background:rgba(255,255,255,0.08);border-radius:99px;height:6px;overflow:hidden">
+        <div id="dlBar" style="height:100%;background:linear-gradient(90deg,#4DB6AC,#80CBC4);border-radius:99px;width:0%;transition:width 0.3s"></div>
+      </div>
+      <div id="dlCount" style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px;text-align:center">0 / 604</div>
+    </div>
+  </div>
+  <button id="dlBtn" onclick="startDownload()" style="background:rgba(77,182,172,0.15);border:1px solid rgba(77,182,172,0.3);border-radius:10px;color:#4DB6AC;font-size:13px;font-weight:700;padding:8px 14px;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0">⬇ تحميل</button>
+</div>
+
+<div id="surahsTab" class="index-list">
     <div class="loading"><div class="spinner"></div>جارٍ تحميل...</div>
   </div>
   <!-- Juz Tab -->
@@ -329,11 +344,114 @@ function changePage(dir) {
   history.pushState({page: currentPage}, '');
 }
 
+// ── localStorage helpers ──
+const LS_PREFIX = 'qp_';
+function savePage(pageNum, ayahs) {
+  try { localStorage.setItem(LS_PREFIX + pageNum, JSON.stringify(ayahs)); } catch(e) {}
+}
+function getCachedPage(pageNum) {
+  try {
+    const d = localStorage.getItem(LS_PREFIX + pageNum);
+    return d ? JSON.parse(d) : null;
+  } catch(e) { return null; }
+}
+function getDownloadedCount() {
+  let count = 0;
+  for (let p = 1; p <= 604; p++) {
+    if (localStorage.getItem(LS_PREFIX + p)) count++;
+  }
+  return count;
+}
+
+let isDownloading = false;
+
+async function startDownload() {
+  if (isDownloading) return;
+  const downloaded = getDownloadedCount();
+  if (downloaded >= 604) {
+    document.getElementById('dlStatus').textContent = '✓ القرآن محمّل بالكامل';
+    document.getElementById('dlBtn').textContent = '✓ مكتمل';
+    document.getElementById('dlBtn').disabled = true;
+    return;
+  }
+  isDownloading = true;
+  document.getElementById('dlBtn').textContent = '⏸ إيقاف';
+  document.getElementById('dlBtn').onclick = stopDownload;
+  document.getElementById('dlProgress').style.display = 'block';
+
+  for (let p = 1; p <= 604; p++) {
+    if (!isDownloading) break;
+    if (localStorage.getItem(LS_PREFIX + p)) {
+      updateDlProgress(p);
+      continue;
+    }
+    try {
+      const res = await fetch(`https://api.quran.com/api/v4/verses/by_page/${p}?language=ar&words=false&fields=text_uthmani,verse_key&per_page=50`);
+      const data = await res.json();
+      if (data.verses) {
+        const ayahs = data.verses.map(v => {
+          const [s, a] = v.verse_key.split(':');
+          const sNum = parseInt(s);
+          const sr = allSurahs.find(x => x.number === sNum);
+          return { text: v.text_uthmani, numberInSurah: parseInt(a), surah: { number: sNum, name: sr ? sr.name : '' } };
+        });
+        savePage(p, ayahs);
+        updateDlProgress(p);
+      }
+    } catch(e) {
+      // Skip failed page, continue
+      await new Promise(r => setTimeout(r, 500));
+    }
+    // Small delay to avoid rate limiting
+    await new Promise(r => setTimeout(r, 80));
+  }
+
+  isDownloading = false;
+  const total = getDownloadedCount();
+  if (total >= 604) {
+    document.getElementById('dlStatus').textContent = '✓ القرآن محمّل بالكامل — يعمل offline';
+    document.getElementById('dlSub').textContent = '604 صفحة محفوظة على جهازك';
+    document.getElementById('dlBtn').textContent = '✓ مكتمل';
+    document.getElementById('dlBtn').disabled = true;
+    document.getElementById('dlBtn').onclick = null;
+  } else {
+    document.getElementById('dlStatus').textContent = `تم تحميل ${total}/604 صفحة`;
+    document.getElementById('dlBtn').textContent = '▶ متابعة';
+    document.getElementById('dlBtn').onclick = startDownload;
+  }
+}
+
+function stopDownload() {
+  isDownloading = false;
+  document.getElementById('dlBtn').textContent = '▶ متابعة';
+  document.getElementById('dlBtn').onclick = startDownload;
+}
+
+function updateDlProgress(p) {
+  const pct = Math.round(p / 604 * 100);
+  document.getElementById('dlBar').style.width = pct + '%';
+  document.getElementById('dlCount').textContent = `${p} / 604`;
+  document.getElementById('dlStatus').textContent = `جارٍ التحميل... ${pct}%`;
+}
+
+function checkDownloadStatus() {
+  const count = getDownloadedCount();
+  if (count >= 604) {
+    document.getElementById('dlStatus').textContent = '✓ القرآن محمّل بالكامل — يعمل offline';
+    document.getElementById('dlSub').textContent = '604 صفحة محفوظة على جهازك';
+    document.getElementById('dlBtn').textContent = '✓ مكتمل';
+    document.getElementById('dlBtn').disabled = true;
+  } else if (count > 0) {
+    document.getElementById('dlStatus').textContent = `تم تحميل ${count}/604 صفحة`;
+    document.getElementById('dlSub').textContent = 'اضغط متابعة لإكمال التحميل';
+    document.getElementById('dlBtn').textContent = '▶ متابعة';
+  }
+}
+
 async function loadPage(pageNum) {
   document.getElementById('pageNum').textContent = `صفحة ${pageNum}`;
   document.getElementById('prevBtn').disabled = pageNum <= 1;
   document.getElementById('nextBtn').disabled = pageNum >= 604;
-  document.getElementById('mushafContent').innerHTML = '<div class="loading"><div class="spinner"></div>جارٍ تحميل الصفحة...</div>';
 
   // Find juz
   let juz = 1;
@@ -342,20 +460,48 @@ async function loadPage(pageNum) {
   }
   document.getElementById('pageMeta').textContent = `الجزء ${juz}`;
 
+  // 1. Check memory cache
   if (pageCache[pageNum]) {
     renderPage(pageCache[pageNum], pageNum);
     return;
   }
 
+  // 2. Check localStorage
+  const cached = getCachedPage(pageNum);
+  if (cached) {
+    pageCache[pageNum] = cached;
+    renderPage(cached, pageNum);
+    return;
+  }
+
+  // 3. Fetch from API
+  document.getElementById('mushafContent').innerHTML = '<div class="loading"><div class="spinner"></div>جارٍ تحميل الصفحة...</div>';
   try {
-    const res = await fetch(`${BASE}/page/${pageNum}/quran-uthmani`);
+    const res = await fetch(`https://api.quran.com/api/v4/verses/by_page/${pageNum}?language=ar&words=false&fields=text_uthmani,verse_key&per_page=50`);
     const data = await res.json();
-    if (data.code !== 200) throw new Error();
-    pageCache[pageNum] = data.data;
-    renderPage(data.data, pageNum);
+    if (!data.verses) throw new Error();
+    const ayahs = data.verses.map(v => {
+      const [s, a] = v.verse_key.split(':');
+      const sNum = parseInt(s);
+      const sr = allSurahs.find(x => x.number === sNum);
+      return { text: v.text_uthmani, numberInSurah: parseInt(a), surah: { number: sNum, name: sr ? sr.name : '' } };
+    });
+    pageCache[pageNum] = ayahs;
+    savePage(pageNum, ayahs); // auto-cache every visited page
+    renderPage(ayahs, pageNum);
   } catch(e) {
-    document.getElementById('mushafContent').innerHTML =
-      `<div class="loading">تعذّر تحميل الصفحة<br><br><button onclick="loadPage(${pageNum})" style="background:rgba(77,182,172,0.15);border:1px solid rgba(77,182,172,0.3);border-radius:10px;color:#4DB6AC;padding:8px 20px;cursor:pointer;font-family:inherit">إعادة المحاولة</button></div>`;
+    // Fallback
+    try {
+      const r2 = await fetch(`${BASE}/page/${pageNum}/quran-uthmani`);
+      const d2 = await r2.json();
+      if (d2.code !== 200) throw new Error();
+      pageCache[pageNum] = d2.data.ayahs;
+      savePage(pageNum, d2.data.ayahs);
+      renderPage(d2.data.ayahs, pageNum);
+    } catch(e2) {
+      document.getElementById('mushafContent').innerHTML =
+        `<div class="loading">تعذّر تحميل الصفحة — تحقق من الإنترنت<br><br><button onclick="loadPage(${pageNum})" style="background:rgba(77,182,172,0.15);border:1px solid rgba(77,182,172,0.3);border-radius:10px;color:#4DB6AC;padding:8px 20px;cursor:pointer;font-family:inherit">إعادة المحاولة</button></div>`;
+    }
   }
 }
 
@@ -446,6 +592,7 @@ window.addEventListener('popstate', () => {
 history.pushState(null, '');
 
 loadSurahs();
+checkDownloadStatus();
 </script>
 </body>
 </html>
