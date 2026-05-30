@@ -92,19 +92,51 @@ body{background:#05070F;color:white;font-family:'Noto Naskh Arabic',serif;min-he
   pointer-events:none;z-index:0;
 }
 
-/* ── Surah header (QCF4 ornate) ── */
+/* ── Surah header — pure CSS ornate banner ── */
 .qsurah-header{
-  text-align:center;
-  direction:rtl;
-  line-height:1;
   flex-shrink:0;
-  /* The QCF4_QBSML font renders the ornate surah frame glyph */
-  font-family:'QCF4_QBSML',serif;
-  font-size:36px;
-  color:#1a3a2a;
+  height:52px;
+  display:flex;
+  align-items:center;
+  border-top:1.5px solid #3d9e8a;
+  border-bottom:1.5px solid #3d9e8a;
+  background:linear-gradient(90deg,rgba(74,158,138,0.12) 0%,rgba(250,246,236,0.6) 25%,rgba(250,246,236,0.6) 75%,rgba(74,158,138,0.12) 100%);
   position:relative;z-index:1;
   margin:2px 0;
 }
+.surah-name-text{
+  flex:1;
+  text-align:center;
+  font-family:'Noto Naskh Arabic',serif;
+  font-size:18px;
+  font-weight:700;
+  color:#1a3a2a;
+  white-space:nowrap;
+}
+.surah-ornament-side{
+  width:60px;
+  height:100%;
+  flex-shrink:0;
+  position:relative;
+  display:flex;align-items:center;justify-content:center;
+}
+/* Circles ornament using box-shadow */
+.surah-ornament-right::before,
+.surah-ornament-left::before{
+  content:'';
+  width:12px;height:12px;
+  border-radius:50%;
+  background:#3d9e8a;
+  box-shadow:
+    22px 0 0 #3d9e8a,
+    -22px 0 0 #3d9e8a,
+    0 0 0 4px rgba(74,158,138,0.25),
+    22px 0 0 4px rgba(74,158,138,0.25),
+    -22px 0 0 4px rgba(74,158,138,0.25);
+  display:block;
+}
+.surah-ornament-right{border-left:2px solid #3d9e8a;}
+.surah-ornament-left{border-right:2px solid #3d9e8a;}
 
 /* ── Quran line ── */
 .qline{
@@ -441,13 +473,13 @@ async function loadPage(pageNum){
 }
 
 async function renderPageData(data, pageNum){
-  // Collect all unique fonts needed for this page
-  const fontsNeeded=new Set(['QCF4_QBSML']);
+  // Collect fonts needed (skip QBSML — we use CSS for surah header)
+  const fontsNeeded=new Set();
   data.lines.forEach(line=>{
-    line.words.forEach(w=>{ if(w.font) fontsNeeded.add(w.font); });
+    line.words.forEach(w=>{
+      if(w.font && w.type!=='surah_header') fontsNeeded.add(w.font);
+    });
   });
-
-  // Load all needed fonts in parallel
   await Promise.all([...fontsNeeded].map(f=>loadFont(f)));
 
   // Update surah label in header
@@ -457,70 +489,66 @@ async function renderPageData(data, pageNum){
       sr ? 'Surah '+sr.englishName : data.surahs[0].name;
   }
 
-  // Calculate font size to fill the page
   positionContent();
   const mc=document.getElementById('mushafContent');
   const availH=mc.offsetHeight;
-  const availW=mc.offsetWidth;
-  const lineCount=data.lines.length; // usually 15 lines per page
 
-  // Base font size: fit 15 lines + padding into available height
-  const lineH=Math.floor((availH - 24) / lineCount); // 24px for page num + margins
-  const fs=Math.max(16, Math.min(34, Math.floor(lineH * 0.62)));
+  // Count surah header lines vs ayah lines
+  const surahHeaderCount=data.lines.filter(l=>l.words.some(w=>w.type==='surah_header')).length;
+  const ayahLineCount=data.lines.length - surahHeaderCount;
 
-  // Build page HTML
+  // Each surah header ~52px, page num 22px, padding 20px
+  const reservedH = surahHeaderCount*52 + 42;
+  const textH = availH - reservedH;
+  const lineH = Math.floor(textH / Math.max(ayahLineCount,1));
+  const fs = Math.max(14, Math.min(26, Math.floor(lineH * 0.68)));
+
   let html=`<div class="qpage" style="animation:fadeIn 0.2s ease">`;
 
-  data.lines.forEach((line,li)=>{
+  data.lines.forEach(line=>{
     const words=line.words;
     if(!words||words.length===0) return;
 
-    // Check if this is a surah header line
     const isSurahHeader = words.some(w=>w.type==='surah_header');
     const isBasmala     = words.some(w=>w.type==='basmala');
 
     if(isSurahHeader){
-      // Render the QCF4_QBSML surah header glyph
       const hw=words.find(w=>w.type==='surah_header');
-      html+=`<div class="qsurah-header" style="font-size:${Math.floor(fs*1.6)}px">`;
-      html+=`<span style="font-family:'QCF4_QBSML'">${hw.char||hw.text}</span>`;
-      html+=`</div>`;
+      const surahName = hw.text || '';
+      html+=`<div class="qsurah-header">
+        <div class="surah-ornament-side surah-ornament-right"></div>
+        <div class="surah-name-text">${surahName}</div>
+        <div class="surah-ornament-side surah-ornament-left"></div>
+      </div>`;
     } else if(isBasmala){
-      // Basmala line — centered
       html+=`<div class="qline centered" style="font-size:${fs}px">`;
       words.forEach(w=>{
-        if(!w.char && !w.text) return;
-        const ch=w.char||'';
-        html+=`<span class="qword" style="font-family:'${w.font||data.font}'" `;
-        if(w.verse_key){
-          html+=`onclick="onWordTap('${w.verse_key}','${w.text||''}',this)"`;
-        }
-        html+=`>${ch}</span>`;
+        if(!w.char) return;
+        html+=`<span class="qword" style="font-family:'${w.font||data.font}'"`;
+        if(w.verse_key) html+=` onclick="onWordTap('${w.verse_key}','${escHtml(w.text||'')}',this)"`;
+        html+=`>${w.char}</span>`;
       });
       html+=`</div>`;
     } else {
-      // Normal ayah line — justified or centered based on word count
       const wordCount=words.filter(w=>w.type==='word'||w.type==='end').length;
-      const lineClass=wordCount<=3 ? 'centered':'justified';
+      const lineClass=wordCount<=3?'centered':'justified';
       html+=`<div class="qline ${lineClass}" style="font-size:${fs}px">`;
       words.forEach(w=>{
-        if(!w.char && !w.text) return;
-        const ch=w.char||'';
+        if(!w.char) return;
         const isEnd=w.type==='end';
-        html+=`<span class="qword${isEnd?' end-marker':''}" style="font-family:'${w.font||data.font}'" `;
-        if(w.verse_key){
-          html+=`onclick="onWordTap('${w.verse_key}','${w.text||''}',this)"`;
-        }
-        html+=`>${ch}</span>`;
+        html+=`<span class="qword${isEnd?' end-marker':''}" style="font-family:'${w.font||data.font}'"`;
+        if(w.verse_key) html+=` onclick="onWordTap('${w.verse_key}','${escHtml(w.text||'')}',this)"`;
+        html+=`>${w.char}</span>`;
       });
       html+=`</div>`;
     }
   });
 
-  html+=`<div class="qpage-num">${pageNum}</div>`;
-  html+=`</div>`;
+  html+=`<div class="qpage-num">${pageNum}</div></div>`;
   mc.innerHTML=html;
 }
+
+function escHtml(s){ return s.replace(/'/g,"\\'"); }
 
 // ═══════════════════════════════════════════
 //  TAFSIR
