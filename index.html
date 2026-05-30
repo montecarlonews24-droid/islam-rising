@@ -34,6 +34,8 @@
     html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 
   </style>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>emailjs.init("4hU4JT7mCPK4QVVHf");</script>
 </head>
 <body>
 
@@ -990,11 +992,17 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
   };
   const sendContact = () => {
     if (!cName.trim() || !cMsg.trim()) return;
-    const subject = encodeURIComponent((cSubj || "\u0631\u0633\u0627\u0644\u0629 \u0645\u0646 Islam Rising") + " - " + cName);
-    const body = encodeURIComponent("\u0627\u0644\u0627\u0633\u0645: " + cName + "\n\n" + cMsg);
-    window.location.href = "mailto:montecarlo.news24@gmail.com?subject=" + subject + "&body=" + body;
-    setCSent(true);
-    setTimeout(() => { setContactOpen(false); setCSent(false); setCName(""); setCSubj(""); setCMsg(""); }, 2000);
+    emailjs.send("service_4kr4ncc", "template_17thfuu", {
+      name: cName,
+      title: cSubj || "\u0631\u0633\u0627\u0644\u0629 \u0645\u0646 Islam Rising",
+      message: cMsg,
+      email: "montecarlo.news24@gmail.com"
+    }).then(() => {
+      setCSent(true);
+      setTimeout(() => { setContactOpen(false); setCSent(false); setCName(""); setCSubj(""); setCMsg(""); }, 2500);
+    }).catch(() => {
+      alert("\u062A\u0639\u0630\u0651\u0631 \u0627\u0644\u0625\u0631\u0633\u0627\u0644 \u2014 \u062D\u0627\u0648\u0644 \u0645\u0631\u0629 \u0623\u062E\u0631\u0649");
+    });
   };
   const confirmVerify = () => {
     if (vInput.trim().slice(0, 5) === modal.verify.slice(0, 5)) {
