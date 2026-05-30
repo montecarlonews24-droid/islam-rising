@@ -73,10 +73,10 @@ body{background:#05070F;color:white;font-family:'Noto Naskh Arabic',Georgia,seri
 .page-bismillah{text-align:center;font-family:'Amiri Quran',serif;font-size:20px;color:#1a0e05;padding:3px 0 8px;flex-shrink:0;position:relative;z-index:1}
 
 /* Ayah text */
-.mushaf-text{font-family:'Amiri Quran',serif;font-size:22px;line-height:2.35;color:#1a0e05;text-align:justify;direction:rtl;word-spacing:2px;flex:1;overflow:hidden;position:relative;z-index:1}
-.aya{cursor:pointer;border-radius:3px;padding:0 1px;transition:background 0.15s}
+.mushaf-text{font-family:'Amiri Quran',serif;font-size:20px;line-height:2.2;color:#1a0e05;text-align:justify;direction:rtl;word-spacing:1px;flex:1;overflow:hidden;position:relative;z-index:1}
+.aya{cursor:pointer;border-radius:3px;padding:0 1px;transition:background 0.15s;display:inline}
 .aya:active,.aya.aya-active{background:rgba(77,182,172,0.25)}
-.aya-marker{display:inline-flex;align-items:center;justify-content:center;width:23px;height:23px;border-radius:50%;border:1.5px solid #3d9e8a;color:#3d9e8a;font-size:10px;font-family:'Noto Naskh Arabic',serif;vertical-align:middle;margin:0 2px;cursor:pointer;background:transparent}
+.aya-marker{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;border:1.5px solid #3d9e8a;color:#3d9e8a;font-size:10px;font-family:'Noto Naskh Arabic',serif;vertical-align:middle;margin:0 1px;cursor:pointer;background:transparent;flex-shrink:0}
 .aya-marker:active{background:rgba(77,182,172,0.15)}
 
 /* Page number bottom */
@@ -550,24 +550,23 @@ function renderPage(ayahs, pageNum) {
     document.getElementById('surahRight').textContent = _sr ? 'Surah ' + _sr.englishName : groups[0].name;
   }
 
-  let html = '<div class="mushaf-page">';
+  let html = '<div class="mushaf-page"><div class="mushaf-text">';
   groups.forEach((g, gi) => {
     // Show surah header if first ayah is 1
     if (g.ayahs[0].numberInSurah === 1) {
-      html += `<div class="page-surah-name">سُورَةُ ${g.name}</div>`;
+      html += `</div><div class="page-surah-name">سُورَةُ ${g.name}</div>`;
       if (g.surah !== 1 && g.surah !== 9) {
         html += `<div class="page-bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>`;
       }
+      html += '<div class="mushaf-text">';
     }
-    // Ayah text
-    html += '<div class="mushaf-text">';
+    // All ayahs flow together in one paragraph
     g.ayahs.forEach(a => {
       const num = toArabicNum(a.numberInSurah);
-      html += `<span class="aya" onclick="showTafsir(${a.surah.number},${a.numberInSurah},this)">${a.text}</span><span class="aya-marker" onclick="showTafsir(${a.surah.number},${a.numberInSurah},this.previousElementSibling)">${num}</span> `;
+      html += `<span class="aya" onclick="showTafsir(${a.surah.number},${a.numberInSurah},this)">${a.text} <span class="aya-marker" onclick="showTafsir(${a.surah.number},${a.numberInSurah},this.parentElement)">${num}</span></span>`;
     });
-    html += '</div>';
   });
-  html += `<div class="page-bottom-num">${pageNum}</div></div>`;
+  html += `</div><div class="page-bottom-num">${pageNum}</div></div>`;
   document.getElementById('mushafContent').innerHTML = html;
   fixContentPosition();
 }
