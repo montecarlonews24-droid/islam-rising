@@ -365,7 +365,12 @@ function savePage(pageNum, ayahs) {
 function getCachedPage(pageNum) {
   try {
     const d = localStorage.getItem(LS_PREFIX + pageNum);
-    return d ? JSON.parse(d) : null;
+    if (!d) return null;
+    const parsed = JSON.parse(d);
+    // Handle both array format and {ayahs:[]} format
+    if (Array.isArray(parsed)) return parsed;
+    if (parsed && parsed.ayahs) return parsed.ayahs;
+    return null;
   } catch(e) { return null; }
 }
 function getDownloadedCount() {
@@ -471,7 +476,6 @@ async function loadPage(pageNum) {
   for (let i = JUZ_DATA.length - 1; i >= 0; i--) {
     if (JUZ_DATA[i][1] <= pageNum) { juz = JUZ_DATA[i][0]; break; }
   }
-  document.getElementById('pageMeta').textContent = `الجزء ${juz}`;
   document.getElementById('surahLeft').textContent = `Juz' ${juz}`;
 
   // 1. Check memory cache
@@ -480,9 +484,9 @@ async function loadPage(pageNum) {
     return;
   }
 
-  // 2. Check localStorage
+  // 2. Check localStorage (try both old and new key formats)
   const cached = getCachedPage(pageNum);
-  if (cached) {
+  if (cached && cached.length > 0) {
     pageCache[pageNum] = cached;
     renderPage(cached, pageNum);
     return;
@@ -490,6 +494,7 @@ async function loadPage(pageNum) {
 
   // 3. Fetch from API
   document.getElementById('mushafContent').innerHTML = '<div class="loading"><div class="spinner"></div>جارٍ تحميل الصفحة...</div>';
+  fixContentPosition();
   try {
     const res = await fetch(`https://api.quran.com/api/v4/verses/by_page/${pageNum}?language=ar&words=false&fields=text_uthmani,verse_key&per_page=50`);
     const data = await res.json();
@@ -524,6 +529,10 @@ function toArabicNum(n) {
 }
 
 function renderPage(ayahs, pageNum) {
+  if (!ayahs || ayahs.length === 0) {
+    document.getElementById('mushafContent').innerHTML = '<div class="loading">لا توجد بيانات للصفحة</div>';
+    return;
+  }
   // Group by surah
   const groups = [];
   let currentGroup = null;
