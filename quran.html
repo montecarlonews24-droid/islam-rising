@@ -48,12 +48,12 @@ body{background:#05070F;color:white;font-family:'Noto Naskh Arabic',Georgia,seri
 .juz-page-num{font-size:15px;color:rgba(255,255,255,0.4);font-weight:700}
 
 /* ── Loading ── */
-.loading{text-align:center;padding:40px;color:rgba(255,255,255,0.4)}
-.spinner{width:32px;height:32px;border:2px solid rgba(201,169,110,0.2);border-top-color:#C9A96E;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px}
+.loading{text-align:center;padding:40px;color:rgba(26,14,5,0.4);background:#faf6ec;position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.spinner{width:32px;height:32px;border:2px solid rgba(100,160,140,0.2);border-top-color:#4a9e8a;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── Mushaf View ── */
-#mushafView{display:none;position:fixed;inset:0;z-index:30;background:#faf6ec}
+#mushafView{display:none;position:fixed;inset:0;z-index:30;overflow:hidden}
 .mushaf-header{position:fixed;top:0;left:0;right:0;z-index:40;background:#0d1117;border-bottom:1px solid rgba(255,255,255,0.07);padding:0}
 .mushaf-top{display:flex;align-items:center;justify-content:space-between;padding:6px 14px}.mushaf-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:0}
 .nav-btn{background:none;border:none;color:#4DB6AC;font-size:26px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:0}
@@ -65,7 +65,7 @@ body{background:#05070F;color:white;font-family:'Noto Naskh Arabic',Georgia,seri
 .mushaf-surah-info{display:none}.m-surah-en{font-size:13px;color:rgba(255,255,255,0.65);font-family:Georgia,serif}.m-juz-en{font-size:13px;color:rgba(255,255,255,0.65);font-family:Georgia,serif}
 
 /* ── Mushaf Page ── */
-.mushaf-page{background:#faf6ec;position:fixed;top:var(--mh,46px);left:0;right:0;bottom:0;display:flex;flex-direction:column;padding:10px 16px 6px;overflow:hidden}
+.mushaf-page{background:#faf6ec;position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;padding:10px 16px 6px;overflow:hidden}
 .mushaf-page::before{content:'';position:absolute;inset:4px;border:1px solid rgba(100,160,140,0.3);pointer-events:none;z-index:0}
 
 /* Surah header inside page */
@@ -173,7 +173,7 @@ body{background:#05070F;color:white;font-family:'Noto Naskh Arabic',Georgia,seri
       <span class="m-juz-en" id="surahLeft">Juz' 1</span>
     </div>
   </div>
-  <div id="mushafContent" style="position:fixed;inset:0;top:var(--mh,46px)">
+  <div id="mushafContent">
     <div class="loading"><div class="spinner"></div>جارٍ تحميل الصفحة...</div>
   </div>
 </div>
@@ -322,7 +322,11 @@ function openPage(pageNum) {
   document.getElementById('mushafView').style.display = 'block';
   requestAnimationFrame(() => {
     const hdr = document.querySelector('.mushaf-header');
-    if (hdr) document.documentElement.style.setProperty('--mh', hdr.offsetHeight + 'px');
+    const mc = document.getElementById('mushafContent');
+    if (hdr && mc) {
+      const hh = hdr.offsetHeight;
+      mc.style.cssText = `position:absolute;top:${hh}px;left:0;right:0;bottom:0;overflow:hidden`;
+    }
   });
   document.getElementById('backBtn').onclick = closeMushaf;
   loadPage(currentPage);
@@ -343,6 +347,14 @@ function changePage(dir) {
   currentPage = np;
   loadPage(currentPage);
   history.pushState({page: currentPage}, '');
+}
+
+function fixContentPosition() {
+  const hdr = document.querySelector('.mushaf-header');
+  const mc = document.getElementById('mushafContent');
+  if (hdr && mc) {
+    mc.style.cssText = `position:absolute;top:${hdr.offsetHeight}px;left:0;right:0;bottom:0;overflow:hidden`;
+  }
 }
 
 // ── localStorage helpers ──
@@ -548,6 +560,7 @@ function renderPage(ayahs, pageNum) {
   });
   html += `<div class="page-bottom-num">${pageNum}</div></div>`;
   document.getElementById('mushafContent').innerHTML = html;
+  fixContentPosition();
 }
 
 // ── Tafsir ──
