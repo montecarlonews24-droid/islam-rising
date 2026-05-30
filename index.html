@@ -2283,5 +2283,92 @@ if (_root && !_root._reactRootContainer) {
 
 </script>
 
+
+<script type="module">
+  // Seed 100 fake users - runs only once
+  const SEED_KEY = "ir-seed-v1";
+  if (!localStorage.getItem(SEED_KEY)) {
+    const waitForFB = () => {
+      if (!window.__fbDB) { setTimeout(waitForFB, 500); return; }
+      const now = Date.now();
+      const day = 86400000;
+      const RANKS = ["مبتدئ","مواظب","تقي","عابد","من أهل الليل"];
+      const users = [
+        // عربي
+        {n:"عبدالله المنصور",p:4850,s:21,d:0},{n:"فاطمة الزهراء",p:4200,s:18,d:0},
+        {n:"محمد العتيبي",p:3950,s:15,d:0},{n:"نور الإيمان",p:3700,s:14,d:0},
+        {n:"خالد الرشيدي",p:3500,s:12,d:0},{n:"آمنة سالم",p:3300,s:11,d:1},
+        {n:"عمر الحسن",p:3100,s:10,d:1},{n:"سارة أحمد",p:2900,s:9,d:1},
+        {n:"يوسف الغامدي",p:2750,s:8,d:2},{n:"هند المطيري",p:2600,s:7,d:2},
+        {n:"إبراهيم القحطاني",p:2450,s:7,d:2},{n:"مريم الشمري",p:2300,s:6,d:3},
+        {n:"عبدالرحمن الدوسري",p:2150,s:5,d:3},{n:"لمياء النجدي",p:2000,s:5,d:3},
+        {n:"سليمان البلوي",p:1900,s:4,d:4},{n:"رقية العنزي",p:1800,s:4,d:4},
+        {n:"تركي الزهراني",p:1700,s:3,d:5},{n:"أسماء الحربي",p:1600,s:3,d:5},
+        {n:"بلال الأسمري",p:1500,s:3,d:6},{n:"منى القرني",p:1400,s:2,d:6},
+        {n:"فيصل العمري",p:1300,s:2,d:7},{n:"ريم المالكي",p:1200,s:2,d:8},
+        {n:"جاسم الكويتي",p:1100,s:1,d:9},{n:"شيخة البحرينية",p:1000,s:1,d:10},
+        {n:"حمد العماني",p:950,s:1,d:11},{n:"وفاء اليمنية",p:900,s:1,d:12},
+        // إنجليزي
+        {n:"Yusuf Al-Rashid",p:4100,s:16,d:0},{n:"Amira Khalid",p:3800,s:14,d:0},
+        {n:"Omar Hassan",p:3600,s:13,d:1},{n:"Sara Ahmed",p:3400,s:12,d:1},
+        {n:"Adam Malik",p:3200,s:11,d:1},{n:"Layla Noor",p:3000,s:10,d:2},
+        {n:"Ibrahim Ali",p:2800,s:9,d:2},{n:"Fatima Khan",p:2650,s:8,d:2},
+        {n:"Zaid Abdullah",p:2500,s:7,d:3},{n:"Maryam Hassan",p:2350,s:6,d:3},
+        {n:"Khalid Omar",p:2200,s:5,d:4},{n:"Nadia Islam",p:2050,s:5,d:4},
+        {n:"Tariq Mahmoud",p:1950,s:4,d:5},{n:"Hana Rahman",p:1850,s:4,d:5},
+        {n:"Samir Hussain",p:1750,s:3,d:6},{n:"Rania Saleh",p:1650,s:3,d:6},
+        {n:"Bilal Chaudhry",p:1550,s:2,d:7},{n:"Aisha Siddiqui",p:1450,s:2,d:8},
+        {n:"Hassan Qureshi",p:1350,s:2,d:9},{n:"Zainab Mirza",p:1250,s:1,d:10},
+        // تركي
+        {n:"Mehmet Yılmaz",p:3900,s:15,d:0},{n:"Fatma Demir",p:3650,s:13,d:1},
+        {n:"Ahmet Kaya",p:3450,s:12,d:1},{n:"Ayşe Şahin",p:3250,s:11,d:2},
+        {n:"Mustafa Çelik",p:3050,s:10,d:2},{n:"Zeynep Arslan",p:2850,s:9,d:3},
+        {n:"İbrahim Doğan",p:2700,s:8,d:3},{n:"Hatice Aydın",p:2550,s:7,d:4},
+        {n:"Ömer Şimşek",p:2400,s:6,d:4},{n:"Elif Özkan",p:2250,s:5,d:5},
+        // ماليزي / إندونيسي
+        {n:"Ahmad Fauzi",p:3750,s:14,d:0},{n:"Siti Rahmah",p:3550,s:13,d:1},
+        {n:"Muhammad Aziz",p:3350,s:12,d:1},{n:"Nur Hidayah",p:3150,s:11,d:2},
+        {n:"Abdul Razak",p:2950,s:10,d:2},{n:"Aminah Binti Ali",p:2750,s:9,d:3},
+        {n:"Hafiz Rahman",p:2600,s:8,d:3},{n:"Suraya Ismail",p:2450,s:7,d:4},
+        {n:"Ridhwan Bakar",p:2300,s:6,d:4},{n:"Nabilah Hasan",p:2150,s:5,d:5},
+        // باكستاني
+        {n:"Usman Farooq",p:3850,s:15,d:0},{n:"Zara Sheikh",p:3650,s:13,d:0},
+        {n:"Hamza Butt",p:3450,s:12,d:1},{n:"Sana Iqbal",p:3250,s:11,d:1},
+        {n:"Waqar Niazi",p:3050,s:10,d:2},{n:"Maham Rizvi",p:2850,s:9,d:2},
+        {n:"Asad Cheema",p:2700,s:8,d:3},{n:"Hira Baig",p:2550,s:7,d:3},
+        {n:"Fawad Rana",p:2400,s:6,d:4},{n:"Nimra Javed",p:2250,s:5,d:4},
+        // أفريقي
+        {n:"Moussa Diallo",p:3700,s:14,d:0},{n:"Aminata Kouyaté",p:3500,s:13,d:1},
+        {n:"Ibrahim Traoré",p:3300,s:12,d:1},{n:"Fatoumata Bah",p:3100,s:11,d:2},
+        {n:"Oumar Sy",p:2900,s:10,d:2},{n:"Mariam Coulibaly",p:2700,s:9,d:3},
+        {n:"Abdou Diop",p:2500,s:8,d:3},{n:"Kadiatou Barry",p:2350,s:7,d:4},
+        {n:"Yaya Camara",p:2200,s:6,d:4},{n:"Aissatou Sow",p:2050,s:5,d:5},
+        // متنوع آخر
+        {n:"Ali Hassan Mohamed",p:1900,s:4,d:6},{n:"Khadija Yusuf",p:1800,s:4,d:6},
+        {n:"Dawud Al-Britani",p:1700,s:3,d:7},{n:"Musa Okonkwo",p:1600,s:3,d:8},
+        {n:"Salim Al-Turki",p:1500,s:2,d:9},{n:"Yasmin El-Sayed",p:1400,s:2,d:10},
+        {n:"Nasser Al-Omani",p:1300,s:1,d:11},{n:"Rahma Abdullahi",p:1200,s:1,d:12},
+        {n:"Taha Benali",p:1100,s:1,d:13},{n:"Samira Benali",p:1000,s:1,d:14}
+      ];
+      
+      const promises = users.map((u, i) => {
+        const ts = now - (u.d * day) - (i * 3600000);
+        const pts = u.p;
+        const rank = RANKS[Math.min(Math.floor(pts/200), RANKS.length-1)];
+        const key = "seed_" + i;
+        const entry = { name: u.n, pts: pts, streak: u.s, ts: ts, title: rank, premium: false, seed: true };
+        return window.__fbSet(window.__fbRef(window.__fbDB, "leaderboard/" + key), entry);
+      });
+      
+      Promise.all(promises).then(() => {
+        localStorage.setItem(SEED_KEY, "1");
+        console.log("100 seed users added!");
+      }).catch(e => console.error("Seed error:", e));
+    };
+    if (window.__fbReady) waitForFB();
+    else window.addEventListener('firebase-ready', waitForFB);
+  }
+</script>
+
 </body>
 </html>
