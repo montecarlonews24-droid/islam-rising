@@ -359,6 +359,15 @@ function fixContentPosition() {
 
 // ── localStorage helpers ──
 const LS_PREFIX = 'qp_';
+const CACHE_VER = 'qv2';
+
+// Clear old cache if version mismatch
+if (localStorage.getItem('quran_cache_ver') !== CACHE_VER) {
+  const keys = Object.keys(localStorage).filter(k => k.startsWith(LS_PREFIX));
+  keys.forEach(k => localStorage.removeItem(k));
+  localStorage.setItem('quran_cache_ver', CACHE_VER);
+  console.log('Cache cleared - old version');
+}
 function savePage(pageNum, ayahs) {
   try { localStorage.setItem(LS_PREFIX + pageNum, JSON.stringify(ayahs)); } catch(e) {}
 }
