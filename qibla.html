@@ -629,8 +629,7 @@
       <div class="status-dot" id="statusDot"></div>
       <span id="statusText">جارٍ تشغيل البوصلة...</span>
     </div>
-    <!-- Debug info -->
-    <div id="debugInfo" style="font-size:11px;color:var(--text-dim);text-align:center;line-height:1.8;margin-top:-8px;"></div>
+
   </div>
 
   <!-- Permission error -->
@@ -833,13 +832,6 @@ function processOrientation(event, isAbsolute) {
   }
 
   if (heading === null) return;
-
-  // Debug display
-  const dbg = document.getElementById('debugInfo');
-  if (dbg) {
-    const src = isAbsolute ? '📡 Absolute' : (event.webkitCompassHeading !== undefined ? '🍎 iOS' : '🤖 Relative');
-    dbg.innerHTML = `${src} | α=${event.alpha?.toFixed(1)}° | heading=${heading.toFixed(1)}° | smoothed=${currentHeading.toFixed(1)}° | qibla=${qiblaAngle.toFixed(1)}° | needle=${((qiblaAngle - currentHeading + 360) % 360).toFixed(1)}°`;
-  }
 
   // Apply low-pass filter
   currentHeading = lowPass(heading, currentHeading, ALPHA);
