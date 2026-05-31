@@ -629,6 +629,8 @@
       <div class="status-dot" id="statusDot"></div>
       <span id="statusText">جارٍ تشغيل البوصلة...</span>
     </div>
+    <!-- Debug info -->
+    <div id="debugInfo" style="font-size:11px;color:var(--text-dim);text-align:center;line-height:1.8;margin-top:-8px;"></div>
   </div>
 
   <!-- Permission error -->
@@ -800,19 +802,44 @@ function updateNeedle() {
 }
 
 // ─── Device orientation ───
-function handleOrientation(event) {
+let usingAbsolute = false; // flag: are we getting absolute events?
+
+function handleOrientationAbsolute(event) {
+  // deviceorientationabsolute gives true north on Android
+  usingAbsolute = true;
+  processOrientation(event, true);
+}
+
+function handleOrientationRelative(event) {
+  // Ignore relative if we already have absolute
+  if (usingAbsolute) return;
+  processOrientation(event, false);
+}
+
+function processOrientation(event, isAbsolute) {
   let heading = null;
 
-  // iOS: webkitCompassHeading (magnetic north = 0)
+  // iOS: webkitCompassHeading (true north, clockwise) — always preferred
   if (event.webkitCompassHeading !== undefined && event.webkitCompassHeading !== null) {
     heading = event.webkitCompassHeading;
   }
-  // Android: alpha (degrees from north, counterclockwise)
-  else if (event.alpha !== null) {
+  // Android absolute: alpha is degrees from true north, counterclockwise → flip
+  else if (isAbsolute && event.alpha !== null && event.alpha !== undefined) {
+    heading = (360 - event.alpha) % 360;
+  }
+  // Android relative fallback: same formula but less reliable
+  else if (!isAbsolute && event.alpha !== null && event.alpha !== undefined) {
     heading = (360 - event.alpha) % 360;
   }
 
   if (heading === null) return;
+
+  // Debug display
+  const dbg = document.getElementById('debugInfo');
+  if (dbg) {
+    const src = isAbsolute ? '📡 Absolute' : (event.webkitCompassHeading !== undefined ? '🍎 iOS' : '🤖 Relative');
+    dbg.innerHTML = `${src} | α=${event.alpha?.toFixed(1)}° | heading=${heading.toFixed(1)}° | smoothed=${currentHeading.toFixed(1)}° | qibla=${qiblaAngle.toFixed(1)}° | needle=${((qiblaAngle - currentHeading + 360) % 360).toFixed(1)}°`;
+  }
 
   // Apply low-pass filter
   currentHeading = lowPass(heading, currentHeading, ALPHA);
@@ -839,8 +866,9 @@ function requestPermission() {
 function startCompass() {
   document.getElementById('permError').style.display = 'none';
   document.getElementById('statusText').textContent = 'حرّك الهاتف للمعايرة...';
-  window.addEventListener('deviceorientationabsolute', handleOrientation, true);
-  window.addEventListener('deviceorientation', handleOrientation, true);
+  // Listen to both; absolute takes priority via usingAbsolute flag
+  window.addEventListener('deviceorientationabsolute', handleOrientationAbsolute, true);
+  window.addEventListener('deviceorientation', handleOrientationRelative, true);
 }
 
 function showPermError() {
