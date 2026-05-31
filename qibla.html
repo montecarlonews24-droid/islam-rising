@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>اتجاه القبلة — Islam Rising</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A96E;
+    --gold-light: #E8C98A;
+    --gold-dim: #8B6E3F;
+    --green: #2ECC71;
+    --green-dark: #1A7A44;
+    --green-glow: rgba(46,204,113,0.4);
+    --bg: #070710;
+    --bg2: #0d0d1a;
+    --bg3: #111122;
+    --text: #E8DCC8;
+    --text-dim: #7A7060;
+    --red: #E74C3C;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Decorative background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 0%, rgba(201,169,110,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 80% 100%, rgba(46,204,113,0.05) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Stars pattern */
+  .stars {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+    background-image:
+      radial-gradient(1px 1px at 10% 15%, var(--gold-dim) 0%, transparent 100%),
+      radial-gradient(1px 1px at 25% 60%, var(--gold-dim) 0%, transparent 100%),
+      radial-gradient(1px 1px at 60% 20%, var(--gold-dim) 0%, transparent 100%),
+      radial-gradient(1px 1px at 75% 80%, var(--gold-dim) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 35%, var(--gold-dim) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 40% 90%, white 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 85% 10%, white 0%, transparent 100%);
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 420px;
+    padding: 0 20px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  /* Header */
+  .header {
+    width: 100%;
+    padding: 20px 0 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .header-icon {
+    font-size: 28px;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+
+  .header h1 {
+    font-family: 'Amiri', serif;
+    font-size: 26px;
+    color: var(--gold);
+    letter-spacing: 1px;
+  }
+
+  .header p {
+    font-size: 13px;
+    color: var(--text-dim);
+    font-weight: 300;
+  }
+
+  /* Gold divider */
+  .divider {
+    width: 80px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 4px auto;
+  }
+
+  /* Calibration banner */
+  #calibBanner {
+    width: 100%;
+    background: rgba(231,76,60,0.12);
+    border: 1px solid rgba(231,76,60,0.3);
+    border-radius: 14px;
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: all 0.5s ease;
+  }
+
+  #calibBanner.good {
+    background: rgba(46,204,113,0.1);
+    border-color: rgba(46,204,113,0.3);
+  }
+
+  #calibBanner.hidden {
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+    height: 0;
+    padding: 0;
+    overflow: hidden;
+    margin: -12px 0;
+  }
+
+  .calib-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .calib-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .calib-text h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--red);
+    margin-bottom: 2px;
+    transition: color 0.4s;
+  }
+
+  #calibBanner.good .calib-text h3 { color: var(--green); }
+
+  .calib-text p {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  /* Figure-8 animation hint */
+  .fig8-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px;
+    padding: 8px 12px;
+  }
+
+  .fig8-anim {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+  }
+
+  /* Calibration quality bar */
+  .calib-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .calib-bar-track {
+    flex: 1;
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .calib-bar-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 3px;
+    background: var(--red);
+    transition: width 0.4s ease, background 0.4s ease;
+  }
+
+  .calib-bar-fill.good { background: var(--green); }
+
+  .calib-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    min-width: 40px;
+    text-align: left;
+  }
+
+  /* Compass card */
+  .compass-card {
+    width: 100%;
+    background: linear-gradient(145deg, var(--bg3), var(--bg2));
+    border: 1px solid rgba(201,169,110,0.15);
+    border-radius: 24px;
+    padding: 28px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(201,169,110,0.08);
+  }
+
+  /* Compass ring */
+  .compass-wrap {
+    position: relative;
+    width: 260px;
+    height: 260px;
+  }
+
+  .compass-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(201,169,110,0.2);
+    box-shadow: 0 0 20px rgba(201,169,110,0.1), inset 0 0 20px rgba(0,0,0,0.5);
+  }
+
+  .compass-ring::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,169,110,0.08);
+  }
+
+  /* Tick marks */
+  .ticks {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+  }
+
+  /* Cardinal labels */
+  .cardinal {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0; left: 0;
+  }
+
+  .cardinal span {
+    position: absolute;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Cairo', sans-serif;
+    letter-spacing: 1px;
+  }
+
+  .cardinal .N { color: var(--red); top: 10px; left: 50%; transform: translateX(-50%); }
+  .cardinal .S { color: var(--text-dim); bottom: 10px; left: 50%; transform: translateX(-50%); }
+  .cardinal .E { color: var(--text-dim); left: 10px; top: 50%; transform: translateY(-50%); }
+  .cardinal .W { color: var(--text-dim); right: 10px; top: 50%; transform: translateY(-50%); }
+
+  /* Needle */
+  #needle {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0; left: 0;
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+  }
+
+  .needle-svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Center kaaba icon */
+  .compass-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 36px;
+    height: 36px;
+    background: radial-gradient(circle, rgba(201,169,110,0.15), transparent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    z-index: 10;
+  }
+
+  /* Degree display */
+  .degree-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .degree-value {
+    font-family: 'Cairo', sans-serif;
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+    text-shadow: 0 0 20px rgba(201,169,110,0.3);
+    transition: color 0.3s;
+  }
+
+  .degree-value.locked { color: var(--green); text-shadow: 0 0 20px var(--green-glow); }
+
+  .degree-label {
+    font-size: 14px;
+    color: var(--text-dim);
+    font-weight: 300;
+  }
+
+  /* Status dot */
+  .status-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--red);
+    box-shadow: 0 0 6px var(--red);
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  .status-dot.active {
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: none;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  /* Location card */
+  .location-card {
+    width: 100%;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(201,169,110,0.1);
+    border-radius: 16px;
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .location-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .location-info {
+    flex: 1;
+  }
+
+  .location-info h4 {
+    font-size: 13px;
+    color: var(--gold);
+    margin-bottom: 3px;
+  }
+
+  .location-info p {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+
+  /* Retry button */
+  .btn-retry {
+    background: transparent;
+    border: 1px solid rgba(201,169,110,0.3);
+    border-radius: 10px;
+    padding: 8px 16px;
+    color: var(--gold);
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .btn-retry:active {
+    background: rgba(201,169,110,0.1);
+    transform: scale(0.97);
+  }
+
+  /* Info tips */
+  .tips-card {
+    width: 100%;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 16px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .tips-card h4 {
+    font-size: 13px;
+    color: var(--gold-dim);
+    font-weight: 600;
+  }
+
+  .tip-row {
+    display: flex;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  .tip-row span:first-child { flex-shrink: 0; }
+
+  /* Permission error */
+  #permError {
+    width: 100%;
+    background: rgba(231,76,60,0.08);
+    border: 1px solid rgba(231,76,60,0.2);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  #permError p { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+
+  .btn-perm {
+    background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px;
+    color: var(--bg);
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .btn-perm:active { opacity: 0.85; }
+
+  /* Back link */
+  .back-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-dim);
+    font-size: 13px;
+    text-decoration: none;
+    padding: 8px 0;
+    transition: color 0.2s;
+  }
+
+  .back-link:hover { color: var(--gold); }
+
+  /* Ornament */
+  .ornament {
+    font-size: 18px;
+    color: var(--gold-dim);
+    letter-spacing: 4px;
+    opacity: 0.6;
+  }
+
+  /* Smooth entrance */
+  .container > * {
+    animation: fadeUp 0.5s ease both;
+  }
+  .container > *:nth-child(1) { animation-delay: 0.05s; }
+  .container > *:nth-child(2) { animation-delay: 0.1s; }
+  .container > *:nth-child(3) { animation-delay: 0.15s; }
+  .container > *:nth-child(4) { animation-delay: 0.2s; }
+  .container > *:nth-child(5) { animation-delay: 0.25s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+<div class="stars"></div>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-icon">🕌</div>
+    <h1>اتجاه القبلة</h1>
+    <div class="divider"></div>
+    <p>البوصلة الذكية نحو الكعبة المشرفة</p>
+  </div>
+
+  <!-- Calibration banner -->
+  <div id="calibBanner">
+    <div class="calib-top">
+      <div class="calib-icon" id="calibIcon">⚠️</div>
+      <div class="calib-text">
+        <h3 id="calibTitle">يحتاج معايرة</h3>
+        <p id="calibDesc">حرّك الهاتف بشكل رقم 8 لتحسين الدقة</p>
+      </div>
+    </div>
+
+    <!-- Figure-8 hint -->
+    <div class="fig8-hint" id="fig8Hint">
+      <svg class="fig8-anim" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="9" stroke="rgba(201,169,110,0.3)" stroke-width="1.5" fill="none"/>
+        <circle cx="24" cy="24" r="9" stroke="rgba(201,169,110,0.3)" stroke-width="1.5" fill="none"/>
+        <circle id="dot8" r="3" fill="#C9A96E">
+          <animateMotion dur="2s" repeatCount="indefinite">
+            <mpath href="#path8"/>
+          </animateMotion>
+        </circle>
+        <path id="path8" d="M12,3 a9,9 0 1,1 0,18 a9,9 0 0,0 0,18 a9,9 0 1,1 0,-18 a9,9 0 0,0 0,-18 Z" fill="none"/>
+      </svg>
+      <span>حرّك الهاتف بشكل رقم 8 ثلاث مرات لضبط البوصلة</span>
+    </div>
+
+    <!-- Quality bar -->
+    <div class="calib-bar-wrap">
+      <span style="font-size:11px; color:var(--text-dim);">الجودة:</span>
+      <div class="calib-bar-track">
+        <div class="calib-bar-fill" id="calibFill"></div>
+      </div>
+      <span class="calib-label" id="calibPct">0%</span>
+    </div>
+  </div>
+
+  <!-- Compass card -->
+  <div class="compass-card">
+    <div class="compass-wrap">
+      <!-- Ring -->
+      <div class="compass-ring"></div>
+
+      <!-- SVG ticks -->
+      <svg style="position:absolute;inset:0;width:100%;height:100%;" viewBox="0 0 260 260">
+        <g id="tickMarks"></g>
+      </svg>
+
+      <!-- Cardinal labels -->
+      <div class="cardinal">
+        <span class="N">N</span>
+        <span class="S">S</span>
+        <span class="E">E</span>
+        <span class="W">W</span>
+      </div>
+
+      <!-- Needle -->
+      <div id="needle">
+        <svg class="needle-svg" viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="3" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <linearGradient id="needleGrad" x1="130" y1="40" x2="130" y2="130" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#2ECC71"/>
+              <stop offset="100%" stop-color="#1A7A44"/>
+            </linearGradient>
+            <linearGradient id="needleBack" x1="130" y1="130" x2="130" y2="230" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#333"/>
+              <stop offset="100%" stop-color="#111"/>
+            </linearGradient>
+          </defs>
+          <!-- North (Qibla) needle - green -->
+          <polygon points="130,38 124,130 136,130" fill="url(#needleGrad)" filter="url(#glow)"/>
+          <!-- South needle - dark -->
+          <polygon points="130,222 124,130 136,130" fill="url(#needleBack)"/>
+          <!-- Center dot -->
+          <circle cx="130" cy="130" r="6" fill="#C9A96E" stroke="#0d0d1a" stroke-width="2"/>
+        </svg>
+      </div>
+
+      <!-- Kaaba center -->
+      <div class="compass-center">🕋</div>
+    </div>
+
+    <!-- Degree + label -->
+    <div class="degree-display">
+      <div class="degree-value" id="degValue">---°</div>
+      <div class="degree-label" id="degLabel">من الشمال نحو القبلة</div>
+    </div>
+
+    <!-- Status -->
+    <div class="status-row">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">جارٍ تشغيل البوصلة...</span>
+    </div>
+  </div>
+
+  <!-- Permission error -->
+  <div id="permError">
+    <p>⚠️ لا يمكن الوصول إلى البوصلة<br>تأكد من السماح للمتصفح بالوصول إلى حساس الحركة</p>
+    <button class="btn-perm" onclick="requestPermission()">السماح بالوصول</button>
+  </div>
+
+  <!-- Location card -->
+  <div class="location-card">
+    <div class="location-icon">📍</div>
+    <div class="location-info">
+      <h4>الموقع الحالي</h4>
+      <p id="locText">جارٍ تحديد الموقع...</p>
+    </div>
+    <button class="btn-retry" onclick="getLocation()">تحديث</button>
+  </div>
+
+  <!-- Tips -->
+  <div class="tips-card">
+    <h4>✨ نصائح للدقة</h4>
+    <div class="tip-row"><span>🔄</span><span>حرّك الهاتف بشكل رقم 8 عند بدء التشغيل لمعايرة البوصلة</span></div>
+    <div class="tip-row"><span>🏗️</span><span>ابتعد عن المعادن والأجهزة الكهربائية لتجنب التشويش</span></div>
+    <div class="tip-row"><span>📐</span><span>امسك الهاتف أفقياً موازياً للأرض للحصول على أفضل قراءة</span></div>
+    <div class="tip-row"><span>✅</span><span>انتظر حتى يتحول شريط الجودة للأخضر قبل التوجه</span></div>
+  </div>
+
+  <div class="ornament">✦ ✦ ✦</div>
+
+  <a href="index.html" class="back-link">← العودة للتطبيق</a>
+
+</div>
+
+<script>
+// ─── Draw tick marks ───
+(function() {
+  const g = document.getElementById('tickMarks');
+  const cx = 130, cy = 130, r = 122;
+  for (let i = 0; i < 72; i++) {
+    const angle = (i * 5) * Math.PI / 180;
+    const isMajor = i % 9 === 0;
+    const len = isMajor ? 12 : 6;
+    const x1 = cx + (r - len) * Math.sin(angle);
+    const y1 = cy - (r - len) * Math.cos(angle);
+    const x2 = cx + r * Math.sin(angle);
+    const y2 = cy - r * Math.cos(angle);
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+    line.setAttribute('stroke', isMajor ? 'rgba(201,169,110,0.5)' : 'rgba(201,169,110,0.15)');
+    line.setAttribute('stroke-width', isMajor ? '1.5' : '1');
+    g.appendChild(line);
+  }
+})();
+
+// ─── State ───
+let userLat = null, userLng = null;
+let qiblaAngle = 0;         // true Qibla bearing
+let currentHeading = 0;     // smoothed device heading
+let rawHeading = 0;
+let calibQuality = 0;       // 0–100
+let isCalibrated = false;
+let headingHistory = [];
+let lastReadings = [];       // for variance calculation
+const ALPHA = 0.12;         // low-pass filter strength (lower = smoother)
+const HISTORY_SIZE = 30;
+
+// Kaaba coords
+const KAABA_LAT = 21.4225;
+const KAABA_LNG = 39.8262;
+
+// ─── Qibla calculation ───
+function calcQibla(lat, lng) {
+  const φ1 = lat * Math.PI / 180;
+  const φ2 = KAABA_LAT * Math.PI / 180;
+  const Δλ = (KAABA_LNG - lng) * Math.PI / 180;
+  const y = Math.sin(Δλ) * Math.cos(φ2);
+  const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
+  let bearing = Math.atan2(y, x) * 180 / Math.PI;
+  return (bearing + 360) % 360;
+}
+
+// ─── Low-pass filter ───
+function lowPass(newVal, oldVal, alpha) {
+  // Handle wraparound (e.g. 359° → 1°)
+  let diff = newVal - oldVal;
+  if (diff > 180) diff -= 360;
+  if (diff < -180) diff += 360;
+  return (oldVal + alpha * diff + 360) % 360;
+}
+
+// ─── Calibration quality (variance-based) ───
+function updateCalibQuality(heading) {
+  lastReadings.push(heading);
+  if (lastReadings.length > HISTORY_SIZE) lastReadings.shift();
+  if (lastReadings.length < 5) return;
+
+  // Calculate variance of sin/cos to handle wraparound
+  const sins = lastReadings.map(h => Math.sin(h * Math.PI / 180));
+  const coss = lastReadings.map(h => Math.cos(h * Math.PI / 180));
+  const meanS = sins.reduce((a,b) => a+b) / sins.length;
+  const meanC = coss.reduce((a,b) => a+b) / coss.length;
+  const varS = sins.reduce((a,b) => a + (b-meanS)**2, 0) / sins.length;
+  const varC = coss.reduce((a,b) => a + (b-meanC)**2, 0) / coss.length;
+  const totalVar = varS + varC;
+
+  // More variance = less stable = bad. Convert to quality score.
+  const stability = Math.max(0, 1 - totalVar * 10);
+
+  // Also reward coverage (did we rotate around?)
+  const R = Math.sqrt(meanS**2 + meanC**2); // 0=full rotation, 1=no rotation
+  const coverage = 1 - R;
+
+  calibQuality = Math.min(100, Math.round((stability * 0.6 + coverage * 0.4) * 100));
+  renderCalibUI();
+}
+
+function renderCalibUI() {
+  const fill = document.getElementById('calibFill');
+  const pct = document.getElementById('calibPct');
+  const banner = document.getElementById('calibBanner');
+  const title = document.getElementById('calibTitle');
+  const desc = document.getElementById('calibDesc');
+  const icon = document.getElementById('calibIcon');
+  const fig8 = document.getElementById('fig8Hint');
+
+  fill.style.width = calibQuality + '%';
+  pct.textContent = calibQuality + '%';
+
+  if (calibQuality >= 70) {
+    isCalibrated = true;
+    banner.classList.add('good');
+    fill.classList.add('good');
+    icon.textContent = '✅';
+    title.textContent = 'المعايرة ممتازة';
+    desc.textContent = 'البوصلة دقيقة وجاهزة للاستخدام';
+    fig8.style.display = 'none';
+    document.getElementById('degValue').classList.add('locked');
+    document.getElementById('statusDot').classList.add('active');
+    document.getElementById('statusText').textContent = 'القبلة محددة بدقة';
+
+    // Auto-hide banner after 3 seconds
+    setTimeout(() => { banner.classList.add('hidden'); }, 3000);
+  } else if (calibQuality >= 40) {
+    banner.classList.remove('good');
+    fill.classList.remove('good');
+    icon.textContent = '🔄';
+    title.textContent = 'معايرة جزئية';
+    desc.textContent = 'استمر في تحريك الهاتف بشكل رقم 8';
+    fig8.style.display = 'flex';
+  } else {
+    banner.classList.remove('good');
+    fill.classList.remove('good');
+    icon.textContent = '⚠️';
+    title.textContent = 'يحتاج معايرة';
+    desc.textContent = 'حرّك الهاتف بشكل رقم 8 لتحسين الدقة';
+    fig8.style.display = 'flex';
+  }
+}
+
+// ─── Needle rendering ───
+function updateNeedle() {
+  // Needle should point to Qibla, accounting for device heading
+  const needleRot = qiblaAngle - currentHeading;
+  document.getElementById('needle').style.transform = `rotate(${needleRot}deg)`;
+
+  const deg = Math.round(qiblaAngle);
+  document.getElementById('degValue').textContent = deg + '°';
+}
+
+// ─── Device orientation ───
+function handleOrientation(event) {
+  let heading = null;
+
+  // iOS: webkitCompassHeading (magnetic north = 0)
+  if (event.webkitCompassHeading !== undefined && event.webkitCompassHeading !== null) {
+    heading = event.webkitCompassHeading;
+  }
+  // Android: alpha (degrees from north, counterclockwise)
+  else if (event.alpha !== null) {
+    heading = (360 - event.alpha) % 360;
+  }
+
+  if (heading === null) return;
+
+  // Apply low-pass filter
+  currentHeading = lowPass(heading, currentHeading, ALPHA);
+  updateCalibQuality(heading);
+  updateNeedle();
+}
+
+// ─── Request permissions ───
+function requestPermission() {
+  if (typeof DeviceOrientationEvent !== 'undefined' &&
+      typeof DeviceOrientationEvent.requestPermission === 'function') {
+    // iOS 13+
+    DeviceOrientationEvent.requestPermission()
+      .then(state => {
+        if (state === 'granted') startCompass();
+        else showPermError();
+      })
+      .catch(showPermError);
+  } else {
+    startCompass();
+  }
+}
+
+function startCompass() {
+  document.getElementById('permError').style.display = 'none';
+  document.getElementById('statusText').textContent = 'حرّك الهاتف للمعايرة...';
+  window.addEventListener('deviceorientationabsolute', handleOrientation, true);
+  window.addEventListener('deviceorientation', handleOrientation, true);
+}
+
+function showPermError() {
+  document.getElementById('permError').style.display = 'flex';
+  document.getElementById('statusText').textContent = 'لا يوجد إذن للبوصلة';
+}
+
+// ─── Geolocation ───
+function getLocation() {
+  const locText = document.getElementById('locText');
+  locText.textContent = 'جارٍ تحديد الموقع...';
+
+  if (!navigator.geolocation) {
+    locText.textContent = 'الموقع غير مدعوم';
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      userLat = pos.coords.latitude;
+      userLng = pos.coords.longitude;
+      qiblaAngle = calcQibla(userLat, userLng);
+      const lat = userLat.toFixed(4);
+      const lng = userLng.toFixed(4);
+      locText.textContent = `${lat}°N، ${lng}°E — القبلة: ${Math.round(qiblaAngle)}° من الشمال`;
+      document.getElementById('degValue').textContent = Math.round(qiblaAngle) + '°';
+      updateNeedle();
+    },
+    err => {
+      // Fallback: use Mecca as default (user in unknown location)
+      locText.textContent = 'تعذّر تحديد الموقع — يُستخدم الاتجاه التقريبي';
+      qiblaAngle = 0; // fallback
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+// ─── Init ───
+window.addEventListener('DOMContentLoaded', () => {
+  getLocation();
+  requestPermission();
+});
+</script>
+</body>
+</html>
