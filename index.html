@@ -623,6 +623,7 @@ function App() {
   const adIntervalRef = useRef(null);
   const rewardAdRef = useRef(null);
   const adWatchedRef = useRef({});
+  const [dailyVerse, setDailyVerse] = useState({ text: "\u0648\u064E\u0645\u064E\u0646 \u064A\u064E\u062A\u064E\u0651\u0642\u0650 \u0627\u0644\u0644\u064E\u0651\u0647\u064E \u064A\u064E\u062C\u0652\u0639\u064E\u0644 \u0644\u064E\u0651\u0647\u064F \u0645\u064E\u062E\u0652\u0631\u064E\u062C\u064B\u0627", ref: "\u0633\u0648\u0631\u0629 \u0627\u0644\u0637\u0644\u0627\u0642: \u0662", loading: true });
   const isFriday = (/* @__PURE__ */ new Date()).getDay() === 5;
   const MULT = isPremium ? isFriday ? 3 : 1.5 : isFriday ? 2 : 1;
   const pDone = Object.keys(prayers).length;
@@ -791,6 +792,50 @@ function App() {
     };
     if (window.__fbReady) setupListener();
     else window.addEventListener('firebase-ready', setupListener);
+    loadDailyVerse();
+  };
+  const loadDailyVerse = async () => {
+    try {
+      const now = new Date();
+      const dateKey = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
+      const cacheKey = `ir-verse-${dateKey}`;
+      // Check cache first
+      try {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          const v = JSON.parse(cached);
+          setDailyVerse({ text: v.text, ref: v.ref, loading: false });
+          return;
+        }
+      } catch(e) {}
+      // Generate verse number from today's date (user local time) using LCG seed
+      const seed = now.getFullYear() * 10000 + (now.getMonth()+1) * 100 + now.getDate();
+      const pseudo = (seed * 1664525 + 1013904223) >>> 0;
+      const verseNum = (pseudo % 6236) + 1;
+      // Fetch from quran.com API
+      const res = await fetch(`https://api.quran.com/api/v4/verses/by_key/${verseNum}?language=ar&words=false&fields=text_uthmani`);
+      if (!res.ok) throw new Error('API error');
+      const data = await res.json();
+      const text = data.verse.text_uthmani;
+      const key = data.verse.verse_key; // e.g. "2:255"
+      const [sura, ayah] = key.split(':');
+      // Get surah name
+      const sRes = await fetch(`https://api.quran.com/api/v4/chapters/${sura}?language=ar`);
+      const sData = await sRes.json();
+      const suraName = sData.chapter?.name_arabic || `سورة ${sura}`;
+      const ref = `${suraName}: ${ayah}`;
+      const result = { text, ref };
+      // Cache for 24h
+      localStorage.setItem(cacheKey, JSON.stringify(result));
+      // Clean old cache keys
+      try {
+        Object.keys(localStorage).filter(k => k.startsWith('ir-verse-') && k !== cacheKey).forEach(k => localStorage.removeItem(k));
+      } catch(e) {}
+      setDailyVerse({ text, ref, loading: false });
+    } catch(e) {
+      // Keep default verse on error
+      setDailyVerse(prev => ({ ...prev, loading: false }));
+    }
   };
   const loadStreak = async () => {
     try {
@@ -1873,7 +1918,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
     height: 140,
     borderRadius: "50%",
     background: "radial-gradient(circle,rgba(201,169,110,0.07),transparent)"
-  } }), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, letterSpacing: 4, color: "var(--gold3)", marginBottom: 12, textAlign: "center" } }, "\u06DE \u0622\u064A\u0629 \u0627\u0644\u064A\u0648\u0645 \u06DE"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 28, textAlign: "center", lineHeight: 2.5, color: "rgba(255,255,255,0.9)", marginBottom: 8 } }, "\u0648\u064E\u0645\u064E\u0646 \u064A\u064E\u062A\u064E\u0651\u0642\u0650 \u0627\u0644\u0644\u064E\u0651\u0647\u064E \u064A\u064E\u062C\u0652\u0639\u064E\u0644 \u0644\u064E\u0651\u0647\u064F \u0645\u064E\u062E\u0652\u0631\u064E\u062C\u064B\u0627"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, color: "var(--gold3)", textAlign: "center" } }, "\u0633\u0648\u0631\u0629 \u0627\u0644\u0637\u0644\u0627\u0642: \u0662"))), tab === 1 && /* @__PURE__ */ React.createElement("div", { key: "ibadaat", style: { animation: "floatUp 0.3s ease" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, color: "var(--muted)", letterSpacing: 3, marginBottom: 14, textAlign: "center" } }, "\u06DE \u0627\u0644\u0639\u0628\u0627\u062F\u0627\u062A \u0627\u0644\u0625\u0636\u0627\u0641\u064A\u0629 \u06DE"), EXTRA.map((e, i) => {
+  } }), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, letterSpacing: 4, color: "var(--gold3)", marginBottom: 12, textAlign: "center" } }, "\u06DE \u0622\u064A\u0629 \u0627\u0644\u064A\u0648\u0645 \u06DE"), dailyVerse.loading ? /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", color: "var(--gold3)", fontSize: 22, padding: "12px 0" } }, "...") : /* @__PURE__ */ React.createElement("div", { style: { fontSize: 28, textAlign: "center", lineHeight: 2.5, color: "rgba(255,255,255,0.9)", marginBottom: 8, fontFamily: "'Amiri Quran', serif" } }, dailyVerse.text), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, color: "var(--gold3)", textAlign: "center" } }, dailyVerse.ref))), tab === 1 && /* @__PURE__ */ React.createElement("div", { key: "ibadaat", style: { animation: "floatUp 0.3s ease" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, color: "var(--muted)", letterSpacing: 3, marginBottom: 14, textAlign: "center" } }, "\u06DE \u0627\u0644\u0639\u0628\u0627\u062F\u0627\u062A \u0627\u0644\u0625\u0636\u0627\u0641\u064A\u0629 \u06DE"), EXTRA.map((e, i) => {
     const done = extras[e.id];
     return /* @__PURE__ */ React.createElement("button", { key: e.id, className: "btn", onClick: () => tapExtra(e), style: {
       width: "100%",
