@@ -338,6 +338,66 @@ body::before {
   color: var(--gold);
 }
 
+/* ── Claim points button ── */
+.claim-wrap {
+  margin-top: 8px;
+  margin-bottom: 20px;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  animation: fadeUp 0.4s ease;
+}
+.claim-wrap.show { display: flex; }
+
+.claim-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 16px;
+  border: none;
+  font-family: 'Cairo', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  background: linear-gradient(135deg, #C9A96E, #F0D898);
+  color: #05070F;
+  box-shadow: 0 6px 24px rgba(201,169,110,0.4);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.claim-btn:active { transform: scale(0.97); opacity: 0.9; }
+.claim-btn.claimed {
+  background: linear-gradient(135deg, rgba(74,222,128,0.15), rgba(74,222,128,0.08));
+  color: #4ADE80;
+  box-shadow: 0 6px 24px rgba(74,222,128,0.2);
+  border: 1px solid rgba(74,222,128,0.3);
+  cursor: default;
+}
+
+.claim-note {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* Fly animation for points */
+@keyframes flyPts {
+  0%   { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-80px) scale(1.4); }
+}
+.fly-pts {
+  position: fixed;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--gold-light);
+  pointer-events: none;
+  z-index: 9999;
+  animation: flyPts 1.2s ease forwards;
+}
+
 /* ── Sawm confirm modal ── */
 .modal-overlay {
   position: fixed; inset: 0; z-index: 300;
@@ -498,6 +558,15 @@ body::before {
       </div>
 
     </div><!-- /morning-list -->
+
+    <!-- Claim points -->
+    <div class="claim-wrap" id="morning-claim">
+      <button class="claim-btn" id="morning-claim-btn" onclick="claimPts('adhkars', 8, 'morning')">
+        🏆 احصل على 8 نقاط
+      </button>
+      <p class="claim-note">ستُضاف النقاط فور عودتك للتطبيق</p>
+    </div>
+
   </div>
 </div>
 
@@ -604,11 +673,18 @@ body::before {
         <button class="done-btn" onclick="markDone('e10','evening')">✓ قرأتُ هذا الذكر</button>
       </div>
 
+    </div><!-- /evening-list -->
+
+    <!-- Claim points -->
+    <div class="claim-wrap" id="evening-claim">
+      <button class="claim-btn" id="evening-claim-btn" onclick="claimPts('adhkarm', 8, 'evening')">
+        🏆 احصل على 8 نقاط
+      </button>
+      <p class="claim-note">ستُضاف النقاط فور عودتك للتطبيق</p>
     </div>
+
   </div>
 </div>
-
-<!-- ══════════ EXTRAS ══════════ -->
 <div id="tab-extras" class="section">
   <div class="page-header">
     <div class="icon">✨</div>
@@ -741,6 +817,21 @@ function renderSection(section) {
 
   if (count === total) {
     document.getElementById(`${section}-done-banner`).classList.add('show');
+    // Show claim button
+    const claimWrap = document.getElementById(`${section}-claim`);
+    if (claimWrap) {
+      claimWrap.classList.add('show');
+      // If already claimed, update button
+      const extraId = section === 'morning' ? 'adhkars' : 'adhkarm';
+      if (state.extras[extraId + '_claimed']) {
+        const btn = document.getElementById(`${section}-claim-btn`);
+        if (btn) {
+          btn.textContent = '✅ تمّت إضافة النقاط!';
+          btn.classList.add('claimed');
+          btn.disabled = true;
+        }
+      }
+    }
     // Mark as done in extras too
     const key = section === 'morning' ? 'adhkars' : 'adhkarm';
     if (!state.extras[key]) {
@@ -782,6 +873,43 @@ function updatePtsBadge() {
   if (state.extras.quran)   total += 15;
   if (state.extras.sawm)    total += 50;
   document.getElementById('total-pts-badge').textContent = Math.round(total) + ' نقطة اليوم';
+}
+
+// ── Claim points → send to index.html ──
+function claimPts(extraId, pts, section) {
+  if (state.extras[extraId + '_claimed']) return;
+
+  // Mark claimed
+  state.extras[extraId + '_claimed'] = true;
+  save();
+
+  // Write pending points to localStorage for index.html to pick up
+  const pending = JSON.parse(localStorage.getItem('ir-pending-pts') || '[]');
+  pending.push({ id: extraId, pts: pts, ts: Date.now() });
+  localStorage.setItem('ir-pending-pts', JSON.stringify(pending));
+
+  // Update button UI
+  const btn = document.getElementById(`${section}-claim-btn`);
+  if (btn) {
+    btn.textContent = '✅ تمّت إضافة النقاط!';
+    btn.classList.add('claimed');
+    btn.disabled = true;
+  }
+
+  // Fly animation
+  const fly = document.createElement('div');
+  fly.className = 'fly-pts';
+  fly.textContent = '+' + pts + ' 🌟';
+  fly.style.left = '50%';
+  fly.style.top = '60%';
+  fly.style.transform = 'translateX(-50%)';
+  document.body.appendChild(fly);
+  setTimeout(() => fly.remove(), 1300);
+
+  // Auto-navigate back after 1.5s
+  setTimeout(() => {
+    window.location.href = 'index.html';
+  }, 1500);
 }
 
 // ── Sawm modal ──
