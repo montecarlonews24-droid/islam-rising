@@ -754,6 +754,27 @@ function App() {
     } catch (e) {
     }
     loadBoard();
+    // ── Read pending points from ibadat.html ──
+    try {
+      const pending = JSON.parse(localStorage.getItem('ir-pending-pts') || '[]');
+      if (pending.length > 0) {
+        localStorage.removeItem('ir-pending-pts');
+        pending.forEach(item => {
+          // Only apply if not already counted today
+          const doneKey = 'ir-ibadat-claimed-' + item.id + '-' + (new Date()).toDateString();
+          if (!localStorage.getItem(doneKey)) {
+            localStorage.setItem(doneKey, '1');
+            setTimeout(() => {
+              setDE(prev => {
+                const next = { ...prev, [item.id]: true };
+                give(item.pts, prayers, next);
+                return next;
+              });
+            }, 600);
+          }
+        });
+      }
+    } catch(e) {}
     // Real-time listener
     const setupListener = () => {
       if (window.__fbDB) {
