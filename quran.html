@@ -42,6 +42,90 @@ body{background:#05070F;color:white;font-family:'Noto Naskh Arabic',serif;min-he
 .goto-input{flex:1;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:white;font-size:15px;padding:7px 12px;font-family:inherit;outline:none;text-align:center}
 .goto-btn{background:rgba(77,182,172,0.15);border:1px solid rgba(77,182,172,0.3);border-radius:10px;color:#4DB6AC;font-size:14px;padding:7px 14px;cursor:pointer;font-family:inherit;font-weight:700}
 
+/* ── Daily Wird ── */
+.wird-section{padding:14px 16px 0}
+.wird-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.wird-title{font-size:16px;font-weight:700;color:#C9A96E;display:flex;align-items:center;gap:8px}
+.wird-progress-text{font-size:13px;color:rgba(255,255,255,0.4)}
+.wird-track{height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;margin-bottom:14px}
+.wird-fill{height:100%;background:linear-gradient(90deg,#8B6E3F,#C9A96E);border-radius:3px;transition:width 0.4s ease}
+.wird-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+.wird-page-card{
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(201,169,110,0.15);
+  border-radius:12px;
+  padding:10px 6px;
+  text-align:center;
+  cursor:pointer;
+  transition:all 0.2s;
+  position:relative;
+  -webkit-tap-highlight-color:transparent;
+}
+.wird-page-card:active{transform:scale(0.96)}
+.wird-page-card.read{
+  background:rgba(74,222,128,0.1);
+  border-color:rgba(74,222,128,0.4);
+}
+.wird-page-card.reading{
+  background:rgba(201,169,110,0.12);
+  border-color:rgba(201,169,110,0.5);
+  box-shadow:0 0 12px rgba(201,169,110,0.2);
+}
+.wird-page-num{font-size:18px;font-weight:700;color:white;display:block;margin-bottom:3px}
+.wird-page-card.read .wird-page-num{color:#4ADE80}
+.wird-check{position:absolute;top:4px;left:4px;font-size:12px;display:none}
+.wird-page-card.read .wird-check{display:block}
+.wird-page-label{font-size:10px;color:rgba(255,255,255,0.35);display:block}
+.wird-page-card.read .wird-page-label{color:rgba(74,222,128,0.6)}
+
+.wird-claim{
+  display:none;
+  flex-direction:column;
+  gap:10px;
+  margin-bottom:14px;
+  animation:fadeUp 0.4s ease;
+}
+.wird-claim.show{display:flex}
+
+.wird-claim-ad{
+  width:100%;padding:16px;border-radius:14px;border:2px solid rgba(74,222,128,0.5);
+  background:linear-gradient(135deg,#1a4a2a,#0d2a18);
+  color:#4ADE80;font-size:16px;font-weight:700;
+  font-family:'Noto Naskh Arabic',serif;
+  cursor:pointer;text-align:center;
+  box-shadow:0 6px 20px rgba(74,222,128,0.2);
+  position:relative;overflow:hidden;
+}
+.wird-claim-skip{
+  width:100%;padding:10px;border-radius:12px;
+  border:1px solid rgba(255,255,255,0.1);
+  background:transparent;color:rgba(255,255,255,0.35);
+  font-size:13px;font-family:'Noto Naskh Arabic',serif;
+  cursor:pointer;
+}
+.wird-divider{height:1px;background:linear-gradient(90deg,transparent,rgba(201,169,110,0.2),transparent);margin:8px 0 16px}
+
+/* Ad modal */
+.ad-overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.92);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.ad-overlay.show{display:flex;animation:fadeUp 0.3s ease}
+.ad-box{width:100%;max-width:360px;background:#111122;border:1px solid rgba(201,169,110,0.2);border-radius:22px;overflow:hidden}
+.ad-header{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.06)}
+.ad-label{font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:2px}
+.ad-skip-btn{font-size:12px;color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:99px;padding:4px 12px;cursor:not-allowed;font-family:inherit}
+.ad-skip-btn.ready{color:#C9A96E;border-color:rgba(201,169,110,0.4);cursor:pointer}
+.ad-content{padding:28px 24px;display:flex;flex-direction:column;align-items:center;gap:14px;min-height:180px;justify-content:center}
+.ad-icon{font-size:52px}
+.ad-title{font-size:16px;font-weight:700;color:white;text-align:center}
+.ad-sub{font-size:13px;color:rgba(255,255,255,0.4);text-align:center}
+.ad-prog-track{width:100%;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden}
+.ad-prog-fill{height:100%;width:0%;background:linear-gradient(90deg,#8B6E3F,#C9A96E);border-radius:2px;transition:width 0.1s linear}
+.ad-footer{padding:14px 20px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;display:flex;align-items:center;justify-content:center;gap:10px;font-size:14px;color:#C9A96E;font-weight:600}
+.ad-footer .old{text-decoration:line-through;color:rgba(255,255,255,0.3);font-weight:400}
+.ad-footer .new{font-size:20px;color:#4ADE80;font-weight:700}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes flyPts{0%{opacity:1;transform:translateY(0) translateX(-50%) scale(1)}100%{opacity:0;transform:translateY(-80px) translateX(-50%) scale(1.4)}}
+
 /* ── Loading ── */
 .loading{background:#faf6ec;position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:rgba(26,14,5,0.4);font-size:14px}
 .spinner{width:30px;height:30px;border:2px solid rgba(74,158,138,0.2);border-top-color:#3d9e8a;border-radius:50%;animation:spin 0.8s linear infinite}
@@ -181,6 +265,52 @@ body{background:#05070F;color:white;font-family:'Noto Naskh Arabic',serif;min-he
 
 <div id="searchWrap" style="padding:10px 16px 4px">
   <input class="search-input" id="searchInput" type="text" placeholder="ابحث عن سورة..." oninput="filterSurahs(this.value)">
+</div>
+
+<!-- Daily Wird -->
+<div class="wird-section" id="wirdSection">
+  <div class="wird-header">
+    <div class="wird-title">📖 ورد القرآن اليومي</div>
+    <div class="wird-progress-text" id="wirdProgressText">0 / 10</div>
+  </div>
+  <div class="wird-track"><div class="wird-fill" id="wirdFill" style="width:0%"></div></div>
+  <div class="wird-grid" id="wirdGrid"></div>
+
+  <!-- Claim after completion -->
+  <div class="wird-claim" id="wirdClaim">
+    <button class="wird-claim-ad" id="wirdAdBtn" onclick="showWirdAdModal()">
+      <span style="position:absolute;top:7px;right:10px;background:rgba(255,215,0,0.2);border:1px solid gold;border-radius:99px;padding:2px 8px;font-size:11px;color:gold;">موصى به ⭐</span>
+      📺 شاهد إعلاناً واحصل على
+      <span style="font-size:22px;color:#FFD700;display:block;margin-top:4px;">30 نقطة 🌟🌟</span>
+    </button>
+    <button class="wird-claim-skip" id="wirdSkipBtn" onclick="claimWirdPts(15, false)">
+      تخطي — احصل على 15 نقطة فقط
+    </button>
+  </div>
+
+  <div class="wird-divider"></div>
+</div>
+
+<!-- Ad modal -->
+<div class="ad-overlay" id="adModal">
+  <div class="ad-box">
+    <div class="ad-header">
+      <span class="ad-label">إعلان</span>
+      <button class="ad-skip-btn" id="adSkipBtn" onclick="skipAd()">تخطي ⏭</button>
+    </div>
+    <div class="ad-content">
+      <div class="ad-icon" id="adIcon">⏳</div>
+      <div class="ad-title" id="adTitle">جارٍ تحميل الإعلان...</div>
+      <div class="ad-sub" id="adSub">انتظر 5 ثوانٍ للحصول على نقاطك المضاعفة</div>
+      <div class="ad-prog-track"><div class="ad-prog-fill" id="adProgFill"></div></div>
+    </div>
+    <div class="ad-footer">
+      <span class="old">15 نقطة</span>
+      <span>←</span>
+      <span class="new">30 🌟</span>
+      <span style="font-size:12px;color:rgba(255,255,255,0.35)">بعد الإعلان</span>
+    </div>
+  </div>
 </div>
 
 <div id="indexView">
@@ -374,12 +504,15 @@ function positionContent(){
 }
 
 function changePage(dir){
+  const prev = currentPage;
   const np=currentPage+dir;
   if(np<1||np>604) return;
   currentPage=np;
   document.getElementById('mushafContent').scrollTop=0;
   loadPage(currentPage);
   history.pushState({page:currentPage},'');
+  // Mark previous wird page as read after navigating away
+  if(todayPages && todayPages.includes(prev)) markWirdPageRead(prev);
 }
 
 // ── Load page ──
@@ -527,6 +660,175 @@ window.addEventListener('popstate',()=>{
   }
 });
 history.pushState(null,'');
+// ══════════════════════════════
+// ── Daily Wird System ──
+// ══════════════════════════════
+const WIRD_KEY  = 'ir-wird-' + new Date().toDateString();
+const WIRD_PAGES_KEY = 'ir-wird-pages-' + new Date().toDateString();
+
+// Generate 10 deterministic random pages for today
+function getTodayPages() {
+  const cached = localStorage.getItem(WIRD_PAGES_KEY);
+  if (cached) return JSON.parse(cached);
+
+  // Seed from date so same day = same pages
+  const seed = new Date().toDateString().split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+  const pages = [];
+  let s = seed;
+  while (pages.length < 10) {
+    s = (s * 1664525 + 1013904223) & 0xffffffff;
+    const p = (Math.abs(s) % 604) + 1;
+    if (!pages.includes(p)) pages.push(p);
+  }
+  pages.sort((a,b) => a - b);
+  localStorage.setItem(WIRD_PAGES_KEY, JSON.stringify(pages));
+  return pages;
+}
+
+let wirdState = JSON.parse(localStorage.getItem(WIRD_KEY) || '{"read":[],"claimed":false}');
+const todayPages = getTodayPages();
+
+function saveWird() { localStorage.setItem(WIRD_KEY, JSON.stringify(wirdState)); }
+
+function renderWird() {
+  const grid = document.getElementById('wirdGrid');
+  grid.innerHTML = '';
+  const readCount = wirdState.read.length;
+
+  todayPages.forEach(pg => {
+    const isRead = wirdState.read.includes(pg);
+    const card = document.createElement('div');
+    card.className = 'wird-page-card' + (isRead ? ' read' : '');
+    card.innerHTML = `
+      <span class="wird-check">✓</span>
+      <span class="wird-page-num">${pg}</span>
+      <span class="wird-page-label">${isRead ? 'قُرئت' : 'صفحة'}</span>
+    `;
+    if (!isRead) {
+      card.onclick = () => openWirdPage(pg);
+    }
+    grid.appendChild(card);
+  });
+
+  // Progress
+  const pct = Math.round(readCount / 10 * 100);
+  document.getElementById('wirdFill').style.width = pct + '%';
+  document.getElementById('wirdProgressText').textContent = readCount + ' / 10';
+
+  // Claim buttons
+  const claim = document.getElementById('wirdClaim');
+  if (readCount === 10) {
+    claim.classList.add('show');
+    if (wirdState.claimed) {
+      document.getElementById('wirdAdBtn').style.display = 'none';
+      document.getElementById('wirdSkipBtn').textContent = '✅ تمّت إضافة النقاط اليوم';
+      document.getElementById('wirdSkipBtn').disabled = true;
+    }
+  }
+}
+
+function openWirdPage(pg) {
+  // Open page in mushaf, mark as read when user navigates away or after 3s
+  openPage(pg);
+  // Mark as read after 4 seconds of viewing
+  setTimeout(() => markWirdPageRead(pg), 4000);
+}
+
+function markWirdPageRead(pg) {
+  if (wirdState.read.includes(pg)) return;
+  wirdState.read.push(pg);
+  saveWird();
+  renderWird();
+  // Flash card green
+  const cards = document.querySelectorAll('.wird-page-card');
+  cards.forEach(c => {
+    if (c.querySelector('.wird-page-num')?.textContent == pg) {
+      c.style.transition = 'background 0.5s';
+    }
+  });
+}
+
+// ── Ad Modal ──
+let adTimer = null;
+const adPhases = [
+  { t: 0,    icon: '⏳', title: 'جارٍ تحميل الإعلان...', sub: 'انتظر 5 ثوانٍ للحصول على نقاطك' },
+  { t: 1200, icon: '📺', title: 'Islam Rising Premium', sub: 'احصل على تجربة بدون إعلانات!' },
+  { t: 2800, icon: '⭐', title: 'قيّم التطبيق', sub: 'دعمك يساعدنا على الاستمرار' },
+  { t: 4200, icon: '🎁', title: 'نقاطك جاهزة!', sub: '30 نقطة ستُضاف الآن' },
+];
+
+function showWirdAdModal() {
+  if (wirdState.claimed || adTimer) return;
+  document.getElementById('adModal').classList.add('show');
+  document.getElementById('adSkipBtn').classList.remove('ready');
+  document.getElementById('adSkipBtn').textContent = 'تخطي ⏭';
+  document.getElementById('adSkipBtn').disabled = true;
+  document.getElementById('adProgFill').style.width = '0%';
+  document.getElementById('adIcon').textContent = '⏳';
+  document.getElementById('adTitle').textContent = 'جارٍ تحميل الإعلان...';
+  document.getElementById('adSub').textContent = 'انتظر 5 ثوانٍ';
+
+  adPhases.forEach(p => setTimeout(() => {
+    document.getElementById('adIcon').textContent = p.icon;
+    document.getElementById('adTitle').textContent = p.title;
+    document.getElementById('adSub').textContent = p.sub;
+  }, p.t));
+
+  let elapsed = 0;
+  adTimer = setInterval(() => {
+    elapsed += 100;
+    document.getElementById('adProgFill').style.width = Math.min(100, elapsed/50) + '%';
+    if (elapsed >= 5000) {
+      clearInterval(adTimer); adTimer = null;
+      const btn = document.getElementById('adSkipBtn');
+      btn.textContent = '✅ اجمع نقاطك!';
+      btn.classList.add('ready');
+      btn.disabled = false;
+      setTimeout(() => collectAdReward(), 2000);
+    }
+  }, 100);
+}
+
+function skipAd() {
+  if (!document.getElementById('adSkipBtn').classList.contains('ready')) return;
+  collectAdReward();
+}
+
+function collectAdReward() {
+  if (adTimer) { clearInterval(adTimer); adTimer = null; }
+  document.getElementById('adModal').classList.remove('show');
+  claimWirdPts(30, true);
+}
+
+function claimWirdPts(pts, fromAd) {
+  if (wirdState.claimed) return;
+  wirdState.claimed = true;
+  saveWird();
+
+  // Send to index.html via localStorage
+  const pending = JSON.parse(localStorage.getItem('ir-pending-pts') || '[]');
+  pending.push({ id: 'quran', pts, ts: Date.now() });
+  localStorage.setItem('ir-pending-pts', JSON.stringify(pending));
+
+  // Update UI
+  document.getElementById('wirdAdBtn').style.display = 'none';
+  const skipBtn = document.getElementById('wirdSkipBtn');
+  skipBtn.textContent = fromAd ? `✅ +${pts} نقطة مضاعفة 🌟🌟` : '✅ تمّت إضافة النقاط';
+  skipBtn.disabled = true;
+
+  // Fly animation
+  const fly = document.createElement('div');
+  fly.style.cssText = `position:fixed;left:50%;top:50%;transform:translateX(-50%);font-size:28px;font-weight:700;color:#FFD700;pointer-events:none;z-index:9999;animation:flyPts 1.5s ease forwards;`;
+  fly.textContent = '+' + pts + (fromAd ? ' 🌟🌟' : ' 🌟');
+  document.body.appendChild(fly);
+  setTimeout(() => fly.remove(), 1600);
+  setTimeout(() => { window.location.href = 'ibadat.html'; }, 2000);
+}
+
+// Init wird
+renderWird();
+
+// ── Init ──
 loadSurahs();
 </script>
 </body>
