@@ -338,6 +338,50 @@ body::before {
   color: var(--gold);
 }
 
+/* ── Timing lock banner ── */
+.time-banner {
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+}
+.time-banner.open {
+  background: rgba(74,222,128,0.08);
+  border: 1px solid rgba(74,222,128,0.25);
+  color: #4ADE80;
+}
+.time-banner.closed {
+  background: rgba(231,76,60,0.08);
+  border: 1px solid rgba(231,76,60,0.25);
+  color: #E74C3C;
+}
+.time-banner.unknown {
+  background: rgba(201,169,110,0.08);
+  border: 1px solid rgba(201,169,110,0.2);
+  color: var(--gold);
+}
+.time-banner .tb-icon { font-size: 20px; flex-shrink: 0; }
+.time-banner .tb-text { line-height: 1.5; }
+.time-banner .tb-text strong { font-size: 14px; display: block; }
+
+/* Locked overlay on cards */
+.adhkar-card.locked {
+  opacity: 0.45;
+  pointer-events: none;
+}
+.section-locked-msg {
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--muted);
+  font-size: 14px;
+  display: none;
+}
+.section-locked-msg.show { display: block; }
+.section-locked-msg .lock-icon { font-size: 40px; margin-bottom: 10px; }
+
 /* ── Claim points button ── */
 .claim-wrap {
   margin-top: 8px;
@@ -463,6 +507,18 @@ body::before {
   </div>
 
   <div style="padding: 20px 0 0;">
+    <!-- Time banner -->
+    <div id="morning-time-banner" class="time-banner unknown">
+      <span class="tb-icon">🕐</span>
+      <span class="tb-text"><strong>جارٍ تحديد الوقت...</strong>من الفجر حتى الظهر</span>
+    </div>
+
+    <!-- Locked message -->
+    <div class="section-locked-msg" id="morning-locked-msg">
+      <div class="lock-icon">🔒</div>
+      <p>انتهى وقت أذكار الصباح<br><span style="color:var(--gold)">تُفتح غداً بعد الفجر</span></p>
+    </div>
+
     <div class="finish-banner" id="morning-done-banner">
       <div class="fi">✅</div>
       <h3>أحسنت!</h3>
@@ -580,6 +636,18 @@ body::before {
   </div>
 
   <div style="padding: 20px 0 0;">
+    <!-- Time banner -->
+    <div id="evening-time-banner" class="time-banner unknown">
+      <span class="tb-icon">🕐</span>
+      <span class="tb-text"><strong>جارٍ تحديد الوقت...</strong>من العصر حتى المغرب</span>
+    </div>
+
+    <!-- Locked message -->
+    <div class="section-locked-msg" id="evening-locked-msg">
+      <div class="lock-icon">🔒</div>
+      <p>انتهى وقت أذكار المساء<br><span style="color:var(--gold)">تُفتح غداً بعد العصر</span></p>
+    </div>
+
     <div class="finish-banner" id="evening-done-banner">
       <div class="fi">✅</div>
       <h3>أحسنت!</h3>
@@ -759,6 +827,96 @@ body::before {
 </div>
 
 <script>
+// ── Prayer times & window logic ──
+const pTimes = JSON.parse(localStorage.getItem('ir-ptimes') || 'null');
+
+function timeToMins(t) {
+  if (!t) return null;
+  const [h, m] = t.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function nowMins() {
+  const n = new Date();
+  return n.getHours() * 60 + n.getMinutes();
+}
+
+function fmt(t) { return t || '--:--'; }
+
+function checkTiming() {
+  const now = nowMins();
+
+  // Morning: fajr → dhuhr
+  const fajr   = timeToMins(pTimes?.fajr);
+  const dhuhr  = timeToMins(pTimes?.dhuhr);
+  // Evening: asr → maghrib
+  const asr    = timeToMins(pTimes?.asr);
+  const maghrib= timeToMins(pTimes?.maghrib);
+
+  applyTiming('morning', fajr, dhuhr, now,
+    `أذكار الصباح مفتوحة`, `من ${fmt(pTimes?.fajr)} حتى ${fmt(pTimes?.dhuhr)}`,
+    `⏰ انتهى وقت أذكار الصباح`, `كانت مفتوحة من ${fmt(pTimes?.fajr)} حتى ${fmt(pTimes?.dhuhr)}`,
+    `🌅 أذكار الصباح`, `تُفتح اليوم من ${fmt(pTimes?.fajr)} حتى ${fmt(pTimes?.dhuhr)}`
+  );
+
+  applyTiming('evening', asr, maghrib, now,
+    `أذكار المساء مفتوحة`, `من ${fmt(pTimes?.asr)} حتى ${fmt(pTimes?.maghrib)}`,
+    `⏰ انتهى وقت أذكار المساء`, `كانت مفتوحة من ${fmt(pTimes?.asr)} حتى ${fmt(pTimes?.maghrib)}`,
+    `🌙 أذكار المساء`, `تُفتح اليوم من ${fmt(pTimes?.asr)} حتى ${fmt(pTimes?.maghrib)}`
+  );
+}
+
+function applyTiming(section, start, end, now, openTitle, openSub, closedTitle, closedSub, unknownTitle, unknownSub) {
+  const banner  = document.getElementById(`${section}-time-banner`);
+  const lockMsg = document.getElementById(`${section}-locked-msg`);
+  const cards   = document.querySelectorAll(`#tab-${section} .adhkar-card`);
+  const claimWrap = document.getElementById(`${section}-claim`);
+  const claimBtn  = document.getElementById(`${section}-claim-btn`);
+
+  const alreadyDone = section === 'morning' ? state.extras['adhkars'] : state.extras['adhkarm'];
+
+  // No prayer times available
+  if (!start || !end || !pTimes) {
+    banner.className = 'time-banner unknown';
+    banner.innerHTML = `<span class="tb-icon">📍</span><span class="tb-text"><strong>${unknownTitle}</strong>${unknownSub}</span>`;
+    return;
+  }
+
+  const isOpen   = now >= start && now < end;
+  const isPast   = now >= end;
+  const isFuture = now < start;
+
+  if (alreadyDone) {
+    // Already completed — always allow view, show green
+    banner.className = 'time-banner open';
+    banner.innerHTML = `<span class="tb-icon">✅</span><span class="tb-text"><strong>مكتمل ✓</strong>أتممت هذا القسم اليوم</span>`;
+    return;
+  }
+
+  if (isOpen) {
+    banner.className = 'time-banner open';
+    banner.innerHTML = `<span class="tb-icon">🟢</span><span class="tb-text"><strong>${openTitle}</strong>${openSub}</span>`;
+    // Unlock cards
+    cards.forEach(c => c.classList.remove('locked'));
+    if (lockMsg) lockMsg.classList.remove('show');
+  } else if (isPast) {
+    banner.className = 'time-banner closed';
+    banner.innerHTML = `<span class="tb-icon">🔒</span><span class="tb-text"><strong>${closedTitle}</strong>${closedSub}</span>`;
+    // Lock all cards
+    cards.forEach(c => c.classList.add('locked'));
+    if (lockMsg) lockMsg.classList.add('show');
+    // Hide claim button if not already claimed
+    if (claimWrap) claimWrap.classList.remove('show');
+  } else {
+    // Future (before fajr / before asr)
+    banner.className = 'time-banner unknown';
+    banner.innerHTML = `<span class="tb-icon">⏳</span><span class="tb-text"><strong>${unknownTitle}</strong>${unknownSub}</span>`;
+    cards.forEach(c => c.classList.add('locked'));
+    if (lockMsg) lockMsg.classList.add('show');
+    if (claimWrap) claimWrap.classList.remove('show');
+  }
+}
+
 // ── State ──
 const TODAY = new Date().toDateString();
 const KEY = 'ir-ibadat-' + TODAY;
@@ -950,6 +1108,9 @@ renderSection('morning');
 renderSection('evening');
 updateExtrasUI();
 updatePtsBadge();
+checkTiming();
+// Re-check every minute (in case window closes while open)
+setInterval(checkTiming, 60000);
 
 // Auto-open tab from URL param ?tab=evening
 const urlTab = new URLSearchParams(location.search).get('tab');
