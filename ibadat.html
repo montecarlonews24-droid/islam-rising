@@ -827,7 +827,20 @@ body::before {
 </div>
 
 <script>
-// ── Prayer times & window logic ──
+// ── State ──
+const TODAY = new Date().toDateString();
+const KEY = 'ir-ibadat-' + TODAY;
+
+let state = JSON.parse(localStorage.getItem(KEY) || '{}');
+if (!state.morning) state.morning = {};
+if (!state.evening) state.evening = {};
+if (!state.extras)  state.extras  = {};
+
+const MORNING_TOTAL = 10;
+const EVENING_TOTAL = 10;
+const MULT = 1;
+
+// ── Prayer times ──
 const pTimes = JSON.parse(localStorage.getItem('ir-ptimes') || 'null');
 
 function timeToMins(t) {
@@ -835,104 +848,11 @@ function timeToMins(t) {
   const [h, m] = t.split(':').map(Number);
   return h * 60 + m;
 }
-
 function nowMins() {
   const n = new Date();
   return n.getHours() * 60 + n.getMinutes();
 }
-
 function fmt(t) { return t || '--:--'; }
-
-function checkTiming() {
-  const now = nowMins();
-
-  // Morning: fajr → dhuhr
-  const fajr   = timeToMins(pTimes?.fajr);
-  const dhuhr  = timeToMins(pTimes?.dhuhr);
-  // Evening: asr → maghrib
-  const asr    = timeToMins(pTimes?.asr);
-  const maghrib= timeToMins(pTimes?.maghrib);
-
-  applyTiming('morning', fajr, dhuhr, now,
-    `أذكار الصباح مفتوحة`, `من ${fmt(pTimes?.fajr)} حتى ${fmt(pTimes?.dhuhr)}`,
-    `⏰ انتهى وقت أذكار الصباح`, `كانت مفتوحة من ${fmt(pTimes?.fajr)} حتى ${fmt(pTimes?.dhuhr)}`,
-    `🌅 أذكار الصباح`, `تُفتح اليوم من ${fmt(pTimes?.fajr)} حتى ${fmt(pTimes?.dhuhr)}`
-  );
-
-  applyTiming('evening', asr, maghrib, now,
-    `أذكار المساء مفتوحة`, `من ${fmt(pTimes?.asr)} حتى ${fmt(pTimes?.maghrib)}`,
-    `⏰ انتهى وقت أذكار المساء`, `كانت مفتوحة من ${fmt(pTimes?.asr)} حتى ${fmt(pTimes?.maghrib)}`,
-    `🌙 أذكار المساء`, `تُفتح اليوم من ${fmt(pTimes?.asr)} حتى ${fmt(pTimes?.maghrib)}`
-  );
-}
-
-function applyTiming(section, start, end, now, openTitle, openSub, closedTitle, closedSub, unknownTitle, unknownSub) {
-  const banner  = document.getElementById(`${section}-time-banner`);
-  const lockMsg = document.getElementById(`${section}-locked-msg`);
-  const cards   = document.querySelectorAll(`#tab-${section} .adhkar-card`);
-  const claimWrap = document.getElementById(`${section}-claim`);
-  const claimBtn  = document.getElementById(`${section}-claim-btn`);
-
-  const alreadyDone = section === 'morning' ? state.extras['adhkars'] : state.extras['adhkarm'];
-
-  // No prayer times available
-  if (!start || !end || !pTimes) {
-    banner.className = 'time-banner unknown';
-    banner.innerHTML = `<span class="tb-icon">📍</span><span class="tb-text"><strong>${unknownTitle}</strong>${unknownSub}</span>`;
-    return;
-  }
-
-  const isOpen   = now >= start && now < end;
-  const isPast   = now >= end;
-  const isFuture = now < start;
-
-  if (alreadyDone) {
-    // Already completed — always allow view, show green
-    banner.className = 'time-banner open';
-    banner.innerHTML = `<span class="tb-icon">✅</span><span class="tb-text"><strong>مكتمل ✓</strong>أتممت هذا القسم اليوم</span>`;
-    return;
-  }
-
-  if (isOpen) {
-    banner.className = 'time-banner open';
-    banner.innerHTML = `<span class="tb-icon">🟢</span><span class="tb-text"><strong>${openTitle}</strong>${openSub}</span>`;
-    // Unlock cards
-    cards.forEach(c => c.classList.remove('locked'));
-    if (lockMsg) lockMsg.classList.remove('show');
-  } else if (isPast) {
-    banner.className = 'time-banner closed';
-    banner.innerHTML = `<span class="tb-icon">🔒</span><span class="tb-text"><strong>${closedTitle}</strong>${closedSub}</span>`;
-    // Lock all cards
-    cards.forEach(c => c.classList.add('locked'));
-    if (lockMsg) lockMsg.classList.add('show');
-    // Hide claim button if not already claimed
-    if (claimWrap) claimWrap.classList.remove('show');
-  } else {
-    // Future (before fajr / before asr)
-    banner.className = 'time-banner unknown';
-    banner.innerHTML = `<span class="tb-icon">⏳</span><span class="tb-text"><strong>${unknownTitle}</strong>${unknownSub}</span>`;
-    cards.forEach(c => c.classList.add('locked'));
-    if (lockMsg) lockMsg.classList.add('show');
-    if (claimWrap) claimWrap.classList.remove('show');
-  }
-}
-
-// ── State ──
-const TODAY = new Date().toDateString();
-const KEY = 'ir-ibadat-' + TODAY;
-
-let state = JSON.parse(localStorage.getItem(KEY) || '{}');
-// state.morning = { m1: true, ... }
-// state.evening = { e1: true, ... }
-// state.extras  = { quran: true, adhkars: true, ... }
-if (!state.morning) state.morning = {};
-if (!state.evening) state.evening = {};
-if (!state.extras)  state.extras  = {};
-
-const MORNING_TOTAL = 10;
-const EVENING_TOTAL = 10;
-
-const MULT = 1; // adjust if premium logic needed
 
 // ── Save ──
 function save() {
@@ -975,11 +895,9 @@ function renderSection(section) {
 
   if (count === total) {
     document.getElementById(`${section}-done-banner`).classList.add('show');
-    // Show claim button
     const claimWrap = document.getElementById(`${section}-claim`);
     if (claimWrap) {
       claimWrap.classList.add('show');
-      // If already claimed, update button
       const extraId = section === 'morning' ? 'adhkars' : 'adhkarm';
       if (state.extras[extraId + '_claimed']) {
         const btn = document.getElementById(`${section}-claim-btn`);
@@ -990,7 +908,6 @@ function renderSection(section) {
         }
       }
     }
-    // Mark as done in extras too
     const key = section === 'morning' ? 'adhkars' : 'adhkarm';
     if (!state.extras[key]) {
       state.extras[key] = true;
@@ -1001,18 +918,11 @@ function renderSection(section) {
 
 // ── Update extras UI ──
 function updateExtrasUI() {
-  const items = {
-    adhkars: { pts: 8 },
-    adhkarm: { pts: 8 },
-    quran:   { pts: 15 },
-    sawm:    { pts: 50 },
-  };
-
+  const items = { adhkars:{pts:8}, adhkarm:{pts:8}, quran:{pts:15}, sawm:{pts:50} };
   Object.keys(items).forEach(id => {
-    const el = document.getElementById('item-' + id);
+    const el  = document.getElementById('item-' + id);
     const pts = document.getElementById('pts-' + id);
     if (!el) return;
-
     if (state.extras[id]) {
       el.classList.add('done');
       if (pts) pts.textContent = '✓';
@@ -1026,27 +936,23 @@ function updatePtsBadge() {
   let total = 0;
   const mDone = Object.keys(state.morning).length;
   const eDone = Object.keys(state.evening).length;
-  total += mDone * 0.8; // 8pts / 10 cards
+  total += mDone * 0.8;
   total += eDone * 0.8;
-  if (state.extras.quran)   total += 15;
-  if (state.extras.sawm)    total += 50;
+  if (state.extras.quran) total += 15;
+  if (state.extras.sawm)  total += 50;
   document.getElementById('total-pts-badge').textContent = Math.round(total) + ' نقطة اليوم';
 }
 
-// ── Claim points → send to index.html ──
+// ── Claim points ──
 function claimPts(extraId, pts, section) {
   if (state.extras[extraId + '_claimed']) return;
-
-  // Mark claimed
   state.extras[extraId + '_claimed'] = true;
   save();
 
-  // Write pending points to localStorage for index.html to pick up
   const pending = JSON.parse(localStorage.getItem('ir-pending-pts') || '[]');
   pending.push({ id: extraId, pts: pts, ts: Date.now() });
   localStorage.setItem('ir-pending-pts', JSON.stringify(pending));
 
-  // Update button UI
   const btn = document.getElementById(`${section}-claim-btn`);
   if (btn) {
     btn.textContent = '✅ تمّت إضافة النقاط!';
@@ -1054,20 +960,14 @@ function claimPts(extraId, pts, section) {
     btn.disabled = true;
   }
 
-  // Fly animation
   const fly = document.createElement('div');
   fly.className = 'fly-pts';
   fly.textContent = '+' + pts + ' 🌟';
-  fly.style.left = '50%';
-  fly.style.top = '60%';
-  fly.style.transform = 'translateX(-50%)';
+  fly.style.cssText = 'position:fixed;left:50%;top:60%;transform:translateX(-50%);';
   document.body.appendChild(fly);
   setTimeout(() => fly.remove(), 1300);
 
-  // Auto-navigate back after 1.5s
-  setTimeout(() => {
-    window.location.href = 'index.html';
-  }, 1500);
+  setTimeout(() => { window.location.href = 'index.html'; }, 1500);
 }
 
 // ── Sawm modal ──
@@ -1084,8 +984,86 @@ function confirmSawm() {
   closeSawmModal();
   updateExtrasUI();
   updatePtsBadge();
-  // Signal back to index.html via localStorage
   localStorage.setItem('ir-sawm-done', TODAY);
+
+  // Send points to index.html
+  const pending = JSON.parse(localStorage.getItem('ir-pending-pts') || '[]');
+  pending.push({ id: 'sawm', pts: 50, ts: Date.now() });
+  localStorage.setItem('ir-pending-pts', JSON.stringify(pending));
+  setTimeout(() => { window.location.href = 'index.html'; }, 1200);
+}
+
+// ── Timing logic ──
+function checkTiming() {
+  const now = nowMins();
+
+  const fajr    = timeToMins(pTimes?.fajr);
+  const dhuhr   = timeToMins(pTimes?.dhuhr);
+  const asr     = timeToMins(pTimes?.asr);
+  const maghrib = timeToMins(pTimes?.maghrib);
+
+  applyTiming('morning', fajr, dhuhr, now,
+    `🌅 أذكار الصباح مفتوحة`, `من ${fmt(pTimes?.fajr)} حتى ${fmt(pTimes?.dhuhr)}`,
+    `🔒 انتهى وقت أذكار الصباح`, `كانت مفتوحة حتى ${fmt(pTimes?.dhuhr)}`,
+    `⏳ أذكار الصباح`, `تُفتح من ${fmt(pTimes?.fajr)} حتى ${fmt(pTimes?.dhuhr)}`
+  );
+
+  applyTiming('evening', asr, maghrib, now,
+    `🌙 أذكار المساء مفتوحة`, `من ${fmt(pTimes?.asr)} حتى ${fmt(pTimes?.maghrib)}`,
+    `🔒 انتهى وقت أذكار المساء`, `كانت مفتوحة حتى ${fmt(pTimes?.maghrib)}`,
+    `⏳ أذكار المساء`, `تُفتح من ${fmt(pTimes?.asr)} حتى ${fmt(pTimes?.maghrib)}`
+  );
+}
+
+function applyTiming(section, start, end, now, openTitle, openSub, closedTitle, closedSub, futureTitle, futureSub) {
+  const banner    = document.getElementById(`${section}-time-banner`);
+  const lockMsg   = document.getElementById(`${section}-locked-msg`);
+  const cards     = document.querySelectorAll(`#tab-${section} .adhkar-card`);
+  const claimWrap = document.getElementById(`${section}-claim`);
+
+  const alreadyDone = section === 'morning' ? state.extras['adhkars'] : state.extras['adhkarm'];
+
+  // Already completed — show green, unlock everything
+  if (alreadyDone) {
+    banner.className = 'time-banner open';
+    banner.innerHTML = `<span class="tb-icon">✅</span><span class="tb-text"><strong>مكتمل ✓</strong>أتممت هذا القسم اليوم</span>`;
+    cards.forEach(c => c.classList.remove('locked'));
+    if (lockMsg) lockMsg.classList.remove('show');
+    return;
+  }
+
+  // No prayer times — lock with message
+  if (!start || !end || !pTimes) {
+    banner.className = 'time-banner unknown';
+    banner.innerHTML = `<span class="tb-icon">📍</span><span class="tb-text"><strong>لم يتم تحديد الموقع</strong>افتح التطبيق أولاً لتفعيل الأوقات</span>`;
+    cards.forEach(c => c.classList.add('locked'));
+    if (lockMsg) lockMsg.classList.add('show');
+    if (claimWrap) claimWrap.classList.remove('show');
+    return;
+  }
+
+  const isOpen   = now >= start && now < end;
+  const isPast   = now >= end;
+
+  if (isOpen) {
+    banner.className = 'time-banner open';
+    banner.innerHTML = `<span class="tb-icon">🟢</span><span class="tb-text"><strong>${openTitle}</strong>${openSub}</span>`;
+    cards.forEach(c => c.classList.remove('locked'));
+    if (lockMsg) lockMsg.classList.remove('show');
+  } else if (isPast) {
+    banner.className = 'time-banner closed';
+    banner.innerHTML = `<span class="tb-icon">🔒</span><span class="tb-text"><strong>${closedTitle}</strong>${closedSub}</span>`;
+    cards.forEach(c => c.classList.add('locked'));
+    if (lockMsg) lockMsg.classList.add('show');
+    if (claimWrap) claimWrap.classList.remove('show');
+  } else {
+    // Future
+    banner.className = 'time-banner unknown';
+    banner.innerHTML = `<span class="tb-icon">⏳</span><span class="tb-text"><strong>${futureTitle}</strong>${futureSub}</span>`;
+    cards.forEach(c => c.classList.add('locked'));
+    if (lockMsg) lockMsg.classList.add('show');
+    if (claimWrap) claimWrap.classList.remove('show');
+  }
 }
 
 // ── Tab switching ──
@@ -1109,7 +1087,6 @@ renderSection('evening');
 updateExtrasUI();
 updatePtsBadge();
 checkTiming();
-// Re-check every minute (in case window closes while open)
 setInterval(checkTiming, 60000);
 
 // Auto-open tab from URL param ?tab=evening
