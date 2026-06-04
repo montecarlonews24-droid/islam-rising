@@ -812,8 +812,8 @@ function App() {
       const seed = now.getFullYear() * 10000 + (now.getMonth()+1) * 100 + now.getDate();
       const pseudo = (seed * 1664525 + 1013904223) >>> 0;
       const verseNum = (pseudo % 6236) + 1;
-      // Fetch from quran.com API
-      const res = await fetch(`https://api.quran.com/api/v4/verses/by_key/${verseNum}?language=ar&words=false&fields=text_uthmani`);
+      // Fetch from quran.com API using by_number endpoint (accepts sequential number)
+      const res = await fetch(`https://api.quran.com/api/v4/verses/by_number/${verseNum}?language=ar&words=false&fields=text_uthmani`);
       if (!res.ok) throw new Error('API error');
       const data = await res.json();
       const text = data.verse.text_uthmani;
