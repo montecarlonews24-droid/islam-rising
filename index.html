@@ -797,6 +797,10 @@ function App() {
       const now = new Date();
       const dateKey = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
       const cacheKey = `ir-verse-${dateKey}`;
+      // Clear old cache keys first (from previous days)
+      try {
+        Object.keys(localStorage).filter(k => k.startsWith('ir-verse-') && k !== cacheKey).forEach(k => localStorage.removeItem(k));
+      } catch(e) {}
       // Check cache first
       try {
         const cached = localStorage.getItem(cacheKey);
