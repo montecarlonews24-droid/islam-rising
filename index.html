@@ -795,7 +795,7 @@ function App() {
   const loadDailyVerse = async () => {
     try {
       const now = new Date();
-      const dateKey = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
+      const dateKey = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}-${now.getTimezoneOffset()}`;
       const cacheKey = `ir-verse-${dateKey}`;
       // Clear old cache keys first (from previous days)
       try {
