@@ -1067,7 +1067,66 @@ const EVENING_TOTAL = 14;
 const MULT = 1;
 
 // ── Prayer times ──
-const pTimes = JSON.parse(localStorage.getItem('ir-ptimes') || 'null');
+let pTimes = JSON.parse(localStorage.getItem('ir-ptimes') || 'null');
+
+// Always recalculate from user's real GPS location
+function calcPrayerTimesLocal(lat, lng) {
+  const D2R = Math.PI / 180, R2D = 180 / Math.PI;
+  const date = new Date();
+  const jd = Math.floor(365.25*(date.getFullYear()+4716)) + Math.floor(30.6001*(date.getMonth()+2)) + date.getDate() - 1524.5;
+  const T = (jd - 2451545) / 36525;
+  const L0 = (280.46646 + 36000.76983*T) % 360;
+  const M = (357.52911 + 35999.05029*T) * D2R;
+  const C = (1.914602 - 0.004817*T)*Math.sin(M) + 0.019993*Math.sin(2*M);
+  const sunLon = (L0 + C) * D2R;
+  const obliq = (23.439291 - 0.013004*T) * D2R;
+  const ra = Math.atan2(Math.cos(obliq)*Math.sin(sunLon), Math.cos(sunLon)) * R2D;
+  const decl = Math.asin(Math.sin(obliq)*Math.sin(sunLon));
+  const eqT = (L0 + C - 0.0057183 - ra + 360) % 360;
+  const noon = 12 - eqT/15 - lng/15;
+  const latR = lat * D2R;
+  function angle(a) {
+    const cos = (Math.sin(a*D2R) - Math.sin(latR)*Math.sin(decl)) / (Math.cos(latR)*Math.cos(decl));
+    if (Math.abs(cos) > 1) return null;
+    return Math.acos(cos) * R2D / 15;
+  }
+  function shadow(s) {
+    const cos = Math.sin(Math.atan(1/(s+Math.tan(Math.abs(lat-decl*R2D)*D2R)))) - Math.sin(latR)*Math.sin(decl);
+    const val = cos / (Math.cos(latR)*Math.cos(decl));
+    if (Math.abs(val) > 1) return null;
+    return Math.acos(val) * R2D / 15;
+  }
+  function fmt(h) {
+    const tz = -new Date().getTimezoneOffset()/60;
+    const total = (noon + h + tz + 24) % 24;
+    const hh = Math.floor(total), mm = Math.round((total-hh)*60);
+    return `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
+  }
+  const fajrH = angle(-18), sunriseH = angle(-0.833), asrH = shadow(1), maghribH = angle(-0.833), ishaH = angle(-17);
+  return {
+    fajr:    fajrH    ? fmt(-fajrH)    : null,
+    sunrise: sunriseH ? fmt(-sunriseH) : null,
+    dhuhr:   fmt(0),
+    asr:     asrH     ? fmt(asrH)      : null,
+    maghrib: maghribH ? fmt(maghribH)  : null,
+    isha:    ishaH    ? fmt(ishaH)     : null
+  };
+}
+
+// Try to get fresh GPS location
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const fresh = calcPrayerTimesLocal(pos.coords.latitude, pos.coords.longitude);
+      localStorage.setItem('ir-ptimes', JSON.stringify(fresh));
+      // Re-run timing check with fresh times
+      Object.assign(pTimes || {}, fresh);
+      if (typeof checkTiming === 'function') checkTiming();
+    },
+    () => {}, // fallback to stored pTimes
+    { timeout: 5000, maximumAge: 300000 }
+  );
+}
 
 function timeToMins(t) {
   if (!t) return null;
