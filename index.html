@@ -598,6 +598,9 @@ function App() {
   const [shareDone, setShareDone] = useState(false);
   const [coords, setCoords] = useState(null);
   const [pTimes, setPTimes] = useState(null);
+  const [adhanOn, setAdhanOn] = useState(() => localStorage.getItem('ir-adhan') !== 'off');
+  const adhanAudio = useRef(null);
+  const adhanTimers = useRef([]);
   const [locErr, setLocErr] = useState(null);
   const [locLoading, setLocL] = useState(false);
   const [qibla, setQibla] = useState(null);
@@ -939,8 +942,44 @@ function App() {
     const mid_id = setTimeout(() => schedulePrayerNotifs(), tillMidnight);
     notifTimers.current.push(mid_id);
   };
+  const scheduleAdhan = (times) => {
+    adhanTimers.current.forEach(t => clearTimeout(t));
+    adhanTimers.current = [];
+    if (!times) return;
+    Object.values(times).forEach(t => {
+      if (!t) return;
+      const [hh, mm] = t.split(":").map(Number);
+      const now = new Date(), target = new Date();
+      target.setHours(hh, mm, 0, 0);
+      if (target <= now) target.setDate(target.getDate() + 1);
+      const diff = target - now;
+      if (diff > 0 && diff < 864e5) {
+        const id = setTimeout(() => {
+          if (localStorage.getItem('ir-adhan') === 'off') return;
+          try {
+            if (adhanAudio.current) { adhanAudio.current.pause(); adhanAudio.current = null; }
+            const audio = new Audio('https://cdn.islamic.network/quran/audio/128/ar.alafasy/1.mp3');
+            audio.src = 'https://server8.mp3quran.net/afs/Rewayat-AlDorai-A-n-Alkasaei/001.mp3';
+            // أذان مكي - الشيخ علي أحمد ملا
+            audio.src = 'https://www.islamcan.com/audio/adhan/azan1.mp3';
+            adhanAudio.current = audio;
+            audio.play().catch(() => {});
+          } catch(e) {}
+        }, diff);
+        adhanTimers.current.push(id);
+      }
+    });
+  };
+  const toggleAdhan = () => {
+    const next = !adhanOn;
+    setAdhanOn(next);
+    localStorage.setItem('ir-adhan', next ? 'on' : 'off');
+    if (!next && adhanAudio.current) { adhanAudio.current.pause(); adhanAudio.current = null; }
+    if (next && pTimes) scheduleAdhan(pTimes);
+  };
   useEffect(() => {
     if (notifPerm === "granted" && pTimes) schedulePrayerNotifs();
+    if (pTimes && adhanOn) scheduleAdhan(pTimes);
     // Auto-save pTimes for ibadat.html
     if (pTimes) localStorage.setItem('ir-ptimes', JSON.stringify(pTimes));
   }, [pTimes]);
@@ -1852,7 +1891,44 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
       "\u0627\u0644\u0642\u0628\u0644\u0629 \u0639\u0644\u0649 \u0628\u064F\u0639\u062F ",
       qibla !== null ? `${Math.round(qibla)}\xB0 \u0645\u0646 \u0627\u0644\u0634\u0645\u0627\u0644` : "\u2014"
     )
-  ), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, color: "var(--muted)", letterSpacing: 3, marginBottom: 12, textAlign: "center" } }, "\u06DE \u0635\u0644\u0648\u0627\u062A \u0627\u0644\u064A\u0648\u0645 \u06DE"), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 } }, PRAYER_META.map((p, i) => {
+  ), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, color: "var(--muted)", letterSpacing: 3, marginBottom: 12, textAlign: "center" } }, "\u06DE \u0635\u0644\u0648\u0627\u062A \u0627\u0644\u064A\u0648\u0645 \u06DE"), /* @__PURE__ */ React.createElement("button", { onClick: toggleAdhan, style: {
+    width: "100%",
+    border: "none",
+    cursor: "pointer",
+    borderRadius: 18,
+    padding: "14px 20px",
+    marginBottom: 14,
+    background: adhanOn
+      ? "linear-gradient(135deg,rgba(201,169,110,0.18),rgba(201,169,110,0.08))"
+      : "linear-gradient(135deg,rgba(50,40,20,0.5),rgba(30,25,10,0.5))",
+    border: adhanOn ? "1px solid rgba(201,169,110,0.5)" : "1px solid rgba(201,169,110,0.2)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between"
+  } },
+    /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 12 } },
+      /* @__PURE__ */ React.createElement("span", { style: { fontSize: 28 } }, "\uD83D\uDD14"),
+      /* @__PURE__ */ React.createElement("div", { style: { textAlign: "right" } },
+        /* @__PURE__ */ React.createElement("div", { style: { fontSize: 17, fontWeight: 700, color: adhanOn ? "var(--gold)" : "var(--muted)" } }, "\u0623\u0630\u0627\u0646 \u0627\u0644\u0635\u0644\u0627\u0629"),
+        /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, color: "var(--muted)", marginTop: 2 } }, adhanOn ? "\u0645\u0641\u0639\u0651\u0644 \u2014 \u0633\u064A\u0635\u062F\u062D \u0639\u0646\u062F \u0643\u0644 \u0623\u0630\u0627\u0646" : "\u0645\u0639\u0637\u0651\u0644")
+      )
+    ),
+    /* @__PURE__ */ React.createElement("div", { style: {
+      width: 52, height: 28, borderRadius: 99,
+      background: adhanOn ? "var(--gold)" : "rgba(255,255,255,0.15)",
+      position: "relative", transition: "background 0.3s"
+    } },
+      /* @__PURE__ */ React.createElement("div", { style: {
+        position: "absolute", top: 4,
+        left: adhanOn ? 28 : 4,
+        width: 20, height: 20,
+        borderRadius: "50%",
+        background: "white",
+        transition: "left 0.3s",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.3)"
+      } })
+    )
+  ), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 } }, PRAYER_META.map((p, i) => {
     const done = prayers[p.id];
     const time = pTimes == null ? void 0 : pTimes[p.id];
     const isLocked = (() => {
