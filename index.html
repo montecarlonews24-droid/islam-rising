@@ -2409,12 +2409,36 @@ if (_root && !_root._reactRootContainer) {
     bottom: 24px;
     right: 20px;
     z-index: 9998;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0;
-    direction: rtl;
   }
+  #radio-toggle-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #radio-icon-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #C9A96E, #F0D898);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(201,169,110,0.5);
+    transition: all 0.3s ease;
+  }
+  #radio-icon-circle.playing {
+    box-shadow: 0 0 20px rgba(201,169,110,0.8);
+    animation: radioPulse 2s ease-in-out infinite;
+  }
+  @keyframes radioPulse {
+    0%,100% { box-shadow: 0 0 8px rgba(201,169,110,0.4); }
+    50% { box-shadow: 0 0 22px rgba(201,169,110,0.9); }
+  }
+</style>
   #radio-panel {
     background: linear-gradient(135deg, #0D1020, #1A1200);
     border: 1px solid rgba(201,169,110,0.45);
@@ -2535,31 +2559,14 @@ if (_root && !_root._reactRootContainer) {
     0%,100%{transform:scaleY(0.5);opacity:0.4}
     50%{transform:scaleY(1.3);opacity:1}
   }
-  #radio-waves.paused span { animation-play-state: paused; opacity: 0.2; }
-</style>
 
 <div id="quran-radio-widget">
-  <div id="radio-panel" class="collapsed">
-    <button id="radio-toggle-btn" onclick="toggleRadioPlay()" title="تشغيل/إيقاف">
-      <div id="radio-icon-circle">
-        <!-- Play icon -->
-        <span id="radio-play-icon" style="display:block;font-size:20px;color:#05070F;line-height:1;padding-left:3px">▶</span>
-        <!-- Pause icon -->
-        <span id="radio-pause-icon" style="display:none;font-size:20px;color:#05070F;line-height:1">⏸</span>
-      </div>
-    </button>
-    <div id="radio-info">
-      <div id="radio-title">إذاعة القرآن الكريم</div>
-      <div id="radio-status">
-        <span id="radio-dot"></span>
-        <span id="radio-status-text">اضغط للتشغيل</span>
-        <div id="radio-waves" class="paused">
-          <span></span><span></span><span></span><span></span><span></span>
-        </div>
-      </div>
+  <button id="radio-toggle-btn" onclick="toggleRadioPlay()" title="راديو القرآن">
+    <div id="radio-icon-circle">
+      <span id="radio-play-icon" style="display:block;font-size:20px;color:#05070F;line-height:1;padding-left:3px">▶</span>
+      <span id="radio-pause-icon" style="display:none;font-size:20px;color:#05070F;line-height:1">⏸</span>
     </div>
-    <button id="radio-collapse-btn" onclick="collapseRadio()" title="طي">✕</button>
-  </div>
+  </button>
 </div>
 
 <audio id="quran-audio" preload="none"></audio>
@@ -2573,90 +2580,48 @@ if (_root && !_root._reactRootContainer) {
   ];
   let streamIndex = 0;
   let isPlaying = false;
-  let isCollapsed = true;
   let retryTimer = null;
 
   const audio = document.getElementById('quran-audio');
-  const panel = document.getElementById('radio-panel');
   const iconCircle = document.getElementById('radio-icon-circle');
   const playIcon = document.getElementById('radio-play-icon');
   const pauseIcon = document.getElementById('radio-pause-icon');
-  const dot = document.getElementById('radio-dot');
-  const statusText = document.getElementById('radio-status-text');
-  const waves = document.getElementById('radio-waves');
-  const collapseBtn = document.getElementById('radio-collapse-btn');
 
   function setPlaying(playing) {
     isPlaying = playing;
     playIcon.style.display = playing ? 'none' : 'block';
     pauseIcon.style.display = playing ? 'block' : 'none';
     iconCircle.classList.toggle('playing', playing);
-    waves.classList.toggle('paused', !playing);
-    dot.classList.toggle('live', playing);
-    statusText.textContent = playing ? 'بث مباشر' : 'متوقف';
   }
 
   function loadStream() {
     audio.src = STREAMS[streamIndex];
     audio.load();
-    statusText.textContent = 'جاري التحميل...';
+  }
+
+  function tryNextStream() {
+    streamIndex = (streamIndex + 1) % STREAMS.length;
+    loadStream();
+    audio.play().then(() => setPlaying(true)).catch(() => {});
   }
 
   window.toggleRadioPlay = function() {
-    if (isCollapsed) {
-      expandRadio();
-      return;
-    }
     if (isPlaying) {
       audio.pause();
       setPlaying(false);
     } else {
       loadStream();
-      audio.play().then(() => {
-        setPlaying(true);
-      }).catch(() => {
-        tryNextStream();
-      });
+      audio.play().then(() => setPlaying(true)).catch(() => tryNextStream());
     }
   };
 
-  function tryNextStream() {
-    streamIndex = (streamIndex + 1) % STREAMS.length;
-    loadStream();
-    audio.play().then(() => setPlaying(true)).catch(() => {
-      statusText.textContent = 'خطأ في الاتصال';
-    });
-  }
-
-  function expandRadio() {
-    isCollapsed = false;
-    panel.classList.remove('collapsed');
-    collapseBtn.style.display = 'flex';
-    // Auto-play on expand
-    loadStream();
-    audio.play().then(() => setPlaying(true)).catch(() => tryNextStream());
-  }
-
-  window.collapseRadio = function() {
-    isCollapsed = true;
-    panel.classList.add('collapsed');
-    // Keep audio playing when collapsed
-  };
-
-  audio.addEventListener('error', () => {
-    if (isPlaying) tryNextStream();
-  });
-
+  audio.addEventListener('error', () => { if (isPlaying) tryNextStream(); });
   audio.addEventListener('stalled', () => {
     if (isPlaying) {
       clearTimeout(retryTimer);
       retryTimer = setTimeout(() => { loadStream(); audio.play().catch(()=>{}); }, 3000);
     }
   });
-
-  // Init collapsed
-  collapseBtn.style.display = 'none';
-  panel.classList.add('collapsed');
 })();
 </script>
 <!-- ===== END QURAN RADIO WIDGET ===== -->
