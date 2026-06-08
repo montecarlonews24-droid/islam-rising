@@ -2544,13 +2544,9 @@ if (_root && !_root._reactRootContainer) {
     <button id="radio-toggle-btn" onclick="toggleRadioPlay()" title="تشغيل/إيقاف">
       <div id="radio-icon-circle">
         <!-- Play icon -->
-        <svg id="radio-play-icon" viewBox="0 0 100 100" fill="#05070F" style="display:block">
-          <polygon points="38,25 38,75 75,50"/>
-        </svg>
+        <span id="radio-play-icon" style="display:block;font-size:20px;color:#05070F;line-height:1;padding-left:3px">▶</span>
         <!-- Pause icon -->
-        <svg id="radio-pause-icon" viewBox="0 0 24 24" fill="#05070F" style="display:none">
-          <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-        </svg>
+        <span id="radio-pause-icon" style="display:none;font-size:20px;color:#05070F;line-height:1">⏸</span>
       </div>
     </button>
     <div id="radio-info">
