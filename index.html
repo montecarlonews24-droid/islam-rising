@@ -843,13 +843,10 @@ function App() {
   };
   const loadStreak = async () => {
     try {
-      const r = await window.storage.get("ir-streak");
-      if (!r) {
-        setStreak(0);
-        return;
-      }
-      const d = JSON.parse(r.value);
-      const today = (/* @__PURE__ */ new Date()).toDateString();
+      const raw = localStorage.getItem("ir-streak");
+      if (!raw) { setStreak(0); return; }
+      const d = JSON.parse(raw);
+      const today = new Date().toDateString();
       const yesterday = new Date(Date.now() - 864e5).toDateString();
       if (d.lastDate === today) setStreak(d.count || 0);
       else if (d.lastDate === yesterday) setStreak(d.count || 0);
@@ -860,16 +857,18 @@ function App() {
   };
   const bumpStreak = async () => {
     try {
-      const today = (/* @__PURE__ */ new Date()).toDateString();
-      const r = await window.storage.get("ir-streak");
+      const today = new Date().toDateString();
+      const raw = localStorage.getItem("ir-streak");
       let count = 1;
-      if (r) {
-        const d = JSON.parse(r.value);
+      if (raw) {
+        const d = JSON.parse(raw);
         const yesterday = new Date(Date.now() - 864e5).toDateString();
         if (d.lastDate === today) return;
         count = d.lastDate === yesterday ? (d.count || 0) + 1 : 1;
       }
-      await window.storage.set("ir-streak", JSON.stringify({ count, lastDate: today }));
+      const val = JSON.stringify({ count, lastDate: today });
+      localStorage.setItem("ir-streak", val);
+      await window.storage.set("ir-streak", val);
       setStreak(count);
     } catch (e) {
     }
