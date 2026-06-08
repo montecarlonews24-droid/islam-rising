@@ -2407,12 +2407,12 @@ if (_root && !_root._reactRootContainer) {
 <style>
   #quran-radio-widget {
     position: fixed;
-    bottom: 90px;
-    right: 16px;
+    bottom: 24px;
+    right: 20px;
     z-index: 9998;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: flex-end;
     gap: 0;
     direction: rtl;
   }
@@ -2430,12 +2430,15 @@ if (_root && !_root._reactRootContainer) {
     overflow: hidden;
   }
   #radio-panel.collapsed {
-    max-width: 52px;
-    padding: 10px;
+    max-width: 50px;
+    padding: 0;
     border-radius: 50%;
-    width: 52px;
-    height: 52px;
+    width: 50px;
+    height: 50px;
     justify-content: center;
+    background: transparent;
+    border: none;
+    box-shadow: none;
   }
   #radio-toggle-btn {
     background: none;
@@ -2446,29 +2449,27 @@ if (_root && !_root._reactRootContainer) {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    position: relative;
   }
   #radio-icon-circle {
-    width: 34px;
-    height: 34px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(201,169,110,0.25), rgba(201,169,110,0.05));
-    border: 1.5px solid rgba(201,169,110,0.6);
+    background: linear-gradient(135deg, #C9A96E, #F0D898);
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(201,169,110,0.5);
   }
   #radio-icon-circle.playing {
-    border-color: #C9A96E;
-    box-shadow: 0 0 10px rgba(201,169,110,0.4);
+    box-shadow: 0 0 14px rgba(201,169,110,0.6);
     animation: radioPulse 2s ease-in-out infinite;
   }
   @keyframes radioPulse {
     0%,100% { box-shadow: 0 0 8px rgba(201,169,110,0.3); }
-    50% { box-shadow: 0 0 18px rgba(201,169,110,0.7); }
+    50% { box-shadow: 0 0 20px rgba(201,169,110,0.8); }
   }
-  #radio-icon-circle svg { width: 18px; height: 18px; }
+  #radio-icon-circle svg { width: 22px; height: 22px; }
   #radio-info {
     flex: 1;
     overflow: hidden;
@@ -2543,11 +2544,11 @@ if (_root && !_root._reactRootContainer) {
     <button id="radio-toggle-btn" onclick="toggleRadioPlay()" title="تشغيل/إيقاف">
       <div id="radio-icon-circle">
         <!-- Play icon -->
-        <svg id="radio-play-icon" viewBox="0 0 24 24" fill="#C9A96E" style="display:block">
+        <svg id="radio-play-icon" viewBox="0 0 24 24" fill="#05070F" style="display:block;margin-left:2px">
           <path d="M8 5v14l11-7z"/>
         </svg>
         <!-- Pause icon -->
-        <svg id="radio-pause-icon" viewBox="0 0 24 24" fill="#C9A96E" style="display:none">
+        <svg id="radio-pause-icon" viewBox="0 0 24 24" fill="#05070F" style="display:none">
           <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
         </svg>
       </div>
