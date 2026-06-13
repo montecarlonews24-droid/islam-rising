@@ -807,45 +807,45 @@ function App() {
   };
   const loadDailyVerse = async () => {
     try {
+      // Local verse pool (no external fetch needed - avoids API failures)
+      const VERSE_POOL = [
+        { text: "وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا", ref: "سورة الطلاق: 2" },
+        { text: "إِنَّ مَعَ الْعُسْرِ يُسْرًا", ref: "سورة الشرح: 6" },
+        { text: "وَبَشِّرِ الصَّابِرِينَ", ref: "سورة البقرة: 155" },
+        { text: "إِنَّ اللَّهَ مَعَ الصَّابِرِينَ", ref: "سورة البقرة: 153" },
+        { text: "وَاللَّهُ خَيْرٌ حَافِظًا وَهُوَ أَرْحَمُ الرَّاحِمِينَ", ref: "سورة يوسف: 64" },
+        { text: "حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ", ref: "سورة آل عمران: 173" },
+        { text: "وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ", ref: "سورة الطلاق: 3" },
+        { text: "إِنَّ اللَّهَ لَا يُضِيعُ أَجْرَ الْمُحْسِنِينَ", ref: "سورة يوسف: 90" },
+        { text: "وَعَسَىٰ أَن تَكْرَهُوا شَيْئًا وَيَجْعَلَ اللَّهُ فِيهِ خَيْرًا كَثِيرًا", ref: "سورة النساء: 19" },
+        { text: "إِنَّمَا يَتَذَكَّرُ أُولُو الْأَلْبَابِ", ref: "سورة الزمر: 9" },
+        { text: "وَقُل رَّبِّ زِدْنِي عِلْمًا", ref: "سورة طه: 114" },
+        { text: "وَتَوَكَّلْ عَلَى الْحَيِّ الَّذِي لَا يَمُوتُ", ref: "سورة الفرقان: 58" },
+        { text: "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ", ref: "سورة البقرة: 201" },
+        { text: "وَافْعَلُوا الْخَيْرَ لَعَلَّكُمْ تُفْلِحُونَ", ref: "سورة الحج: 77" },
+        { text: "إِنَّ اللَّهَ يُحِبُّ الْمُحْسِنِينَ", ref: "سورة البقرة: 195" },
+        { text: "فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ", ref: "سورة البقرة: 152" },
+        { text: "وَقُل رَّبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي", ref: "سورة طه: 25-26" },
+        { text: "وَهُوَ مَعَكُمْ أَيْنَ مَا كُنتُمْ", ref: "سورة الحديد: 4" },
+        { text: "إِنَّ رَحْمَتَ اللَّهِ قَرِيبٌ مِّنَ الْمُحْسِنِينَ", ref: "سورة الأعراف: 56" },
+        { text: "وَالَّذِينَ جَاهَدُوا فِينَا لَنَهْدِيَنَّهُمْ سُبُلَنَا", ref: "سورة العنكبوت: 69" },
+        { text: "أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ", ref: "سورة الرعد: 28" },
+        { text: "وَنُنَزِّلُ مِنَ الْقُرْآنِ مَا هُوَ شِفَاءٌ وَرَحْمَةٌ لِّلْمُؤْمِنِينَ", ref: "سورة الإسراء: 82" },
+        { text: "رَبِّ اغْفِرْ وَارْحَمْ وَأَنتَ خَيْرُ الرَّاحِمِينَ", ref: "سورة المؤمنون: 118" },
+        { text: "إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ", ref: "سورة الكوثر: 1" },
+        { text: "وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَىٰ", ref: "سورة الضحى: 5" },
+        { text: "فَإِنَّ مَعَ الْعُسْرِ يُسْرًا", ref: "سورة الشرح: 5" },
+        { text: "وَأَن تَصْبِرُوا خَيْرٌ لَّكُمْ", ref: "سورة النساء: 25" },
+        { text: "وَبِالْوَالِدَيْنِ إِحْسَانًا", ref: "سورة الإسراء: 23" },
+        { text: "إِنَّ الصَّلَاةَ تَنْهَىٰ عَنِ الْفَحْشَاءِ وَالْمُنكَرِ", ref: "سورة العنكبوت: 45" },
+        { text: "رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا", ref: "سورة آل عمران: 8" }
+      ];
       const now = new Date();
-      const dateKey = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}-${now.getTimezoneOffset()}`;
-      const cacheKey = `ir-verse-${dateKey}`;
-      // Clear old cache keys first (from previous days)
-      try {
-        Object.keys(localStorage).filter(k => k.startsWith('ir-verse-') && k !== cacheKey).forEach(k => localStorage.removeItem(k));
-      } catch(e) {}
-      // Check cache first
-      try {
-        const cached = localStorage.getItem(cacheKey);
-        if (cached) {
-          const v = JSON.parse(cached);
-          setDailyVerse({ text: v.text, ref: v.ref, loading: false });
-          return;
-        }
-      } catch(e) {}
-      // Generate verse number from today's date (user local time) using LCG seed
+      // Generate index from today's date (user local time) using LCG seed
       const seed = now.getFullYear() * 10000 + (now.getMonth()+1) * 100 + now.getDate();
       const pseudo = (seed * 1664525 + 1013904223) >>> 0;
-      const verseNum = (pseudo % 6236) + 1;
-      // Fetch from quran.com API using by_number endpoint (accepts sequential number)
-      const res = await fetch(`https://api.quran.com/api/v4/verses/by_number/${verseNum}?language=ar&words=false&fields=text_uthmani`);
-      if (!res.ok) throw new Error('API error');
-      const data = await res.json();
-      const text = data.verse.text_uthmani;
-      const key = data.verse.verse_key; // e.g. "2:255"
-      const [sura, ayah] = key.split(':');
-      // Get surah name
-      const sRes = await fetch(`https://api.quran.com/api/v4/chapters/${sura}?language=ar`);
-      const sData = await sRes.json();
-      const suraName = sData.chapter?.name_arabic || `سورة ${sura}`;
-      const ref = `${suraName}: ${ayah}`;
-      const result = { text, ref };
-      // Cache for 24h
-      localStorage.setItem(cacheKey, JSON.stringify(result));
-      // Clean old cache keys
-      try {
-        Object.keys(localStorage).filter(k => k.startsWith('ir-verse-') && k !== cacheKey).forEach(k => localStorage.removeItem(k));
-      } catch(e) {}
+      const idx = pseudo % VERSE_POOL.length;
+      const { text, ref } = VERSE_POOL[idx];
       setDailyVerse({ text, ref, loading: false });
     } catch(e) {
       // Keep default verse on error
