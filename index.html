@@ -777,10 +777,14 @@ function App() {
           if (!localStorage.getItem(doneKey)) {
             localStorage.setItem(doneKey, '1');
             setTimeout(() => {
-              setDE(prev => {
-                const next = { ...prev, [item.id]: true };
-                savePtsToday(pts + item.pts, prayers, next);
-                return next;
+              setPts(prevPts => {
+                const newPts = prevPts + item.pts;
+                setDE(prev => {
+                  const next = { ...prev, [item.id]: true };
+                  savePtsToday(newPts, prayers, next);
+                  return next;
+                });
+                return newPts;
               });
             }, 600);
           }
