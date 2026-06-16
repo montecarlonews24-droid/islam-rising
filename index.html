@@ -771,12 +771,11 @@ function App() {
     try {
       const pending = JSON.parse(localStorage.getItem('ir-pending-pts') || '[]');
       if (pending.length > 0) {
-        localStorage.removeItem('ir-pending-pts');
         pending.forEach(item => {
           const doneKey = 'ir-ibadat-claimed-' + item.id + '-' + (new Date()).toDateString();
           if (!localStorage.getItem(doneKey)) {
-            localStorage.setItem(doneKey, '1');
-            setTimeout(() => {
+            try {
+              localStorage.setItem(doneKey, '1');
               setPts(prevPts => {
                 const newPts = prevPts + item.pts;
                 setDE(prev => {
@@ -786,9 +785,11 @@ function App() {
                 });
                 return newPts;
               });
-            }, 600);
+            } catch (err) {}
           }
         });
+        // لا نحذف الطابور إلا بعد تطبيق كل النقاط فعليًا — لو انقطع شي بالنص، البيانات تبقى لإعادة المحاولة بالمرة الجاية
+        localStorage.removeItem('ir-pending-pts');
       }
     } catch(e) {}
     // Real-time listener
