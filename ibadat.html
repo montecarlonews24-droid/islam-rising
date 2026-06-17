@@ -761,7 +761,7 @@ body::before {
         overflow: hidden;
       ">
         <span style="position:absolute;top:8px;right:12px;background:rgba(255,215,0,0.2);border:1px solid gold;border-radius:99px;padding:2px 8px;font-size:11px;color:gold;">موصى به</span>
-        📺 شاهد إعلاناً واحصل على
+        🎁 احصل على مكافأة مضاعفة
         <span style="font-size:24px;color:#FFD700;display:block;margin-top:4px;">16 نقطة 🌟🌟</span>
       </button>
       <!-- Regular button - secondary small -->
@@ -935,7 +935,7 @@ body::before {
         overflow: hidden;
       ">
         <span style="position:absolute;top:8px;right:12px;background:rgba(255,215,0,0.2);border:1px solid gold;border-radius:99px;padding:2px 8px;font-size:11px;color:gold;">موصى به</span>
-        📺 شاهد إعلاناً واحصل على
+        🎁 احصل على مكافأة مضاعفة
         <span style="font-size:24px;color:#FFD700;display:block;margin-top:4px;">16 نقطة 🌟🌟</span>
       </button>
       <!-- Regular button - secondary small -->
@@ -969,7 +969,7 @@ body::before {
       <div class="extra-icon">📖</div>
       <div class="extra-text">
         <h3>ورد القرآن</h3>
-        <p>📺 شاهد إعلاناً ← <span style="color:#FFD700">30 نقطة 🌟🌟</span></p>
+        <p>🎁 مكافأة فورية ← <span style="color:#FFD700">30 نقطة 🌟🌟</span></p>
       </div>
       <div class="extra-pts" id="pts-quran">+15</div>
     </div>
@@ -999,7 +999,7 @@ body::before {
       <div class="extra-icon">✨</div>
       <div class="extra-text">
         <h3>صيام نافلة</h3>
-        <p>📺 شاهد إعلاناً ← <span style="color:#FFD700">100 نقطة 🌟🌟</span></p>
+        <p>🎁 مكافأة فورية ← <span style="color:#FFD700">100 نقطة 🌟🌟</span></p>
       </div>
       <div class="extra-pts" id="pts-sawm">+50</div>
     </div>
@@ -1009,7 +1009,7 @@ body::before {
       <div class="extra-icon">📗</div>
       <div class="extra-text">
         <h3>سورة الكهف</h3>
-        <p>📺 شاهد إعلاناً ← <span style="color:#FFD700">40 نقطة 🌟🌟</span></p>
+        <p>🎁 مكافأة فورية ← <span style="color:#FFD700">40 نقطة 🌟🌟</span></p>
       </div>
       <div class="extra-pts" id="pts-kahf">+20</div>
     </div>
@@ -1019,7 +1019,7 @@ body::before {
       <div class="extra-icon">📘</div>
       <div class="extra-text">
         <h3>سورة الملك</h3>
-        <p>📺 شاهد إعلاناً ← <span style="color:#FFD700">30 نقطة 🌟🌟</span></p>
+        <p>🎁 مكافأة فورية ← <span style="color:#FFD700">30 نقطة 🌟🌟</span></p>
       </div>
       <div class="extra-pts" id="pts-mulk">+15</div>
     </div>
@@ -1031,12 +1031,12 @@ body::before {
 <div class="ad-overlay" id="adModal">
   <div class="ad-box">
     <div class="ad-header">
-      <span class="ad-label">إعلان</span>
+      <span class="ad-label">مكافأة</span>
       <button class="ad-skip-btn" id="adSkipBtn" onclick="skipAd()">تخطي ⏭</button>
     </div>
     <div class="ad-content">
       <div class="ad-icon" id="adIcon">⏳</div>
-      <div class="ad-title" id="adTitle">جارٍ تحميل الإعلان...</div>
+      <div class="ad-title" id="adTitle">جارٍ تجهيز مكافأتك...</div>
       <div class="ad-sub" id="adSub">انتظر 5 ثوانٍ للحصول على نقاطك المضاعفة</div>
       <div class="ad-progress-track">
         <div class="ad-progress-fill" id="adProgressFill"></div>
@@ -1047,7 +1047,7 @@ body::before {
         <span class="old-pts">8 نقاط</span>
         <span>←</span>
         <span class="new-pts">16 🌟</span>
-        <span style="font-size:13px;color:var(--muted);">بعد الإعلان</span>
+        <span style="font-size:13px;color:var(--muted);">كمكافأة</span>
       </div>
     </div>
   </div>
@@ -1264,10 +1264,10 @@ let adSection = null;
 const AD_DURATION = 5; // seconds
 
 const adPhases = [
-  { t: 0,    icon: '⏳', title: 'جارٍ تحميل الإعلان...', sub: 'انتظر 5 ثوانٍ للحصول على نقاطك المضاعفة' },
-  { t: 1000, icon: '📺', title: 'Islam Rising Premium', sub: 'احصل على تجربة بدون إعلانات مع الخطة المميزة!' },
+  { t: 0,    icon: '⏳', title: 'جارٍ تجهيز مكافأتك...', sub: 'انتظر 5 ثوانٍ للحصول على نقاطك المضاعفة' },
+  { t: 1000, icon: '👑', title: 'Islam Rising Premium', sub: 'احصل على تجربة مميزة بدون انتظار مع الخطة المميزة!' },
   { t: 2500, icon: '⭐', title: 'قيّم التطبيق على Google Play', sub: 'دعمك يساعدنا على الاستمرار والتطوير' },
-  { t: 4000, icon: '🎁', title: 'نقاطك جاهزة!', sub: 'تمّت مشاهدة الإعلان — نقاطك ستُضاعف الآن' },
+  { t: 4000, icon: '🎁', title: 'نقاطك جاهزة!', sub: 'مكافأتك جاهزة — نقاطك ستُضاعف الآن' },
 ];
 
 function showAdModal(extraId, pts, section) {
@@ -1290,7 +1290,7 @@ function showAdModal(extraId, pts, section) {
 
   // Reset phases
   document.getElementById('adIcon').textContent = '⏳';
-  document.getElementById('adTitle').textContent = 'جارٍ تحميل الإعلان...';
+  document.getElementById('adTitle').textContent = 'جارٍ تجهيز مكافأتك...';
   document.getElementById('adSub').textContent = 'انتظر 5 ثوانٍ للحصول على نقاطك المضاعفة';
 
   let elapsed = 0;
