@@ -1232,10 +1232,13 @@ function updateExtrasUI() {
     const el  = document.getElementById('item-' + id);
     const pts = document.getElementById('pts-' + id);
     if (!el) return;
-    const isDone = state.extras[id] || state.extras[id + '_claimed'];
+    const isDone    = state.extras[id] || state.extras[id + '_claimed'];
+    const isClaimed = state.extras[id + '_claimed'];
     if (isDone) {
       el.classList.add('done');
-      if (pts) pts.textContent = '✓';
+      if (pts) pts.textContent = isClaimed ? '✓' : '🎁';
+    }
+    if (isClaimed) {
       el.onclick = null;
       el.style.cursor = 'default';
     }
@@ -1271,7 +1274,7 @@ const adPhases = [
 ];
 
 function showAdModal(extraId, pts, section) {
-  if (state.extras[extraId + '_claimed'] || state.extras[extraId]) return;
+  if (state.extras[extraId + '_claimed']) return;
   if (adTimer) return;
   adExtraId = extraId;
   adBasePts = pts;
