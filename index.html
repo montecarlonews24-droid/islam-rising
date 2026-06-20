@@ -859,7 +859,17 @@ function App() {
   };
   const loadStreak = async () => {
     try {
-      const raw = localStorage.getItem("ir-streak");
+      let raw = localStorage.getItem("ir-streak");
+      // إذا مسح المستخدم الكاش، نحاول استرجاع النسخة الاحتياطية من window.storage
+      if (!raw) {
+        try {
+          const r = await window.storage.get("ir-streak");
+          if (r && r.value) {
+            raw = r.value;
+            localStorage.setItem("ir-streak", raw); // إعادة مزامنة محلياً
+          }
+        } catch (e) { /* لا توجد نسخة احتياطية أيضاً */ }
+      }
       if (!raw) { setStreak(0); return; }
       const d = JSON.parse(raw);
       const today = new Date().toDateString();
