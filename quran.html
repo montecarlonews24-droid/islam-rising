@@ -278,40 +278,15 @@ body{background:#05070F;color:white;font-family:'Noto Naskh Arabic',serif;min-he
 
   <!-- Claim after completion -->
   <div class="wird-claim" id="wirdClaim">
-    <button class="wird-claim-ad" id="wirdAdBtn" onclick="showWirdAdModal()">
-      <span style="position:absolute;top:7px;right:10px;background:rgba(255,215,0,0.2);border:1px solid gold;border-radius:99px;padding:2px 8px;font-size:11px;color:gold;">موصى به ⭐</span>
-      📺 شاهد إعلاناً واحصل على
-      <span style="font-size:22px;color:#FFD700;display:block;margin-top:4px;">30 نقطة 🌟🌟</span>
-    </button>
-    <button class="wird-claim-skip" id="wirdSkipBtn" onclick="claimWirdPts(15, false)">
-      تخطي — احصل على 15 نقطة فقط
+    <button class="wird-claim-skip" id="wirdSkipBtn" onclick="claimWirdPts(15)">
+      ✅ اجمع نقاطك — 15 نقطة 🌟
     </button>
   </div>
 
   <div class="wird-divider"></div>
 </div>
 
-<!-- Ad modal -->
-<div class="ad-overlay" id="adModal">
-  <div class="ad-box">
-    <div class="ad-header">
-      <span class="ad-label">إعلان</span>
-      <button class="ad-skip-btn" id="adSkipBtn" onclick="skipAd()">تخطي ⏭</button>
-    </div>
-    <div class="ad-content">
-      <div class="ad-icon" id="adIcon">⏳</div>
-      <div class="ad-title" id="adTitle">جارٍ تحميل الإعلان...</div>
-      <div class="ad-sub" id="adSub">انتظر 5 ثوانٍ للحصول على نقاطك المضاعفة</div>
-      <div class="ad-prog-track"><div class="ad-prog-fill" id="adProgFill"></div></div>
-    </div>
-    <div class="ad-footer">
-      <span class="old">15 نقطة</span>
-      <span>←</span>
-      <span class="new">30 🌟</span>
-      <span style="font-size:12px;color:rgba(255,255,255,0.35)">بعد الإعلان</span>
-    </div>
-  </div>
-</div>
+
 
 <div id="indexView">
   <div id="surahsTab" class="index-list">
@@ -720,7 +695,6 @@ function renderWird() {
   if (readCount === 10) {
     claim.classList.add('show');
     if (wirdState.claimed) {
-      document.getElementById('wirdAdBtn').style.display = 'none';
       document.getElementById('wirdSkipBtn').textContent = '✅ تمّت إضافة النقاط اليوم';
       document.getElementById('wirdSkipBtn').disabled = true;
     }
@@ -748,59 +722,7 @@ function markWirdPageRead(pg) {
   });
 }
 
-// ── Ad Modal ──
-let adTimer = null;
-const adPhases = [
-  { t: 0,    icon: '⏳', title: 'جارٍ تحميل الإعلان...', sub: 'انتظر 5 ثوانٍ للحصول على نقاطك' },
-  { t: 1200, icon: '📺', title: 'Islam Rising Premium', sub: 'احصل على تجربة بدون إعلانات!' },
-  { t: 2800, icon: '⭐', title: 'قيّم التطبيق', sub: 'دعمك يساعدنا على الاستمرار' },
-  { t: 4200, icon: '🎁', title: 'نقاطك جاهزة!', sub: '30 نقطة ستُضاف الآن' },
-];
-
-function showWirdAdModal() {
-  if (wirdState.claimed || adTimer) return;
-  document.getElementById('adModal').classList.add('show');
-  document.getElementById('adSkipBtn').classList.remove('ready');
-  document.getElementById('adSkipBtn').textContent = 'تخطي ⏭';
-  document.getElementById('adSkipBtn').disabled = true;
-  document.getElementById('adProgFill').style.width = '0%';
-  document.getElementById('adIcon').textContent = '⏳';
-  document.getElementById('adTitle').textContent = 'جارٍ تحميل الإعلان...';
-  document.getElementById('adSub').textContent = 'انتظر 5 ثوانٍ';
-
-  adPhases.forEach(p => setTimeout(() => {
-    document.getElementById('adIcon').textContent = p.icon;
-    document.getElementById('adTitle').textContent = p.title;
-    document.getElementById('adSub').textContent = p.sub;
-  }, p.t));
-
-  let elapsed = 0;
-  adTimer = setInterval(() => {
-    elapsed += 100;
-    document.getElementById('adProgFill').style.width = Math.min(100, elapsed/50) + '%';
-    if (elapsed >= 5000) {
-      clearInterval(adTimer); adTimer = null;
-      const btn = document.getElementById('adSkipBtn');
-      btn.textContent = '✅ اجمع نقاطك!';
-      btn.classList.add('ready');
-      btn.disabled = false;
-      setTimeout(() => collectAdReward(), 2000);
-    }
-  }, 100);
-}
-
-function skipAd() {
-  if (!document.getElementById('adSkipBtn').classList.contains('ready')) return;
-  collectAdReward();
-}
-
-function collectAdReward() {
-  if (adTimer) { clearInterval(adTimer); adTimer = null; }
-  document.getElementById('adModal').classList.remove('show');
-  claimWirdPts(30, true);
-}
-
-function claimWirdPts(pts, fromAd) {
+function claimWirdPts(pts) {
   if (wirdState.claimed) return;
   wirdState.claimed = true;
   saveWird();
@@ -811,15 +733,14 @@ function claimWirdPts(pts, fromAd) {
   localStorage.setItem('ir-pending-pts', JSON.stringify(pending));
 
   // Update UI
-  document.getElementById('wirdAdBtn').style.display = 'none';
   const skipBtn = document.getElementById('wirdSkipBtn');
-  skipBtn.textContent = fromAd ? `✅ +${pts} نقطة مضاعفة 🌟🌟` : '✅ تمّت إضافة النقاط';
+  skipBtn.textContent = '✅ تمّت إضافة النقاط';
   skipBtn.disabled = true;
 
   // Fly animation
   const fly = document.createElement('div');
   fly.style.cssText = `position:fixed;left:50%;top:50%;transform:translateX(-50%);font-size:28px;font-weight:700;color:#FFD700;pointer-events:none;z-index:9999;animation:flyPts 1.5s ease forwards;`;
-  fly.textContent = '+' + pts + (fromAd ? ' 🌟🌟' : ' 🌟');
+  fly.textContent = '+' + pts + ' 🌟';
   document.body.appendChild(fly);
   setTimeout(() => fly.remove(), 1600);
   setTimeout(() => { window.location.href = 'ibadat.html'; }, 2000);
