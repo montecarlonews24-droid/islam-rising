@@ -442,113 +442,6 @@ body::before {
   animation: flyPts 1.2s ease forwards;
 }
 
-/* ── Ad modal ── */
-.ad-overlay {
-  position: fixed; inset: 0; z-index: 500;
-  background: rgba(0,0,0,0.92);
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-}
-.ad-overlay.show { display: flex; animation: fadeUp 0.3s ease; }
-
-.ad-box {
-  width: 100%; max-width: 360px;
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: 22px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.ad-header {
-  padding: 14px 18px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-.ad-label {
-  font-size: 11px;
-  color: var(--muted);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-}
-.ad-skip-btn {
-  font-size: 12px;
-  color: var(--muted);
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 99px;
-  padding: 4px 12px;
-  cursor: not-allowed;
-  font-family: 'Cairo', sans-serif;
-  transition: all 0.3s;
-}
-.ad-skip-btn.ready {
-  color: var(--gold);
-  border-color: rgba(201,169,110,0.4);
-  cursor: pointer;
-  background: rgba(201,169,110,0.08);
-}
-
-.ad-content {
-  padding: 30px 24px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  min-height: 200px;
-  justify-content: center;
-}
-
-.ad-icon { font-size: 56px; }
-.ad-title { font-size: 16px; font-weight: 700; color: #fff; text-align: center; }
-.ad-sub { font-size: 13px; color: var(--muted); text-align: center; }
-
-.ad-progress-track {
-  width: 100%;
-  height: 4px;
-  background: rgba(255,255,255,0.08);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-top: 8px;
-}
-.ad-progress-fill {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, var(--gold-dim), var(--gold));
-  border-radius: 2px;
-  transition: width 0.1s linear;
-}
-
-.ad-footer {
-  padding: 16px 20px;
-  border-top: 1px solid rgba(255,255,255,0.06);
-  text-align: center;
-}
-.ad-reward-info {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  font-size: 14px;
-  color: var(--gold);
-  font-weight: 600;
-}
-.ad-reward-info .old-pts {
-  text-decoration: line-through;
-  color: var(--muted);
-  font-weight: 400;
-}
-.ad-reward-info .new-pts {
-  font-size: 20px;
-  color: #4ADE80;
-  font-weight: 700;
-}
 
 /* ── Sawm confirm modal ── */
 .modal-overlay {
@@ -749,31 +642,8 @@ body::before {
 
     <!-- Claim points -->
     <div class="claim-wrap" id="morning-claim">
-      <!-- AD button - main prominent -->
-      <button class="claim-btn" id="morning-ad-btn" onclick="showAdModal('adhkars', 8, 'morning')" style="
-        background: linear-gradient(135deg, #1a4a2a, #0d2a18);
-        border: 2px solid rgba(74,222,128,0.6);
-        color: #4ADE80;
-        box-shadow: 0 8px 30px rgba(74,222,128,0.25);
-        font-size: 17px;
-        padding: 18px;
-        position: relative;
-        overflow: hidden;
-      ">
-        <span style="position:absolute;top:8px;right:12px;background:rgba(255,215,0,0.2);border:1px solid gold;border-radius:99px;padding:2px 8px;font-size:11px;color:gold;">موصى به</span>
-        🎁 احصل على مكافأة مضاعفة
-        <span style="font-size:24px;color:#FFD700;display:block;margin-top:4px;">16 نقطة 🌟🌟</span>
-      </button>
-      <!-- Regular button - secondary small -->
-      <button class="claim-btn" id="morning-claim-btn" onclick="claimPts('adhkars', 8, 'morning')" style="
-        background: transparent;
-        border: 1px solid rgba(255,255,255,0.1);
-        color: var(--muted);
-        font-size: 13px;
-        padding: 10px;
-        box-shadow: none;
-      ">
-        تخطي — احصل على 8 نقاط فقط
+      <button class="claim-btn" id="morning-claim-btn" onclick="claimPts('adhkars', 8, 'morning')">
+        ✅ اجمع نقاطك — 8 نقاط 🌟
       </button>
     </div>
 
@@ -923,31 +793,8 @@ body::before {
 
     <!-- Claim points -->
     <div class="claim-wrap" id="evening-claim">
-      <!-- AD button - main prominent -->
-      <button class="claim-btn" id="evening-ad-btn" onclick="showAdModal('adhkarm', 8, 'evening')" style="
-        background: linear-gradient(135deg, #1a4a2a, #0d2a18);
-        border: 2px solid rgba(74,222,128,0.6);
-        color: #4ADE80;
-        box-shadow: 0 8px 30px rgba(74,222,128,0.25);
-        font-size: 17px;
-        padding: 18px;
-        position: relative;
-        overflow: hidden;
-      ">
-        <span style="position:absolute;top:8px;right:12px;background:rgba(255,215,0,0.2);border:1px solid gold;border-radius:99px;padding:2px 8px;font-size:11px;color:gold;">موصى به</span>
-        🎁 احصل على مكافأة مضاعفة
-        <span style="font-size:24px;color:#FFD700;display:block;margin-top:4px;">16 نقطة 🌟🌟</span>
-      </button>
-      <!-- Regular button - secondary small -->
-      <button class="claim-btn" id="evening-claim-btn" onclick="claimPts('adhkarm', 8, 'evening')" style="
-        background: transparent;
-        border: 1px solid rgba(255,255,255,0.1);
-        color: var(--muted);
-        font-size: 13px;
-        padding: 10px;
-        box-shadow: none;
-      ">
-        تخطي — احصل على 8 نقاط فقط
+      <button class="claim-btn" id="evening-claim-btn" onclick="claimPts('adhkarm', 8, 'evening')">
+        ✅ اجمع نقاطك — 8 نقاط 🌟
       </button>
     </div>
 
@@ -965,11 +812,11 @@ body::before {
     <div class="sec-title">⬥ العبادات اليومية ⬥</div>
 
     <!-- Quran -->
-    <div class="extra-item" id="item-quran" onclick="showAdModal('quran', 15, 'quran')">
+    <div class="extra-item" id="item-quran" onclick="claimPts('quran', 15, 'quran')">
       <div class="extra-icon">📖</div>
       <div class="extra-text">
         <h3>ورد القرآن</h3>
-        <p>🎁 مكافأة فورية ← <span style="color:#FFD700">30 نقطة 🌟🌟</span></p>
+        <p>اضغط للتسجيل</p>
       </div>
       <div class="extra-pts" id="pts-quran">+15</div>
     </div>
@@ -995,31 +842,31 @@ body::before {
     </div>
 
     <!-- Sawm -->
-    <div class="extra-item" id="item-sawm" onclick="showAdModal('sawm', 50, 'sawm')">
+    <div class="extra-item" id="item-sawm" onclick="showSawmModal()">
       <div class="extra-icon">✨</div>
       <div class="extra-text">
         <h3>صيام نافلة</h3>
-        <p>🎁 مكافأة فورية ← <span style="color:#FFD700">100 نقطة 🌟🌟</span></p>
+        <p>اضغط للتسجيل بالنية</p>
       </div>
       <div class="extra-pts" id="pts-sawm">+50</div>
     </div>
 
     <!-- Surah Al-Kahf (Fridays only) -->
-    <div class="extra-item" id="item-kahf" style="display:none" onclick="showAdModal('kahf', 20, 'kahf')">
+    <div class="extra-item" id="item-kahf" style="display:none" onclick="claimPts('kahf', 20, 'kahf')">
       <div class="extra-icon">📗</div>
       <div class="extra-text">
         <h3>سورة الكهف</h3>
-        <p>🎁 مكافأة فورية ← <span style="color:#FFD700">40 نقطة 🌟🌟</span></p>
+        <p>اضغط للتسجيل</p>
       </div>
       <div class="extra-pts" id="pts-kahf">+20</div>
     </div>
 
     <!-- Surah Al-Mulk (Fridays only) -->
-    <div class="extra-item" id="item-mulk" style="display:none" onclick="showAdModal('mulk', 15, 'mulk')">
+    <div class="extra-item" id="item-mulk" style="display:none" onclick="claimPts('mulk', 15, 'mulk')">
       <div class="extra-icon">📘</div>
       <div class="extra-text">
         <h3>سورة الملك</h3>
-        <p>🎁 مكافأة فورية ← <span style="color:#FFD700">30 نقطة 🌟🌟</span></p>
+        <p>اضغط للتسجيل</p>
       </div>
       <div class="extra-pts" id="pts-mulk">+15</div>
     </div>
@@ -1027,31 +874,7 @@ body::before {
   </div>
 </div>
 
-<!-- Ad modal -->
-<div class="ad-overlay" id="adModal">
-  <div class="ad-box">
-    <div class="ad-header">
-      <span class="ad-label">مكافأة</span>
-      <button class="ad-skip-btn" id="adSkipBtn" onclick="skipAd()">تخطي ⏭</button>
-    </div>
-    <div class="ad-content">
-      <div class="ad-icon" id="adIcon">⏳</div>
-      <div class="ad-title" id="adTitle">جارٍ تجهيز مكافأتك...</div>
-      <div class="ad-sub" id="adSub">انتظر 5 ثوانٍ للحصول على نقاطك المضاعفة</div>
-      <div class="ad-progress-track">
-        <div class="ad-progress-fill" id="adProgressFill"></div>
-      </div>
-    </div>
-    <div class="ad-footer">
-      <div class="ad-reward-info">
-        <span class="old-pts">8 نقاط</span>
-        <span>←</span>
-        <span class="new-pts">16 🌟</span>
-        <span style="font-size:13px;color:var(--muted);">كمكافأة</span>
-      </div>
-    </div>
-  </div>
-</div>
+
 
 <!-- Sawm modal -->
 <div class="modal-overlay" id="sawmModal">
@@ -1211,8 +1034,6 @@ function renderSection(section) {
           btn.classList.add('claimed');
           btn.disabled = true;
         }
-        const adBtn = document.getElementById(`${section}-ad-btn`);
-        if (adBtn) adBtn.style.display = 'none';
         const note = claimWrap.querySelector('.claim-note');
         if (note) note.style.display = 'none';
       }
@@ -1259,134 +1080,10 @@ function updatePtsBadge() {
   document.getElementById('total-pts-badge').textContent = Math.round(total) + ' نقطة اليوم';
 }
 
-// ── Ad Modal ──
-let adTimer = null;
-let adExtraId = null;
-let adBasePts = 0;
-let adSection = null;
-const AD_DURATION = 5; // seconds
 
-const adPhases = [
-  { t: 0,    icon: '⏳', title: 'جارٍ تجهيز مكافأتك...', sub: 'انتظر 5 ثوانٍ للحصول على نقاطك المضاعفة' },
-  { t: 1000, icon: '👑', title: 'Islam Rising Premium', sub: 'احصل على تجربة مميزة بدون انتظار مع الخطة المميزة!' },
-  { t: 2500, icon: '⭐', title: 'قيّم التطبيق على Google Play', sub: 'دعمك يساعدنا على الاستمرار والتطوير' },
-  { t: 4000, icon: '🎁', title: 'نقاطك جاهزة!', sub: 'مكافأتك جاهزة — نقاطك ستُضاعف الآن' },
-];
-
-function showAdModal(extraId, pts, section) {
-  if (state.extras[extraId + '_claimed']) return;
-  if (adTimer) return;
-  adExtraId = extraId;
-  adBasePts = pts;
-  adSection = section;
-
-  // Update footer with correct pts
-  const doubled = pts * 2;
-  document.querySelector('.ad-reward-info .old-pts').textContent = pts + ' نقطة';
-  document.querySelector('.ad-reward-info .new-pts').textContent = doubled + ' 🌟';
-
-  document.getElementById('adModal').classList.add('show');
-  document.getElementById('adSkipBtn').classList.remove('ready');
-  document.getElementById('adSkipBtn').textContent = 'تخطي ⏭';
-  document.getElementById('adSkipBtn').disabled = true;
-  document.getElementById('adProgressFill').style.width = '0%';
-
-  // Reset phases
-  document.getElementById('adIcon').textContent = '⏳';
-  document.getElementById('adTitle').textContent = 'جارٍ تجهيز مكافأتك...';
-  document.getElementById('adSub').textContent = 'انتظر 5 ثوانٍ للحصول على نقاطك المضاعفة';
-
-  let elapsed = 0;
-  const interval = 100;
-
-  adPhases.forEach(phase => {
-    setTimeout(() => {
-      document.getElementById('adIcon').textContent  = phase.icon;
-      document.getElementById('adTitle').textContent = phase.title;
-      document.getElementById('adSub').textContent   = phase.sub;
-    }, phase.t);
-  });
-
-  adTimer = setInterval(() => {
-    elapsed += interval;
-    const pct = Math.min(100, (elapsed / (AD_DURATION * 1000)) * 100);
-    document.getElementById('adProgressFill').style.width = pct + '%';
-
-    if (elapsed >= AD_DURATION * 1000) {
-      clearInterval(adTimer);
-      adTimer = null;
-      const skipBtn = document.getElementById('adSkipBtn');
-      skipBtn.textContent = '✅ اجمع نقاطك!';
-      skipBtn.classList.add('ready');
-      skipBtn.disabled = false;
-      setTimeout(() => collectAdReward(), 2000);
-    }
-  }, interval);
-}
-
-function skipAd() {
-  const skipBtn = document.getElementById('adSkipBtn');
-  if (!skipBtn.classList.contains('ready')) return;
-  collectAdReward();
-}
-
-function collectAdReward() {
-  if (adTimer) { clearInterval(adTimer); adTimer = null; }
-  document.getElementById('adModal').classList.remove('show');
-
-  const doubled = adBasePts * 2;
-
-  // Special handling per section
-  if (adSection === 'quran') {
-    // Save pts then open quran
-    claimPts('quran', doubled, 'quran', true);
-    setTimeout(() => { window.location.href = 'quran.html'; }, 800);
-    return;
-  }
-  if (adSection === 'kahf') {
-    claimPts('kahf', doubled, 'kahf', true);
-    setTimeout(() => { window.location.href = 'quran.html'; }, 800);
-    return;
-  }
-  if (adSection === 'mulk') {
-    claimPts('mulk', doubled, 'mulk', true);
-    setTimeout(() => { window.location.href = 'quran.html'; }, 800);
-    return;
-  }
-  if (adSection === 'sawm') {
-    // Save pts then show sawm intent modal
-    claimPts('sawm', doubled, 'sawm', true);
-    setTimeout(() => { showSawmConfirm(doubled); }, 400);
-    return;
-  }
-
-  claimPts(adExtraId, doubled, adSection, true);
-}
-
-// ── Sawm confirm after ad ──
-function showSawmConfirm(pts) {
-  document.getElementById('sawmModal').classList.add('show');
-  // Update sawmModal confirm to use doubled pts
-  document.querySelector('#sawmModal .modal-btn.confirm').onclick = () => {
-    closeSawmModal();
-    state.extras.sawm = true;
-    save();
-    localStorage.setItem('ir-sawm-done', TODAY);
-    updateExtrasUI();
-    updatePtsBadge();
-    // fly and go back
-    const fly = document.createElement('div');
-    fly.className = 'fly-pts';
-    fly.textContent = '+' + pts + ' 🌟🌟';
-    fly.style.cssText = 'position:fixed;left:50%;top:55%;transform:translateX(-50%);font-size:26px;font-weight:700;color:#FFD700;pointer-events:none;z-index:9999;animation:flyPts 1.4s ease forwards;';
-    document.body.appendChild(fly);
-    setTimeout(() => fly.remove(), 1500);
-    setTimeout(() => { window.location.href = 'index.html'; }, 1800);
-  };
-}
 
 // ── Claim points ──
-function claimPts(extraId, pts, section, fromAd = false) {
+function claimPts(extraId, pts, section) {
   if (state.extras[extraId + '_claimed']) return;
   state.extras[extraId + '_claimed'] = true;
   save();
@@ -1398,23 +1095,15 @@ function claimPts(extraId, pts, section, fromAd = false) {
   // Update claim button
   const btn = document.getElementById(`${section}-claim-btn`);
   if (btn) {
-    btn.textContent = fromAd ? `✅ +${pts} نقطة مضاعفة! 🌟` : '✅ تمّت إضافة النقاط!';
+    btn.textContent = '✅ تمّت إضافة النقاط!';
     btn.classList.add('claimed');
     btn.disabled = true;
   }
-  // Hide ad button
-  const adBtn = document.getElementById(`${section}-ad-btn`);
-  if (adBtn) adBtn.style.display = 'none';
-
-  // Hide claim note
-  const wrap = document.getElementById(`${section}-claim`);
-  const note = wrap?.querySelector('.claim-note');
-  if (note) note.style.display = 'none';
 
   // Fly animation
   const fly = document.createElement('div');
   fly.className = 'fly-pts';
-  fly.textContent = '+' + pts + (fromAd ? ' 🌟×2' : ' 🌟');
+  fly.textContent = '+' + pts + ' 🌟';
   fly.style.cssText = 'position:fixed;left:50%;top:55%;transform:translateX(-50%);font-size:26px;font-weight:700;color:#FFD700;pointer-events:none;z-index:9999;animation:flyPts 1.4s ease forwards;';
   document.body.appendChild(fly);
   setTimeout(() => fly.remove(), 1500);
