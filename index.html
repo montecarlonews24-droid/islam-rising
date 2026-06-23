@@ -752,6 +752,15 @@ function App() {
     } catch (e) {
       setTimeout(() => setOnboarding(true), 800);
     }
+    // Load leaderboard name/key
+    try {
+      const rn = await window.storage.get("ir-lb-name");
+      const rk = await window.storage.get("ir-lb-key");
+      if (rn && rk) {
+        setMyName(rn.value);
+        setMyKey(rk.value);
+      }
+    } catch(e) {}
     await loadStreak();
     try {
       const r = await window.storage.get("ir-pts-today");
@@ -1292,6 +1301,11 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
     setMyName(name);
     setMyKey(key);
     setNameIn("");
+    // Save permanently so user doesn't need to re-enter
+    try {
+      await window.storage.set("ir-lb-name", name);
+      await window.storage.set("ir-lb-key", key);
+    } catch(e) {}
     await saveScore(key, name, pts);
     setSaving(false);
   };
@@ -2173,7 +2187,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
         border: "1px solid rgba(201,169,110,0.22)",
         background: "rgba(201,169,110,0.05)",
         color: "white",
-        fontSize: 21,
+        fontSize: 15,
         fontFamily: "Noto Naskh Arabic",
         direction: "rtl",
         outline: "none"
@@ -2186,7 +2200,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
     background: nameIn.trim() ? "linear-gradient(135deg,#C9A96E,#F0D898)" : "rgba(255,255,255,0.05)",
     color: nameIn.trim() ? "#05070F" : "var(--muted)",
     fontWeight: 700,
-    fontSize: 21,
+    fontSize: 15,
     fontFamily: "Noto Naskh Arabic",
     cursor: "pointer",
     whiteSpace: "nowrap",
