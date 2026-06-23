@@ -1092,12 +1092,22 @@ function claimPts(extraId, pts, section) {
   pending.push({ id: extraId, pts: pts, ts: Date.now() });
   localStorage.setItem('ir-pending-pts', JSON.stringify(pending));
 
-  // Update claim button
+  // Update claim button (for morning/evening sections)
   const btn = document.getElementById(`${section}-claim-btn`);
   if (btn) {
     btn.textContent = '✅ تمّت إضافة النقاط!';
     btn.classList.add('claimed');
     btn.disabled = true;
+  }
+  // Update extra-item card (for quran, kahf, mulk, sawm)
+  const item = document.getElementById(`item-${extraId}`);
+  if (item) {
+    const pEl = item.querySelector('p');
+    if (pEl) pEl.textContent = '✅ تمّت إضافة النقاط!';
+    const ptsEl = document.getElementById(`pts-${extraId}`);
+    if (ptsEl) ptsEl.style.opacity = '0.4';
+    item.style.opacity = '0.6';
+    item.onclick = null;
   }
 
   // Fly animation
