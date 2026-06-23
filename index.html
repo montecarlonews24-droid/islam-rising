@@ -901,12 +901,36 @@ function App() {
   };
   const savePtsToday = async (newPts, newPrayers, newExtras) => {
     try {
+      const now = new Date();
+      const todayStr = now.toDateString();
+      const weekStr = (() => { const d = new Date(now); d.setDate(d.getDate() - d.getDay()); return d.toDateString(); })();
+      const monthStr = `${now.getFullYear()}-${now.getMonth()}`;
       await window.storage.set("ir-pts-today", JSON.stringify({
-        date: (/* @__PURE__ */ new Date()).toDateString(),
+        date: todayStr,
         pts: newPts,
         prayers: newPrayers,
         extras: newExtras
       }));
+      // Update weekly accumulator
+      try {
+        let weekPts = newPts;
+        const rw = await window.storage.get("ir-pts-weekly");
+        if (rw) {
+          const d = JSON.parse(rw.value);
+          if (d.week === weekStr) weekPts = (d.base || 0) + newPts;
+        }
+        await window.storage.set("ir-pts-weekly", JSON.stringify({ week: weekStr, pts: weekPts, base: weekPts - newPts }));
+      } catch(e) {}
+      // Update monthly accumulator
+      try {
+        let monthPts = newPts;
+        const rm = await window.storage.get("ir-pts-monthly");
+        if (rm) {
+          const d = JSON.parse(rm.value);
+          if (d.month === monthStr) monthPts = (d.base || 0) + newPts;
+        }
+        await window.storage.set("ir-pts-monthly", JSON.stringify({ month: monthStr, pts: monthPts, base: monthPts - newPts }));
+      } catch(e) {}
     } catch (e) {
     }
   };
@@ -1149,22 +1173,25 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
       }, 1500);
     }
   };
-  const periodStart = (p) => {
-    const now = /* @__PURE__ */ new Date();
-    if (p === "daily") {
-      const d = new Date(now);
-      d.setHours(0, 0, 0, 0);
-      return d.getTime();
-    }
-    if (p === "weekly") {
-      const d = new Date(now);
-      d.setDate(d.getDate() - d.getDay());
-      d.setHours(0, 0, 0, 0);
-      return d.getTime();
-    }
-    return new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  const filteredBoard = (p) => {
+    const now = new Date();
+    const todayStr = now.toDateString();
+    const weekStr = (() => { const d = new Date(now); d.setDate(d.getDate() - d.getDay()); return d.toDateString(); })();
+    const monthStr = `${now.getFullYear()}-${now.getMonth()}`;
+    return board.map((e) => {
+      let ptsToShow;
+      if (p === "daily") {
+        ptsToShow = (e.ts_day === todayStr) ? (e.pts_daily || 0) : 0;
+      } else if (p === "weekly") {
+        ptsToShow = (e.ts_week === weekStr) ? (e.pts_weekly || 0) : 0;
+      } else if (p === "monthly") {
+        ptsToShow = (e.ts_month === monthStr) ? (e.pts_monthly || 0) : 0;
+      } else {
+        ptsToShow = e.pts || 0;
+      }
+      return { ...e, ptsToShow };
+    }).filter((e) => e.ptsToShow > 0).sort((a, b) => b.ptsToShow - a.ptsToShow);
   };
-  const filteredBoard = (p) => board.filter((e) => (e.ts || 0) >= periodStart(p)).sort((a, b) => b.pts - a.pts);
   const loadBoard = async () => {
     setBL(true);
     try {
@@ -1185,11 +1212,35 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
   const saveScore = async (key, name, score) => {
     try {
       if (!window.__fbDB) return;
+      const now = new Date();
+      const todayStr = now.toDateString();
+      const weekStr = (() => { const d = new Date(now); d.setDate(d.getDate() - d.getDay()); return d.toDateString(); })();
+      const monthStr = `${now.getFullYear()}-${now.getMonth()}`;
+      let ptsDaily = 0;
+      try {
+        const r = await window.storage.get("ir-pts-today");
+        if (r) { const d = JSON.parse(r.value); if (d.date === todayStr) ptsDaily = d.pts || 0; }
+      } catch(e) {}
+      let ptsWeekly = ptsDaily, ptsMonthly = ptsDaily;
+      try {
+        const rw = await window.storage.get("ir-pts-weekly");
+        if (rw) { const d = JSON.parse(rw.value); if (d.week === weekStr) ptsWeekly = d.pts || 0; }
+      } catch(e) {}
+      try {
+        const rm = await window.storage.get("ir-pts-monthly");
+        if (rm) { const d = JSON.parse(rm.value); if (d.month === monthStr) ptsMonthly = d.pts || 0; }
+      } catch(e) {}
       const entry = {
         name,
         pts: score,
+        pts_daily: ptsDaily,
+        pts_weekly: ptsWeekly,
+        pts_monthly: ptsMonthly,
         streak,
         ts: Date.now(),
+        ts_day: todayStr,
+        ts_week: weekStr,
+        ts_month: monthStr,
         title: RANKS[Math.min(Math.floor(score / 200), RANKS.length - 1)],
         premium: isPremium
       };
@@ -2031,7 +2082,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
     padding: 4,
     gap: 3,
     marginBottom: 14
-  } }, [{ k: "daily", ar: "\u0627\u0644\u064A\u0648\u0645" }, { k: "weekly", ar: "\u0627\u0644\u0623\u0633\u0628\u0648\u0639" }, { k: "monthly", ar: "\u0627\u0644\u0634\u0647\u0631" }].map((p) => /* @__PURE__ */ React.createElement("button", { key: p.k, className: "btn", onClick: () => setPeriod(p.k), style: {
+  } }, [{ k: "daily", ar: "\u0627\u0644\u064A\u0648\u0645" }, { k: "weekly", ar: "\u0627\u0644\u0623\u0633\u0628\u0648\u0639" }, { k: "monthly", ar: "\u0627\u0644\u0634\u0647\u0631" }, { k: "alltime", ar: "\u0627\u0644\u0643\u0644" }].map((p) => /* @__PURE__ */ React.createElement("button", { key: p.k, className: "btn", onClick: () => setPeriod(p.k), style: {
     flex: 1,
     padding: "9px",
     border: "none",
@@ -2123,7 +2174,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
       textOverflow: "ellipsis",
       whiteSpace: "nowrap",
       padding: "0 2px"
-    } }, (e == null ? void 0 : e.name) || "\u2014", (e == null ? void 0 : e.premium) ? " \u{1F451}" : ""), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, color: "rgba(255,255,255,0.38)", marginBottom: 5 } }, (e == null ? void 0 : e.pts) || 0), /* @__PURE__ */ React.createElement("div", { style: {
+    } }, (e == null ? void 0 : e.name) || "\u2014", (e == null ? void 0 : e.premium) ? " \u{1F451}" : ""), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, color: "rgba(255,255,255,0.38)", marginBottom: 5 } }, (e == null ? void 0 : e.ptsToShow) || 0), /* @__PURE__ */ React.createElement("div", { style: {
       height: H,
       borderRadius: "10px 10px 0 0",
       background: grads,
@@ -2170,7 +2221,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
       overflow: "hidden",
       textOverflow: "ellipsis",
       whiteSpace: "nowrap"
-    } }, e.name, isMe && " (\u0623\u0646\u062A)", e.premium && " \u{1F451}"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, color: "var(--muted)" } }, "\u{1F525}", e.streak || 0, " \xB7 ", e.title, " \xB7 \u0645\u0646\u0630 ", agoStr)), /* @__PURE__ */ React.createElement("div", { style: { background: "rgba(201,169,110,0.05)", borderRadius: 8, padding: "5px 10px", textAlign: "center", flexShrink: 0 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 21, fontWeight: 900, color: isMe ? "var(--gold)" : isTop ? "white" : "rgba(255,255,255,0.65)" } }, e.pts), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, color: "var(--muted)" } }, "\u0646\u0642\u0637\u0629")));
+    } }, e.name, isMe && " (\u0623\u0646\u062A)", e.premium && " \u{1F451}"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, color: "var(--muted)" } }, "\u{1F525}", e.streak || 0, " \xB7 ", e.title, " \xB7 \u0645\u0646\u0630 ", agoStr)), /* @__PURE__ */ React.createElement("div", { style: { background: "rgba(201,169,110,0.05)", borderRadius: 8, padding: "5px 10px", textAlign: "center", flexShrink: 0 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 21, fontWeight: 900, color: isMe ? "var(--gold)" : isTop ? "white" : "rgba(255,255,255,0.65)" } }, e.ptsToShow), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, color: "var(--muted)" } }, "\u0646\u0642\u0637\u0629")));
   }), /* @__PURE__ */ React.createElement("button", { className: "btn", onClick: loadBoard, style: {
     width: "100%",
     marginTop: 6,
