@@ -2173,15 +2173,14 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
     background: "rgba(201,169,110,0.04)",
     border: "1px solid rgba(201,169,110,0.18)",
     textAlign: "center"
-  } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 31, marginBottom: 8 } }, "\u{1F3C6}"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 21, fontWeight: 700, color: "white", marginBottom: 6 } }, "\u0627\u0646\u0636\u0645 \u0644\u0644\u0645\u062A\u0635\u062F\u0631\u064A\u0646"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 10, marginTop: 14 } }, /* @__PURE__ */ React.createElement(
-    "input",
-    {
+  } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 31, marginBottom: 8 } }, "\u{1F3C6}"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 18, fontWeight: 700, color: "white", marginBottom: 14 } }, "\u0627\u0646\u0636\u0645 \u0644\u0644\u0645\u062A\u0635\u062F\u0631\u064A\u0646"), /* @__PURE__ */ React.createElement("input", {
       value: nameIn,
       onChange: (e) => setNameIn(e.target.value),
       onKeyDown: (e) => e.key === "Enter" && joinBoard(),
       placeholder: "\u0627\u0633\u0645\u0643 \u0623\u0648 \u0644\u0642\u0628\u0643...",
       style: {
-        flex: 1,
+        width: "100%",
+        boxSizing: "border-box",
         padding: "11px 14px",
         borderRadius: 11,
         border: "1px solid rgba(201,169,110,0.22)",
@@ -2190,10 +2189,12 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
         fontSize: 15,
         fontFamily: "Noto Naskh Arabic",
         direction: "rtl",
-        outline: "none"
+        outline: "none",
+        marginBottom: 10,
+        display: "block"
       }
-    }
-  ), /* @__PURE__ */ React.createElement("button", { className: "btn", onClick: joinBoard, disabled: saving || !nameIn.trim(), style: {
+    }), /* @__PURE__ */ React.createElement("button", { className: "btn", onClick: joinBoard, disabled: saving || !nameIn.trim(), style: {
+    width: "100%",
     padding: "11px 16px",
     borderRadius: 11,
     border: "none",
@@ -2203,9 +2204,8 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
     fontSize: 15,
     fontFamily: "Noto Naskh Arabic",
     cursor: "pointer",
-    whiteSpace: "nowrap",
     boxShadow: nameIn.trim() ? "0 4px 14px rgba(201,169,110,0.38)" : "none"
-  } }, saving ? "..." : "\u0627\u0646\u0636\u0645 \u06DE"))), bLoading ? /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", padding: "36px 0", color: "var(--muted)" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 33, marginBottom: 8, animation: "floatUp 1s infinite" } }, "\u23F3"), "\u062C\u0627\u0631\u064A \u0627\u0644\u062A\u062D\u0645\u064A\u0644...") : current.length === 0 ? /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", padding: "36px 0", color: "var(--muted)" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 41, marginBottom: 8 } }, "\u{1F31F}"), "\u0643\u0646 \u0623\u0648\u0644 \u0627\u0644\u0645\u062A\u0635\u062F\u0631\u064A\u0646!") : /* @__PURE__ */ React.createElement(React.Fragment, null, current.length >= 3 && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "flex-end", gap: 6, marginBottom: 16, padding: "0 4px" } }, [current[1], current[0], current[2]].map((e, i) => {
+  } }, saving ? "..." : "\u0627\u0646\u0636\u0645 \u06DE")), bLoading ? /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", padding: "36px 0", color: "var(--muted)" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 33, marginBottom: 8, animation: "floatUp 1s infinite" } }, "\u23F3"), "\u062C\u0627\u0631\u064A \u0627\u0644\u062A\u062D\u0645\u064A\u0644...") : current.length === 0 ? /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", padding: "36px 0", color: "var(--muted)" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 41, marginBottom: 8 } }, "\u{1F31F}"), "\u0643\u0646 \u0623\u0648\u0644 \u0627\u0644\u0645\u062A\u0635\u062F\u0631\u064A\u0646!") : /* @__PURE__ */ React.createElement(React.Fragment, null, current.length >= 3 && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "flex-end", gap: 6, marginBottom: 16, padding: "0 4px" } }, [current[1], current[0], current[2]].map((e, i) => {
     const H = [108, 140, 90][i];
     const grads = [
       "linear-gradient(180deg,#B0B8C8,#8A9AAA)",
