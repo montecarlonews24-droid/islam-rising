@@ -806,8 +806,8 @@ function App() {
         });
       }
     };
-    if (window.__fbReady) setupListener();
-    else window.addEventListener('firebase-ready', setupListener);
+    if (window.__fbReady) { setupListener(); seedFakeUsers(); }
+    else window.addEventListener('firebase-ready', () => { setupListener(); seedFakeUsers(); });
     loadDailyVerse();
   };
   const loadDailyVerse = async () => {
@@ -1192,6 +1192,39 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
       return { ...e, ptsToShow };
     }).filter((e) => e.ptsToShow > 0).sort((a, b) => b.ptsToShow - a.ptsToShow);
   };
+  const seedFakeUsers = async () => {
+    if (!window.__fbDB) return;
+    try {
+      const seeded = await window.storage.get("ir-seeded-v1");
+      if (seeded) return; // already done
+      const now = new Date();
+      const todayStr = now.toDateString();
+      const weekStr = (() => { const d = new Date(now); d.setDate(d.getDate() - d.getDay()); return d.toDateString(); })();
+      const monthStr = `${now.getFullYear()}-${now.getMonth()}`;
+      const fakeUsers = [
+        { key: "fake-abdulrahman", name: "عبدالرحمن", pts: 2150, pts_daily: 310, pts_weekly: 1120, pts_monthly: 2150, streak: 14, title: "حافظ" },
+        { key: "fake-umusalama",   name: "أم سلمة 🌙", pts: 1830, pts_daily: 275, pts_weekly: 960,  pts_monthly: 1830, streak: 9,  title: "مجتهدة" },
+        { key: "fake-khalid",      name: "خالد المغربي", pts: 1420, pts_daily: 198, pts_weekly: 740,  pts_monthly: 1420, streak: 7,  title: "مواظب" },
+        { key: "fake-noor",        name: "نور الإيمان", pts: 980,  pts_daily: 165, pts_weekly: 510,  pts_monthly: 980,  streak: 5,  title: "مواظب" },
+        { key: "fake-abubakar",    name: "أبو بكر",    pts: 760,  pts_daily: 143, pts_weekly: 390,  pts_monthly: 760,  streak: 4,  title: "مبتدئ" },
+        { key: "fake-sara",        name: "سارة م.",    pts: 540,  pts_daily: 112, pts_weekly: 280,  pts_monthly: 540,  streak: 3,  title: "مبتدئ" },
+        { key: "fake-reem",        name: "ريم الأنصاري", pts: 390, pts_daily: 87,  pts_weekly: 200,  pts_monthly: 390,  streak: 2,  title: "مبتدئ" },
+        { key: "fake-mohammed",    name: "محمد ع.",    pts: 210,  pts_daily: 54,  pts_weekly: 110,  pts_monthly: 210,  streak: 1,  title: "مبتدئ" },
+        { key: "fake-yusuf",       name: "يوسف ك.",   pts: 140,  pts_daily: 31,  pts_weekly: 70,   pts_monthly: 140,  streak: 1,  title: "مبتدئ" },
+      ];
+      for (const u of fakeUsers) {
+        const entry = {
+          name: u.name, pts: u.pts,
+          pts_daily: u.pts_daily, pts_weekly: u.pts_weekly, pts_monthly: u.pts_monthly,
+          streak: u.streak, ts: Date.now() - Math.floor(Math.random() * 3600000),
+          ts_day: todayStr, ts_week: weekStr, ts_month: monthStr,
+          title: u.title, premium: false
+        };
+        await window.__fbSet(window.__fbRef(window.__fbDB, "leaderboard/" + u.key), entry);
+      }
+      await window.storage.set("ir-seeded-v1", "1");
+    } catch (e) {}
+  };
   const loadBoard = async () => {
     setBL(true);
     try {
@@ -1216,10 +1249,11 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
       const todayStr = now.toDateString();
       const weekStr = (() => { const d = new Date(now); d.setDate(d.getDate() - d.getDay()); return d.toDateString(); })();
       const monthStr = `${now.getFullYear()}-${now.getMonth()}`;
-      let ptsDaily = 0;
+      // Use score directly as ptsDaily — it's today's accumulated points
+      let ptsDaily = score;
       try {
         const r = await window.storage.get("ir-pts-today");
-        if (r) { const d = JSON.parse(r.value); if (d.date === todayStr) ptsDaily = d.pts || 0; }
+        if (r) { const d = JSON.parse(r.value); if (d.date === todayStr) ptsDaily = d.pts || score; }
       } catch(e) {}
       let ptsWeekly = ptsDaily, ptsMonthly = ptsDaily;
       try {
