@@ -1108,9 +1108,6 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
     bumpStreak();
     const prayerPts = p.id === "fajr" ? 50 : 10;
     give(prayerPts, next, extras);
-    if (!isPremium && !isFriday && !adWatched[p.id]) {
-      setTimeout(() => showRewardedAd(p.id, p.ar, 10), 800);
-    }
   };
   const tapExtra = (e) => {
     if (extras[e.id]) return;
@@ -1122,9 +1119,6 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
       const next = __spreadProps(__spreadValues({}, extras), { [e.id]: true });
       setDE(next);
       give(e.pts, prayers, next);
-      if (!isPremium && !isFriday && !adWatched[e.id]) {
-        setTimeout(() => showRewardedAd(e.id, e.ar, e.pts), 800);
-      }
     }
   };
   const sendContact = () => {
@@ -1152,9 +1146,6 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
       const mid = modal.id, mpts = modal.pts;
       setTimeout(() => {
         setModal(null);
-        if (!isPremium && !isFriday && !adWatched[mid]) {
-          setTimeout(() => showRewardedAd(mid, "\u0627\u0644\u0639\u0628\u0627\u062F\u0629", mpts), 400);
-        }
       }, 1500);
     }
   };
