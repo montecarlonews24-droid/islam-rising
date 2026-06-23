@@ -812,11 +812,11 @@ body::before {
     <div class="sec-title">⬥ العبادات اليومية ⬥</div>
 
     <!-- Quran -->
-    <div class="extra-item" id="item-quran" onclick="claimPts('quran', 15, 'quran')">
+    <div class="extra-item" id="item-quran" onclick="openQuran()">
       <div class="extra-icon">📖</div>
       <div class="extra-text">
         <h3>ورد القرآن</h3>
-        <p>اضغط للتسجيل</p>
+        <p id="quran-item-desc">اقرأ 10 صفحات لتسجيل الورد</p>
       </div>
       <div class="extra-pts" id="pts-quran">+15</div>
     </div>
@@ -1064,6 +1064,26 @@ function updateExtrasUI() {
       el.style.cursor = 'default';
     }
   });
+
+  // Special handling for quran item
+  const quranEl = document.getElementById('item-quran');
+  const quranDesc = document.getElementById('quran-item-desc');
+  if (quranEl && quranDesc) {
+    const WIRD_KEY = 'ir-wird-' + new Date().toDateString();
+    const wirdState = JSON.parse(localStorage.getItem(WIRD_KEY) || '{"read":[],"claimed":false}');
+    if (wirdState.claimed || state.extras.quran_claimed) {
+      quranDesc.textContent = '✅ تمّ تسجيل الورد!';
+      quranEl.onclick = null;
+      quranEl.style.cursor = 'default';
+    } else {
+      const pagesRead = wirdState.read ? wirdState.read.length : 0;
+      quranDesc.textContent = pagesRead > 0 ? `${pagesRead} / 10 صفحات` : 'اقرأ 10 صفحات لتسجيل الورد';
+    }
+  }
+}
+
+function openQuran() {
+  window.location.href = 'quran.html';
 }
 
 // ── Pts badge ──
