@@ -745,7 +745,7 @@ function App() {
         setUserName(u.name || "");
         setObDone(true);
         setUserCity(u.city || "");
-        if (u.name) setMyName(u.name);
+        if (u.name) { /* username saved separately, lb name loaded below */ }
       } else {
         setTimeout(() => setOnboarding(true), 800);
       }
@@ -1231,8 +1231,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
         };
         await window.__fbSet(window.__fbRef(window.__fbDB, "leaderboard/" + u.key), entry);
       }
-      // seeding complete — next check will find fake-abdulrahman in Firebase
-    } catch (e) {}
+    } catch (e) { console.warn("seedFakeUsers failed:", e); }
   };
   const loadBoard = async () => {
     setBL(true);
