@@ -1257,24 +1257,38 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
       const todayStr = now.toDateString();
       const weekStr = (() => { const d = new Date(now); d.setDate(d.getDate() - d.getDay()); return d.toDateString(); })();
       const monthStr = `${now.getFullYear()}-${now.getMonth()}`;
-      // Use score directly as ptsDaily — it's today's accumulated points
+      // ptsDaily = today's points only
       let ptsDaily = score;
       try {
         const r = await window.storage.get("ir-pts-today");
         if (r) { const d = JSON.parse(r.value); if (d.date === todayStr) ptsDaily = d.pts || score; }
       } catch(e) {}
-      let ptsWeekly = ptsDaily, ptsMonthly = ptsDaily;
+      // ptsTotal = read Firebase existing total, add today on top
+      let ptsTotal = ptsDaily;
+      try {
+        const safeKeyTemp = key.replace(/[.#$\/\[\]]/g, "_");
+        const snap = await window.__fbGet(window.__fbRef(window.__fbDB, "leaderboard/" + safeKeyTemp));
+        if (snap.exists()) {
+          const old = snap.val();
+          if (old.ts_day !== todayStr) {
+            ptsTotal = (old.pts || 0) + ptsDaily;
+          } else {
+            ptsTotal = Math.max(old.pts || 0, ptsDaily);
+          }
+        }
+      } catch(e) {}
+      let ptsWeekly = ptsTotal, ptsMonthly = ptsTotal;
       try {
         const rw = await window.storage.get("ir-pts-weekly");
-        if (rw) { const d = JSON.parse(rw.value); if (d.week === weekStr) ptsWeekly = d.pts || 0; }
+        if (rw) { const d = JSON.parse(rw.value); if (d.week === weekStr) ptsWeekly = d.pts || ptsTotal; }
       } catch(e) {}
       try {
         const rm = await window.storage.get("ir-pts-monthly");
-        if (rm) { const d = JSON.parse(rm.value); if (d.month === monthStr) ptsMonthly = d.pts || 0; }
+        if (rm) { const d = JSON.parse(rm.value); if (d.month === monthStr) ptsMonthly = d.pts || ptsTotal; }
       } catch(e) {}
       const entry = {
         name,
-        pts: score,
+        pts: ptsTotal,
         pts_daily: ptsDaily,
         pts_weekly: ptsWeekly,
         pts_monthly: ptsMonthly,
