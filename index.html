@@ -1204,32 +1204,62 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
   const seedFakeUsers = async () => {
     if (!window.__fbDB) return;
     try {
-      const seededSnap = await window.__fbGet(window.__fbRef(window.__fbDB, "leaderboard/fake-abdulrahman"));
-      if (seededSnap.exists()) return; // already seeded
       const now = new Date();
       const todayStr = now.toDateString();
+      const hour = now.getHours();
       const weekStr = (() => { const d = new Date(now); d.setDate(d.getDate() - d.getDay()); return d.toDateString(); })();
       const monthStr = `${now.getFullYear()}-${now.getMonth()}`;
+
+      // نقاط ديناميكية حسب الوقت:
+      // 4ص-8ص: فجر + أذكار فقط (~18 نقطة كحد أقصى)
+      // 8ص-12ظ: + ضحى (~35 نقطة)
+      // 12ظ-15: + ظهر (~55 نقطة)
+      // 15-18: + عصر (~75 نقطة)
+      // 18-20: + مغرب + أذكار مساء (~110 نقطة)
+      // 20-23: + عشاء + قرآن (~140 نقطة)
+      // 23-4ص: كامل (~155 نقطة)
+      const getProgress = (ratio) => {
+        // ratio: 0.0 إلى 1.0 (نسبة إنجاز المستخدم من يومه)
+        if (hour >= 4 && hour < 8)   return Math.round(ratio * 18);
+        if (hour >= 8 && hour < 12)  return Math.round(ratio * 40);
+        if (hour >= 12 && hour < 15) return Math.round(ratio * 65);
+        if (hour >= 15 && hour < 18) return Math.round(ratio * 90);
+        if (hour >= 18 && hour < 20) return Math.round(ratio * 115);
+        if (hour >= 20 && hour < 23) return Math.round(ratio * 140);
+        return Math.round(ratio * 155); // ليل متأخر أو قبل الفجر
+      };
+
+      // نسبة الإنجاز لكل مستخدم (كلما كان ملتزماً أكثر كلما أنجز أكثر)
       const fakeUsers = [
-        { key: "fake-abdulrahman", name: "عبدالرحمن", pts: 2150, pts_daily: 310, pts_weekly: 1120, pts_monthly: 2150, streak: 14, title: "حافظ" },
-        { key: "fake-umusalama",   name: "أم سلمة 🌙", pts: 1830, pts_daily: 275, pts_weekly: 960,  pts_monthly: 1830, streak: 9,  title: "مجتهدة" },
-        { key: "fake-khalid",      name: "خالد المغربي", pts: 1420, pts_daily: 198, pts_weekly: 740,  pts_monthly: 1420, streak: 7,  title: "مواظب" },
-        { key: "fake-noor",        name: "نور الإيمان", pts: 980,  pts_daily: 165, pts_weekly: 510,  pts_monthly: 980,  streak: 5,  title: "مواظب" },
-        { key: "fake-abubakar",    name: "أبو بكر",    pts: 760,  pts_daily: 143, pts_weekly: 390,  pts_monthly: 760,  streak: 4,  title: "مبتدئ" },
-        { key: "fake-sara",        name: "سارة م.",    pts: 540,  pts_daily: 112, pts_weekly: 280,  pts_monthly: 540,  streak: 3,  title: "مبتدئ" },
-        { key: "fake-reem",        name: "ريم الأنصاري", pts: 390, pts_daily: 87,  pts_weekly: 200,  pts_monthly: 390,  streak: 2,  title: "مبتدئ" },
-        { key: "fake-mohammed",    name: "محمد ع.",    pts: 210,  pts_daily: 54,  pts_weekly: 110,  pts_monthly: 210,  streak: 1,  title: "مبتدئ" },
-        { key: "fake-yusuf",       name: "يوسف ك.",   pts: 140,  pts_daily: 31,  pts_weekly: 70,   pts_monthly: 140,  streak: 1,  title: "مبتدئ" },
+        { key: "fake-abdulrahman", name: "عبدالرحمن",    pts: 2150, ratio: 1.00, pts_weekly: 1120, pts_monthly: 2150, streak: 14, title: "حافظ" },
+        { key: "fake-umusalama",   name: "أم سلمة 🌙",  pts: 1830, ratio: 0.90, pts_weekly: 960,  pts_monthly: 1830, streak: 9,  title: "مجتهدة" },
+        { key: "fake-khalid",      name: "خالد المغربي", pts: 1420, ratio: 0.75, pts_weekly: 740,  pts_monthly: 1420, streak: 7,  title: "مواظب" },
+        { key: "fake-noor",        name: "نور الإيمان",  pts: 980,  ratio: 0.60, pts_weekly: 510,  pts_monthly: 980,  streak: 5,  title: "مواظب" },
+        { key: "fake-abubakar",    name: "أبو بكر",      pts: 760,  ratio: 0.50, pts_weekly: 390,  pts_monthly: 760,  streak: 4,  title: "مبتدئ" },
+        { key: "fake-sara",        name: "سارة م.",       pts: 540,  ratio: 0.40, pts_weekly: 280,  pts_monthly: 540,  streak: 3,  title: "مبتدئ" },
+        { key: "fake-reem",        name: "ريم الأنصاري", pts: 390,  ratio: 0.30, pts_weekly: 200,  pts_monthly: 390,  streak: 2,  title: "مبتدئ" },
+        { key: "fake-mohammed",    name: "محمد ع.",       pts: 210,  ratio: 0.20, pts_weekly: 110,  pts_monthly: 210,  streak: 1,  title: "مبتدئ" },
+        { key: "fake-yusuf",       name: "يوسف ك.",      pts: 140,  ratio: 0.12, pts_weekly: 70,   pts_monthly: 140,  streak: 1,  title: "مبتدئ" },
       ];
+
       for (const u of fakeUsers) {
-        const entry = {
-          name: u.name, pts: u.pts,
-          pts_daily: u.pts_daily, pts_weekly: u.pts_weekly, pts_monthly: u.pts_monthly,
-          streak: u.streak, ts: Date.now() - Math.floor(Math.random() * 3600000),
-          ts_day: todayStr, ts_week: weekStr, ts_month: monthStr,
-          title: u.title, premium: false
-        };
-        await window.__fbSet(window.__fbRef(window.__fbDB, "leaderboard/" + u.key), entry);
+        const ptsDaily = getProgress(u.ratio);
+        // تحقق إذا كان المستخدم موجود وبيانات اليوم محدّثة
+        const snap = await window.__fbGet(window.__fbRef(window.__fbDB, "leaderboard/" + u.key));
+        if (snap.exists() && snap.val().ts_day === todayStr) {
+          // حدّث pts_daily فقط حسب الوقت الحالي
+          await window.__fbSet(window.__fbRef(window.__fbDB, "leaderboard/" + u.key + "/pts_daily"), ptsDaily);
+        } else {
+          // أضف المستخدم لأول مرة أو حدّث ليوم جديد
+          const entry = {
+            name: u.name, pts: u.pts,
+            pts_daily: ptsDaily, pts_weekly: u.pts_weekly, pts_monthly: u.pts_monthly,
+            streak: u.streak, ts: Date.now() - Math.floor(Math.random() * 3600000),
+            ts_day: todayStr, ts_week: weekStr, ts_month: monthStr,
+            title: u.title, premium: false
+          };
+          await window.__fbSet(window.__fbRef(window.__fbDB, "leaderboard/" + u.key), entry);
+        }
       }
     } catch (e) { console.warn("seedFakeUsers failed:", e); }
   };
