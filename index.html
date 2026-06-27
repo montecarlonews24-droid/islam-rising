@@ -588,6 +588,7 @@ const ONBOARD_STEPS = [
 function App() {
   const [tab, setTab] = useState(0);
   const [pts, setPts] = useState(0);
+  const [ptsLoaded, setPtsLoaded] = useState(false);
   const [prayers, setDP] = useState({});
   const [extras, setDE] = useState({});
   const [modal, setModal] = useState(null);
@@ -676,8 +677,8 @@ function App() {
     }, 1e3);
   }, []);
   useEffect(() => {
-    if (myKey && myName && pts > 0) saveScore(myKey, myName, pts);
-  }, [pts, myKey]);
+    if (myKey && myName && pts > 0 && ptsLoaded) saveScore(myKey, myName, pts);
+  }, [pts, myKey, ptsLoaded]);
   useEffect(() => {
     if (aiRef.current) aiRef.current.scrollTop = aiRef.current.scrollHeight;
   }, [aiMsgs]);
@@ -769,12 +770,14 @@ function App() {
         const today = (/* @__PURE__ */ new Date()).toDateString();
         if (d.date === today) {
           setPts(d.pts);
+          setPtsLoaded(true);
           setDP(d.prayers || {});
           setDE(d.extras || {});
         }
       }
     } catch (e) {
     }
+    setPtsLoaded(true);
     loadBoard();
     // ── Read pending points from ibadat.html ──
     try {
