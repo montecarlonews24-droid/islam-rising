@@ -677,7 +677,7 @@ function App() {
     }, 1e3);
   }, []);
   useEffect(() => {
-    if (myKey && myName && pts > 0 && ptsLoaded) saveScore(myKey, myName, pts);
+    if (myKey && myName && ptsLoaded) saveScore(myKey, myName, pts);
   }, [pts, myKey, ptsLoaded]);
   useEffect(() => {
     if (aiRef.current) aiRef.current.scrollTop = aiRef.current.scrollHeight;
@@ -1300,18 +1300,24 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
       } catch(e) {}
       // ptsTotal = read Firebase existing total, add today on top
       let ptsTotal = ptsDaily;
+      let oldPtsFirebase = 0;
       try {
         const safeKeyTemp = key.replace(/[.#$\/\[\]]/g, "_");
         const snap = await window.__fbGet(window.__fbRef(window.__fbDB, "leaderboard/" + safeKeyTemp));
         if (snap.exists()) {
           const old = snap.val();
+          oldPtsFirebase = old.pts || 0;
           if (old.ts_day !== todayStr) {
-            ptsTotal = (old.pts || 0) + ptsDaily;
+            // يوم جديد: أضف نقاط اليوم فوق الإجمالي — إذا 0 ابقَ على القديم
+            ptsTotal = ptsDaily > 0 ? oldPtsFirebase + ptsDaily : oldPtsFirebase;
           } else {
-            ptsTotal = Math.max(old.pts || 0, ptsDaily);
+            // نفس اليوم: لا تنزل أبداً
+            ptsTotal = Math.max(oldPtsFirebase, ptsDaily);
           }
         }
       } catch(e) {}
+      // حماية مطلقة: لا تكتب أقل من Firebase أبداً
+      ptsTotal = Math.max(ptsTotal, oldPtsFirebase);
       let ptsWeekly = ptsTotal, ptsMonthly = ptsTotal;
       try {
         const rw = await window.storage.get("ir-pts-weekly");
