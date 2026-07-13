@@ -610,6 +610,11 @@ function App() {
   const [shareItem, setShareItem] = useState(null);
   const [shareDone, setShareDone] = useState(false);
   const [coords, setCoords] = useState(null);
+  const coordsRef = useRef(null);
+  useEffect(() => {
+    coordsRef.current = coords;
+  }, [coords]);
+  const [todayKey, setTodayKey] = useState(() => (/* @__PURE__ */ new Date()).toDateString());
   const [pTimes, setPTimes] = useState(null);
   const [adhanOn, setAdhanOn] = useState(() => localStorage.getItem('ir-adhan') !== 'off');
   const adhanAudio = useRef(null);
@@ -642,13 +647,22 @@ function App() {
   const MULT = isPremium ? isFriday ? 3 : 1.5 : isFriday ? 2 : 1;
   const pDone = Object.keys(prayers).length;
   const GOAL = 500;
-  const meccaTimes = useMemo(() => calcPrayerTimes(21.3891, 39.8579, /* @__PURE__ */ new Date(), 3), []);
+  const meccaTimes = useMemo(() => calcPrayerTimes(21.3891, 39.8579, /* @__PURE__ */ new Date(), 3), [todayKey]);
   const [lockTick, setLockTick] = useState(0);
   useEffect(() => {
     setTimeout(() => setVis(true), 80);
   }, []);
   useEffect(() => {
-    const iv = setInterval(() => setLockTick((t) => t + 1), 3e4);
+    const iv = setInterval(() => {
+      setLockTick((t) => t + 1);
+      const nowKey = (/* @__PURE__ */ new Date()).toDateString();
+      setTodayKey((prev) => {
+        if (prev !== nowKey && coordsRef.current) {
+          setPTimes(calcPrayerTimes(coordsRef.current.lat, coordsRef.current.lng));
+        }
+        return nowKey;
+      });
+    }, 3e4);
     return () => clearInterval(iv);
   }, []);
   useEffect(() => {
