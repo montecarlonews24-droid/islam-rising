@@ -595,6 +595,7 @@ function App() {
   const [vInput, setVI] = useState("");
   const [vOk, setVOk] = useState(false);
   const [fly, setFly] = useState(null);
+  const [lockMsg, setLockMsg] = useState(null);
   const [visible, setVis] = useState(false);
   const [onboarding, setOnboarding] = useState(false);
   const [obStep, setObStep] = useState(0);
@@ -642,8 +643,13 @@ function App() {
   const pDone = Object.keys(prayers).length;
   const GOAL = 500;
   const meccaTimes = useMemo(() => calcPrayerTimes(21.3891, 39.8579, /* @__PURE__ */ new Date(), 3), []);
+  const [lockTick, setLockTick] = useState(0);
   useEffect(() => {
     setTimeout(() => setVis(true), 80);
+  }, []);
+  useEffect(() => {
+    const iv = setInterval(() => setLockTick((t) => t + 1), 3e4);
+    return () => clearInterval(iv);
   }, []);
   useEffect(() => {
     loadAll();
@@ -1435,7 +1441,24 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     filter: "drop-shadow(0 0 18px rgba(201,169,110,0.8))"
-  } }, fly), modal && /* @__PURE__ */ React.createElement("div", { style: {
+  } }, fly), lockMsg && /* @__PURE__ */ React.createElement("div", { style: {
+    position: "fixed",
+    bottom: 130,
+    left: "50%",
+    transform: "translateX(-50%)",
+    zIndex: 999,
+    pointerEvents: "none",
+    animation: "modalIn 0.25s ease",
+    background: "rgba(20,15,10,0.95)",
+    border: "1px solid rgba(201,169,110,0.4)",
+    borderRadius: 14,
+    padding: "10px 18px",
+    fontSize: 17,
+    fontWeight: 700,
+    color: "var(--gold)",
+    whiteSpace: "nowrap",
+    boxShadow: "0 8px 30px rgba(0,0,0,0.5)"
+  } }, lockMsg), modal && /* @__PURE__ */ React.createElement("div", { style: {
     position: "fixed",
     inset: 0,
     zIndex: 300,
@@ -2071,7 +2094,14 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
       const nowMin = now.getHours() * 60 + now.getMinutes();
       return nowMin < pMin;
     })();
-    return /* @__PURE__ */ React.createElement("button", { key: p.id, className: "btn", onClick: () => !isLocked && tapPrayer(p), style: {
+    return /* @__PURE__ */ React.createElement("button", { key: p.id, className: "btn", onClick: () => {
+      if (isLocked) {
+        setLockMsg(`\u23F3 ${p.ar} \u0644\u0633\u0647 \u0645\u0627 \u062F\u062E\u0644 \u0648\u0642\u062A\u0647\u0627 \u2014 ${time}`);
+        setTimeout(() => setLockMsg(null), 1800);
+      } else {
+        tapPrayer(p);
+      }
+    }, style: {
       border: "none",
       padding: 0,
       borderRadius: 22,
@@ -2110,7 +2140,7 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
       background: done ? "rgba(74,222,128,0.1)" : "rgba(201,169,110,0.1)",
       border: done ? "1px solid rgba(74,222,128,0.3)" : "1px solid rgba(201,169,110,0.3)",
       color: done ? "#4ADE80" : "var(--gold)"
-    } }, done ? "\u0645\u0643\u062A\u0645\u0644 \u06DE" : `+${Math.round((p.id === "fajr" ? 50 : 10) * MULT)}`)));
+    } }, done ? "\u0645\u0643\u062A\u0645\u0644 \u06DE" : isLocked ? `\u{1F512} +${Math.round((p.id === "fajr" ? 50 : 10) * MULT)}` : `+${Math.round((p.id === "fajr" ? 50 : 10) * MULT)}`)));
   })), /* @__PURE__ */ React.createElement("div", { style: {
     borderRadius: 22,
     padding: "20px 22px",
