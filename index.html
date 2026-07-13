@@ -519,7 +519,11 @@ function calcPrayerTimes(lat, lng, date = /* @__PURE__ */ new Date(), tzOffset =
   const toRad2 = (d) => d * Math.PI / 180;
   const toDeg2 = (r) => r * 180 / Math.PI;
   const D = date;
-  const JD = Math.floor(365.25 * (D.getFullYear() + 4716)) + Math.floor(30.6001 * (D.getMonth() + 2)) + D.getDate() - 1524.5;
+  let Y = D.getFullYear(), Mo = D.getMonth() + 1;
+  if (Mo <= 2) { Y -= 1; Mo += 12; }
+  const A = Math.floor(Y / 100);
+  const Bc = 2 - A + Math.floor(A / 4);
+  const JD = Math.floor(365.25 * (Y + 4716)) + Math.floor(30.6001 * (Mo + 1)) + D.getDate() + Bc - 1524.5;
   const T = (JD - 2451545) / 36525;
   const L0 = 280.46646 + 36000.76983 * T;
   const M = 357.52911 + 35999.05029 * T;
@@ -528,7 +532,10 @@ function calcPrayerTimes(lat, lng, date = /* @__PURE__ */ new Date(), tzOffset =
   const e = 23.439291 - 0.013004 * T;
   const RA = toDeg2(Math.atan2(Math.cos(toRad2(e)) * Math.sin(toRad2(sunLng)), Math.cos(toRad2(sunLng)))) / 15;
   const decl = toDeg2(Math.asin(Math.sin(toRad2(e)) * Math.sin(toRad2(sunLng))));
-  const EqT = 4 * (L0 - 57183e-7 - RA * 15 + 360 * Math.floor((L0 - RA * 15) / 360));
+  const L0norm = (L0 % 360 + 360) % 360;
+  let eqTerm = L0norm - 0.0057183 - RA * 15;
+  eqTerm -= 360 * Math.round(eqTerm / 360);
+  const EqT = 4 * eqTerm;
   const noon = 12 - EqT / 60 - lng / 15;
   const ha = (a) => toDeg2(Math.acos((Math.sin(toRad2(a)) - Math.sin(toRad2(lat)) * Math.sin(toRad2(decl))) / (Math.cos(toRad2(lat)) * Math.cos(toRad2(decl))))) / 15;
   const asrShadow = 1 + Math.tan(toRad2(Math.abs(lat - decl)));
@@ -537,7 +544,7 @@ function calcPrayerTimes(lat, lng, date = /* @__PURE__ */ new Date(), tzOffset =
     const tz = tzOffset !== null ? tzOffset : -date.getTimezoneOffset() / 60;
     const local = h + tz;
     const hh = Math.floor((local % 24 + 24) % 24);
-    const mm = Math.floor((local - Math.floor(local)) * 60);
+    const mm = Math.round(((local - Math.floor(local)) * 60 + 60) % 60);
     return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
   };
   try {
@@ -547,7 +554,7 @@ function calcPrayerTimes(lat, lng, date = /* @__PURE__ */ new Date(), tzOffset =
       dhuhr: fmt(noon + 0.03),
       asr: fmt(noon + ha(asrAngle)),
       maghrib: fmt(noon + ha(-0.833)),
-      isha: fmt(noon + ha(-17))
+      isha: fmt(noon + ha(-18))
     };
   } catch (e2) {
     return null;
