@@ -1058,6 +1058,9 @@ function App() {
       if (diff > 0 && diff < 864e5) {
         const id = setTimeout(() => {
           if (localStorage.getItem('ir-adhan') === 'off') return;
+          // إذا التطبيق مو بالواجهة الأمامية الآن (المستخدم بمكالمة، أو فاتح تطبيق
+          // ثاني، أو الشاشة مقفولة) ما نشغّل الصوت أبدًا لهالصلاة.
+          if (typeof document !== "undefined" && document.hidden) return;
           // إذا التطبيق كان بالخلفية وتوقفت الـ timers، ممكن هالكولباك يشتغل متأخر
           // (overdue) لما يرجع يفتح. نتحقق إنه فعلاً قريب من وقت الصلاة الحقيقي
           // قبل ما نشغّل الصوت، تفاديًا لتشغيل أذان صلاة فاتت من زمان.
@@ -1092,10 +1095,19 @@ function App() {
   }, [pTimes]);
   useEffect(() => {
     const onVisible = () => {
-      if (document.visibilityState === "visible" && pTimesRef.current && localStorage.getItem('ir-adhan') !== 'off') {
-        // رجع التطبيق يفتح من الخلفية - نعيد جدولة الأذان بوقت حالي صحيح
-        // بدل ما نترك أي timer قديم متوقّف يشتغل متأخر.
-        scheduleAdhan(pTimesRef.current);
+      if (document.visibilityState === "visible") {
+        if (pTimesRef.current && localStorage.getItem('ir-adhan') !== 'off') {
+          // رجع التطبيق يفتح من الخلفية - نعيد جدولة الأذان بوقت حالي صحيح
+          // بدل ما نترك أي timer قديم متوقّف يشتغل متأخر.
+          scheduleAdhan(pTimesRef.current);
+        }
+      } else {
+        // التطبيق راح عالخلفية (مكالمة، تطبيق ثاني، قفل الشاشة...) - نوقف
+        // أي أذان شغّال حالياً فورًا بدل ما يضل يأذن وهو مو بالواجهة.
+        if (adhanAudio.current) {
+          try { adhanAudio.current.pause(); } catch (e) {}
+          adhanAudio.current = null;
+        }
       }
     };
     document.addEventListener("visibilitychange", onVisible);
