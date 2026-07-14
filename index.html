@@ -664,8 +664,14 @@ function App() {
       setLockTick((t) => t + 1);
       const nowKey = (/* @__PURE__ */ new Date()).toDateString();
       setTodayKey((prev) => {
-        if (prev !== nowKey && coordsRef.current) {
-          setPTimes(calcPrayerTimes(coordsRef.current.lat, coordsRef.current.lng));
+        if (prev !== nowKey) {
+          if (coordsRef.current) {
+            setPTimes(calcPrayerTimes(coordsRef.current.lat, coordsRef.current.lng));
+          }
+          setDP({});
+          setDE({});
+          setPts(0);
+          savePtsToday(0, {}, {});
         }
         return nowKey;
       });
