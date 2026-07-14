@@ -623,6 +623,10 @@ function App() {
   }, [coords]);
   const [todayKey, setTodayKey] = useState(() => (/* @__PURE__ */ new Date()).toDateString());
   const [pTimes, setPTimes] = useState(null);
+  const pTimesRef = useRef(null);
+  useEffect(() => {
+    pTimesRef.current = pTimes;
+  }, [pTimes]);
   const [adhanOn, setAdhanOn] = useState(() => localStorage.getItem('ir-adhan') !== 'off');
   const adhanAudio = useRef(null);
   const adhanTimers = useRef([]);
@@ -1054,6 +1058,11 @@ function App() {
       if (diff > 0 && diff < 864e5) {
         const id = setTimeout(() => {
           if (localStorage.getItem('ir-adhan') === 'off') return;
+          // إذا التطبيق كان بالخلفية وتوقفت الـ timers، ممكن هالكولباك يشتغل متأخر
+          // (overdue) لما يرجع يفتح. نتحقق إنه فعلاً قريب من وقت الصلاة الحقيقي
+          // قبل ما نشغّل الصوت، تفاديًا لتشغيل أذان صلاة فاتت من زمان.
+          const drift = Math.abs(/* @__PURE__ */ new Date() - target);
+          if (drift > 3 * 60 * 1e3) return;
           try {
             if (adhanAudio.current) { adhanAudio.current.pause(); adhanAudio.current = null; }
             const audio = new Audio('https://cdn.islamic.network/quran/audio/128/ar.alafasy/1.mp3');
@@ -1081,6 +1090,17 @@ function App() {
     // Auto-save pTimes for ibadat.html
     if (pTimes) localStorage.setItem('ir-ptimes', JSON.stringify(pTimes));
   }, [pTimes]);
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === "visible" && pTimesRef.current && localStorage.getItem('ir-adhan') !== 'off') {
+        // رجع التطبيق يفتح من الخلفية - نعيد جدولة الأذان بوقت حالي صحيح
+        // بدل ما نترك أي timer قديم متوقّف يشتغل متأخر.
+        scheduleAdhan(pTimesRef.current);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, []);
   const shareAchievement = async (item) => {
     const text = `\u06DE Islam Rising \u06DE
 ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u0632: ${item.t}
@@ -1927,7 +1947,18 @@ ${item.e} \u062D\u0635\u0644\u062A \u0639\u0644\u0649 \u0625\u0646\u062C\u0627\u
     borderRadius: "50%",
     background: "#ff4444",
     boxShadow: "0 0 6px rgba(255,68,68,0.8)"
-  } })), isPremium && /* @__PURE__ */ React.createElement("div", { style: {
+  } })), /* @__PURE__ */ React.createElement("button", { className: "btn", onClick: toggleAdhan, title: adhanOn ? "\u0625\u064A\u0642\u0627\u0641 \u0627\u0644\u0623\u0630\u0627\u0646" : "\u062A\u0641\u0639\u064A\u0644 \u0627\u0644\u0623\u0630\u0627\u0646", style: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    background: adhanOn ? "rgba(201,169,110,0.15)" : "rgba(255,255,255,0.06)",
+    border: adhanOn ? "1px solid rgba(201,169,110,0.4)" : "1px solid rgba(255,255,255,0.1)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 22,
+    cursor: "pointer"
+  } }, adhanOn ? "\u{1F50A}" : "\u{1F507}"), isPremium && /* @__PURE__ */ React.createElement("div", { style: {
     background: "linear-gradient(135deg,#7B5EA7,#9B7EC7)",
     borderRadius: 10,
     padding: "4px 10px",
