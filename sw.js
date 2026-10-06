@@ -3,7 +3,7 @@
    يخزّن الملفات محلياً للعمل Offline
 ════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'islam-rising-v1';
+const CACHE_NAME = 'islam-rising-v2';
 
 const STATIC_ASSETS = [
   './',
@@ -49,12 +49,37 @@ self.addEventListener('activate', event => {
   );
 });
 
-/* ── Fetch: Cache First, Network Fallback ── */
+/* ── Fetch ──
+   صفحات HTML (الصفحة الرئيسية وكل صفحات التطبيق): شبكة أولاً، والكاش
+   احتياط للأوفلاين فقط — هيك أي تحديث نرفعه يوصل فورًا أول ما يكون
+   فيه إنترنت، بدل ما يضل عالق على نسخة قديمة بالكاش.
+   باقي الملفات (أيقونات، خطوط، مكتبات CDN): تبقى كاش أولاً زي ما كانت،
+   لأنها نادرًا ما تتغيّر وهيك أسرع وبيشتغل أوفلاين. */
 self.addEventListener('fetch', event => {
   // Skip non-GET and API calls
   if (event.request.method !== 'GET') return;
   if (event.request.url.includes('api.anthropic.com')) return;
   if (event.request.url.includes('storage')) return;
+
+  const isAppPage = event.request.mode === 'navigate' ||
+    event.request.destination === 'document' ||
+    event.request.url.endsWith('.html') ||
+    event.request.url.endsWith('.jsx');
+
+  if (isAppPage) {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request).then(cached => cached || caches.match('./index.html')))
+    );
+    return;
+  }
 
   event.respondWith(
     caches.match(event.request).then(cached => {
