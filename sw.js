@@ -3,7 +3,7 @@
    يخزّن الملفات محلياً للعمل Offline
 ════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'islam-rising-v2';
+const CACHE_NAME = 'islam-rising-v3';
 
 const STATIC_ASSETS = [
   './',
