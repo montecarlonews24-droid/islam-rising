@@ -174,47 +174,131 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catc
 let _a=0;const _ck=setInterval(()=>{_a++;const r=document.getElementById('root');if(r&&r.children.length>0){clearInterval(_ck);window.__hideSplash();}else if(_a>100){clearInterval(_ck);window.__hideSplash();}},150);
 </script>
 
-<!-- IP Geolocation fallback — no permission needed -->
+<!-- City location: internet (IP) + time-zone VPN check + manual picker — NO device location permission -->
 <script>
 (function(){
-  async function getIPLocation(){
-    const apis=[
-      ()=>fetch('https://ipapi.co/json/').then(r=>r.json()).then(d=>d.latitude?{latitude:d.latitude,longitude:d.longitude,city:d.city,country:d.country_name}:null),
-      ()=>fetch('https://ip-api.com/json/?fields=lat,lon,city,country').then(r=>r.json()).then(d=>d.lat?{latitude:d.lat,longitude:d.lon,city:d.city,country:d.country}:null)
+  if (window.IRCity) return;
+  // [arabic name, arabic country, lat, lng, timezone, english name]
+  var C=[
+  ["عمّان","الأردن",31.95,35.93,"Asia/Amman","Amman"],["إربد","الأردن",32.55,35.85,"Asia/Amman","Irbid"],["الزرقاء","الأردن",32.07,36.09,"Asia/Amman","Zarqa"],["العقبة","الأردن",29.53,35.01,"Asia/Amman","Aqaba"],
+  ["القدس","فلسطين",31.78,35.23,"Asia/Jerusalem","Jerusalem"],["غزة","فلسطين",31.50,34.47,"Asia/Gaza","Gaza"],["الخليل","فلسطين",31.53,35.10,"Asia/Hebron","Hebron"],["نابلس","فلسطين",32.22,35.26,"Asia/Hebron","Nablus"],
+  ["الرياض","السعودية",24.71,46.68,"Asia/Riyadh","Riyadh"],["مكة المكرمة","السعودية",21.39,39.86,"Asia/Riyadh","Makkah Mecca"],["المدينة المنورة","السعودية",24.47,39.61,"Asia/Riyadh","Madinah Medina"],["جدة","السعودية",21.49,39.19,"Asia/Riyadh","Jeddah"],["الدمام","السعودية",26.43,50.10,"Asia/Riyadh","Dammam"],
+  ["دبي","الإمارات",25.20,55.27,"Asia/Dubai","Dubai"],["أبوظبي","الإمارات",24.45,54.38,"Asia/Dubai","Abu Dhabi"],["الشارقة","الإمارات",25.35,55.39,"Asia/Dubai","Sharjah"],
+  ["الكويت","الكويت",29.38,47.99,"Asia/Kuwait","Kuwait"],["الدوحة","قطر",25.29,51.53,"Asia/Qatar","Doha"],["المنامة","البحرين",26.23,50.59,"Asia/Bahrain","Manama"],["مسقط","عُمان",23.59,58.41,"Asia/Muscat","Muscat"],
+  ["صنعاء","اليمن",15.37,44.19,"Asia/Aden","Sanaa"],["عدن","اليمن",12.79,45.03,"Asia/Aden","Aden"],
+  ["بغداد","العراق",33.31,44.36,"Asia/Baghdad","Baghdad"],["البصرة","العراق",30.51,47.78,"Asia/Baghdad","Basra"],["أربيل","العراق",36.19,44.01,"Asia/Baghdad","Erbil"],["الموصل","العراق",36.34,43.13,"Asia/Baghdad","Mosul"],
+  ["دمشق","سوريا",33.51,36.29,"Asia/Damascus","Damascus"],["حلب","سوريا",36.20,37.13,"Asia/Damascus","Aleppo"],["حمص","سوريا",34.73,36.71,"Asia/Damascus","Homs"],
+  ["بيروت","لبنان",33.89,35.50,"Asia/Beirut","Beirut"],["طرابلس","لبنان",34.44,35.83,"Asia/Beirut","Tripoli Lebanon"],
+  ["القاهرة","مصر",30.04,31.24,"Africa/Cairo","Cairo"],["الإسكندرية","مصر",31.20,29.92,"Africa/Cairo","Alexandria"],["الجيزة","مصر",30.01,31.21,"Africa/Cairo","Giza"],
+  ["الخرطوم","السودان",15.50,32.56,"Africa/Khartoum","Khartoum"],["طرابلس","ليبيا",32.89,13.19,"Africa/Tripoli","Tripoli Libya"],["بنغازي","ليبيا",32.12,20.07,"Africa/Tripoli","Benghazi"],
+  ["تونس","تونس",36.81,10.18,"Africa/Tunis","Tunis"],["الجزائر","الجزائر",36.75,3.06,"Africa/Algiers","Algiers"],["وهران","الجزائر",35.70,-0.63,"Africa/Algiers","Oran"],
+  ["الدار البيضاء","المغرب",33.57,-7.59,"Africa/Casablanca","Casablanca"],["الرباط","المغرب",34.02,-6.84,"Africa/Casablanca","Rabat"],["مراكش","المغرب",31.63,-8.01,"Africa/Casablanca","Marrakesh"],["فاس","المغرب",34.03,-5.00,"Africa/Casablanca","Fez"],
+  ["نواكشوط","موريتانيا",18.09,-15.98,"Africa/Nouakchott","Nouakchott"],["مقديشو","الصومال",2.05,45.32,"Africa/Mogadishu","Mogadishu"],["جيبوتي","جيبوتي",11.59,43.15,"Africa/Djibouti","Djibouti"],
+  ["إسطنبول","تركيا",41.01,28.98,"Europe/Istanbul","Istanbul"],["أنقرة","تركيا",39.93,32.86,"Europe/Istanbul","Ankara"],
+  ["طهران","إيران",35.69,51.39,"Asia/Tehran","Tehran"],["كابل","أفغانستان",34.56,69.21,"Asia/Kabul","Kabul"],
+  ["كراتشي","باكستان",24.86,67.01,"Asia/Karachi","Karachi"],["لاهور","باكستان",31.55,74.34,"Asia/Karachi","Lahore"],["إسلام آباد","باكستان",33.68,73.05,"Asia/Karachi","Islamabad"],
+  ["دلهي","الهند",28.61,77.21,"Asia/Kolkata","Delhi"],["مومباي","الهند",19.08,72.88,"Asia/Kolkata","Mumbai"],["حيدر آباد","الهند",17.39,78.49,"Asia/Kolkata","Hyderabad"],
+  ["دكا","بنغلاديش",23.81,90.41,"Asia/Dhaka","Dhaka"],["جاكرتا","إندونيسيا",-6.21,106.85,"Asia/Jakarta","Jakarta"],["كوالالمبور","ماليزيا",3.14,101.69,"Asia/Kuala_Lumpur","Kuala Lumpur"],["سنغافورة","سنغافورة",1.35,103.82,"Asia/Singapore","Singapore"],
+  ["باكو","أذربيجان",40.41,49.87,"Asia/Baku","Baku"],["طشقند","أوزبكستان",41.30,69.24,"Asia/Tashkent","Tashkent"],["ألماتي","كازاخستان",43.24,76.89,"Asia/Almaty","Almaty"],
+  ["لاغوس","نيجيريا",6.52,3.38,"Africa/Lagos","Lagos"],["كانو","نيجيريا",12.00,8.52,"Africa/Lagos","Kano"],["داكار","السنغال",14.72,-17.47,"Africa/Dakar","Dakar"],["نيروبي","كينيا",-1.29,36.82,"Africa/Nairobi","Nairobi"],["جوهانسبرغ","جنوب أفريقيا",-26.20,28.05,"Africa/Johannesburg","Johannesburg"],
+  ["لندن","بريطانيا",51.51,-0.13,"Europe/London","London"],["برمنغهام","بريطانيا",52.49,-1.89,"Europe/London","Birmingham"],["مانشستر","بريطانيا",53.48,-2.24,"Europe/London","Manchester"],
+  ["باريس","فرنسا",48.86,2.35,"Europe/Paris","Paris"],["برلين","ألمانيا",52.52,13.40,"Europe/Berlin","Berlin"],["هامبورغ","ألمانيا",53.55,9.99,"Europe/Berlin","Hamburg"],["ميونخ","ألمانيا",48.14,11.58,"Europe/Berlin","Munich"],
+  ["أمستردام","هولندا",52.37,4.90,"Europe/Amsterdam","Amsterdam"],["بروكسل","بلجيكا",50.85,4.35,"Europe/Brussels","Brussels"],["ستوكهولم","السويد",59.33,18.07,"Europe/Stockholm","Stockholm"],["أوسلو","النرويج",59.91,10.75,"Europe/Oslo","Oslo"],["كوبنهاغن","الدنمارك",55.68,12.57,"Europe/Copenhagen","Copenhagen"],
+  ["فيينا","النمسا",48.21,16.37,"Europe/Vienna","Vienna"],["روما","إيطاليا",41.90,12.50,"Europe/Rome","Rome"],["مدريد","إسبانيا",40.42,-3.70,"Europe/Madrid","Madrid"],["أثينا","اليونان",37.98,23.73,"Europe/Athens","Athens"],["سراييفو","البوسنة",43.86,18.41,"Europe/Sarajevo","Sarajevo"],["موسكو","روسيا",55.76,37.62,"Europe/Moscow","Moscow"],
+  ["نيويورك","أمريكا",40.71,-74.01,"America/New_York","New York"],["واشنطن","أمريكا",38.91,-77.04,"America/New_York","Washington"],["ديترويت","أمريكا",42.33,-83.05,"America/Detroit","Detroit"],["شيكاغو","أمريكا",41.88,-87.63,"America/Chicago","Chicago"],["هيوستن","أمريكا",29.76,-95.37,"America/Chicago","Houston"],["لوس أنجلوس","أمريكا",34.05,-118.24,"America/Los_Angeles","Los Angeles"],
+  ["تورونتو","كندا",43.65,-79.38,"America/Toronto","Toronto"],["مونتريال","كندا",45.50,-73.57,"America/Toronto","Montreal"],["ساو باولو","البرازيل",-23.55,-46.63,"America/Sao_Paulo","Sao Paulo"],
+  ["سيدني","أستراليا",-33.87,151.21,"Australia/Sydney","Sydney"],["ملبورن","أستراليا",-37.81,144.96,"Australia/Melbourne","Melbourne"]
+  ];
+  var ALIAS={"Asia/Calcutta":"Asia/Kolkata","Asia/Istanbul":"Europe/Istanbul","Asia/Tel_Aviv":"Asia/Jerusalem","US/Eastern":"America/New_York","US/Central":"America/Chicago","US/Pacific":"America/Los_Angeles","Asia/Saigon":"Asia/Ho_Chi_Minh"};
+  var AUTO='ir_city_loc', MAN='ir_city_manual', MAX_AGE=6*3600*1000;
+  function ls(k){try{return JSON.parse(localStorage.getItem(k)||'null');}catch(e){return null;}}
+  function lsSet(k,v){try{if(v==null)localStorage.removeItem(k);else localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+  function devTz(){try{var z=Intl.DateTimeFormat().resolvedOptions().timeZone||'';return ALIAS[z]||z;}catch(e){return '';}}
+  function tzOff(z){try{var d=new Date();var a=new Date(d.toLocaleString('en-US',{timeZone:z}));var u=new Date(d.toLocaleString('en-US',{timeZone:'UTC'}));return Math.round((a-u)/60000);}catch(e){return null;}}
+  function fromCity(c,src){return{latitude:c[2],longitude:c[3],label:c[0]+'، '+c[1],source:src};}
+  function tzCity(){var z=devTz();for(var i=0;i<C.length;i++)if(C[i][4]===z)return C[i];return null;}
+  async function ipLookup(){
+    var apis=[
+      function(){return fetch('https://ipapi.co/json/').then(function(r){return r.json();}).then(function(d){return d&&d.latitude?{latitude:+d.latitude,longitude:+d.longitude,city:d.city,country:d.country_name,tz:d.timezone}:null;});},
+      function(){return fetch('https://ipwho.is/').then(function(r){return r.json();}).then(function(d){return d&&d.success!==false&&d.latitude?{latitude:+d.latitude,longitude:+d.longitude,city:d.city,country:d.country,tz:d.timezone&&d.timezone.id}:null;});},
+      function(){return fetch('https://get.geojs.io/v1/ip/geo.json').then(function(r){return r.json();}).then(function(d){return d&&d.latitude?{latitude:+d.latitude,longitude:+d.longitude,city:d.city,country:d.country,tz:d.timezone}:null;});}
     ];
-    for(const api of apis){try{const r=await api();if(r)return r;}catch(e){}}
+    for(var i=0;i<apis.length;i++){try{var r=await apis[i]();if(r)return r;}catch(e){}}
     return null;
   }
-  window.__getIPLocation=getIPLocation;
-
-  if(!navigator.geolocation){
-    Object.defineProperty(navigator,'geolocation',{get:function(){return{
-      getCurrentPosition:function(ok,err){getIPLocation().then(l=>{if(l)ok({coords:{latitude:l.latitude,longitude:l.longitude,accuracy:5000},timestamp:Date.now()});else if(err)err({code:2,message:'unavailable'});});},
-      watchPosition:function(ok){getIPLocation().then(l=>{if(l)ok({coords:{latitude:l.latitude,longitude:l.longitude,accuracy:5000},timestamp:Date.now()});});return 0;}
-    };}});
-    return;
+  async function resolveAuto(){
+    var ip=await ipLookup(), tc=tzCity(), dz=devTz();
+    if(ip){
+      var ipz=ALIAS[ip.tz]||ip.tz, vpn=false;
+      if(ipz&&dz&&ipz!==dz){var a=tzOff(ipz),b=tzOff(dz);vpn=(a!=null&&b!=null&&a!==b);}
+      if(vpn&&tc)return fromCity(tc,'tz');            // VPN suspected: trust device clock
+      return{latitude:ip.latitude,longitude:ip.longitude,label:[ip.city,ip.country].filter(Boolean).join('، '),source:'ip'};
+    }
+    if(tc)return fromCity(tc,'tz');                    // no internet lookup: use device time zone
+    return null;
   }
+  async function get(force){
+    var m=ls(MAN); if(m&&m.latitude){window.__cityLabel=m.label;return m;}
+    var c=ls(AUTO); if(!force&&c&&c.latitude&&(Date.now()-(c.t||0)<MAX_AGE)){window.__cityLabel=c.label;return c;}
+    var r=await resolveAuto();
+    if(r){r.t=Date.now();lsSet(AUTO,r);window.__cityLabel=r.label;return r;}
+    if(c&&c.latitude){window.__cityLabel=c.label;return c;} // offline: last known
+    return null;
+  }
+  function norm(s){return(s||'').toLowerCase().replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/\s+/g,' ').trim();}
+  function openPicker(onPick){
+    if(document.getElementById('irCityPicker'))return;
+    var st=document.createElement('style');st.id='irCityPickerCss';
+    st.textContent='#irCityPicker{position:fixed;inset:0;z-index:99999;background:rgba(3,5,12,.82);display:flex;align-items:flex-end;justify-content:center;font-family:"Noto Naskh Arabic",Georgia,serif;direction:rtl}'+
+    '#irCityPicker .box{width:100%;max-width:520px;max-height:85vh;background:#0B0F1C;border:1px solid rgba(201,169,110,.45);border-bottom:none;border-radius:22px 22px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px;color:#F3EBDD}'+
+    '#irCityPicker h3{margin:0;color:#C9A96E;font-size:20px;text-align:center}'+
+    '#irCityPicker input{width:100%;box-sizing:border-box;padding:12px 14px;border-radius:14px;border:1px solid rgba(201,169,110,.35);background:rgba(201,169,110,.07);color:#F3EBDD;font-size:17px;font-family:inherit;outline:none}'+
+    '#irCityPicker .list{overflow-y:auto;flex:1;min-height:120px}'+
+    '#irCityPicker .it{padding:12px 10px;border-bottom:1px solid rgba(201,169,110,.12);cursor:pointer;font-size:17px;display:flex;justify-content:space-between;gap:8px}'+
+    '#irCityPicker .it span{color:rgba(243,235,221,.55);font-size:15px}'+
+    '#irCityPicker .row{display:flex;gap:8px}'+
+    '#irCityPicker button{flex:1;padding:12px;border-radius:14px;font-family:inherit;font-size:16px;cursor:pointer;border:1px solid rgba(201,169,110,.4);background:transparent;color:#C9A96E}'+
+    '#irCityPicker button.gold{background:linear-gradient(135deg,#C9A96E,#F0D898);color:#05070F;border:none;font-weight:700}'+
+    '#irCityPicker .note{font-size:14px;color:rgba(243,235,221,.6);text-align:center}';
+    document.head.appendChild(st);
+    var cur=ls(MAN);
+    var w=document.createElement('div');w.id='irCityPicker';
+    w.innerHTML='<div class="box"><h3>📍 اختر مدينتك</h3>'+
+      '<div class="note">'+(cur?('المدينة المختارة: '+cur.label):('الحالية تلقائياً: '+(window.__cityLabel||'—')))+'</div>'+
+      '<input type="text" placeholder="ابحث عن مدينة... (عربي أو English)">'+
+      '<div class="list"></div>'+
+      '<div class="row"><button class="gold" data-a="auto">🌐 تحديد تلقائي</button><button data-a="close">إغلاق</button></div></div>';
+    document.body.appendChild(w);
+    var inp=w.querySelector('input'),list=w.querySelector('.list');
+    function close(){w.remove();var s=document.getElementById('irCityPickerCss');if(s)s.remove();}
+    function render(){
+      var q=norm(inp.value),h='';
+      for(var i=0;i<C.length;i++){var c=C[i];if(q&&norm(c[0]+' '+c[1]+' '+c[5]).indexOf(q)<0)continue;h+='<div class="it" data-i="'+i+'">'+c[0]+'<span>'+c[1]+'</span></div>';}
+      list.innerHTML=h||'<div class="note" style="padding:16px">ما لقينا هالمدينة — اختر أقرب مدينة إلك</div>';
+    }
+    inp.addEventListener('input',render);
+    list.addEventListener('click',function(e){var el=e.target.closest('.it');if(!el)return;var c=C[+el.getAttribute('data-i')];var v=fromCity(c,'manual');v.t=Date.now();lsSet(MAN,v);window.__cityLabel=v.label;close();if(onPick)onPick(v);});
+    w.addEventListener('click',async function(e){
+      var a=e.target.getAttribute&&e.target.getAttribute('data-a');
+      if(e.target===w||a==='close'){close();return;}
+      if(a==='auto'){lsSet(MAN,null);lsSet(AUTO,null);e.target.textContent='⏳ جارٍ التحديد...';var r=await get(true);close();if(onPick&&r)onPick(r);}
+    });
+    render();
+  }
+  window.IRCity={get:get,openPicker:openPicker,cities:C};
+})();
 
-  const _orig=navigator.geolocation.getCurrentPosition.bind(navigator.geolocation);
-  navigator.geolocation.getCurrentPosition=function(ok,err,opts){
-    _orig(ok,async function(e){
-      if(e.code===1||e.code===2){
-        const loc=await getIPLocation();
-        if(loc){ok({coords:{latitude:loc.latitude,longitude:loc.longitude,accuracy:5000},timestamp:Date.now()});}
-        else if(err) err(e);
-      } else if(err) err(e);
-    },opts||{timeout:5000,enableHighAccuracy:false});
+(function(){
+  function toPos(l){return{coords:{latitude:l.latitude,longitude:l.longitude,accuracy:5000},timestamp:Date.now()};}
+  var geo={
+    getCurrentPosition:function(ok,err){IRCity.get(false).then(function(l){if(l)ok(toPos(l));else if(err)err({code:2,message:'unavailable'});});},
+    watchPosition:function(ok,err){IRCity.get(false).then(function(l){if(l)ok(toPos(l));else if(err)err({code:2,message:'unavailable'});});return 0;},
+    clearWatch:function(){}
   };
-  const _origW=navigator.geolocation.watchPosition.bind(navigator.geolocation);
-  navigator.geolocation.watchPosition=function(ok,err,opts){
-    return _origW(ok,async function(e){
-      if(e.code===1||e.code===2){
-        const loc=await getIPLocation();
-        if(loc) ok({coords:{latitude:loc.latitude,longitude:loc.longitude,accuracy:5000},timestamp:Date.now()});
-        else if(err) err(e);
-      } else if(err) err(e);
-    },opts||{timeout:5000});
-  };
+  try{Object.defineProperty(navigator,'geolocation',{configurable:true,get:function(){return geo;}});}
+  catch(e){try{navigator.geolocation.getCurrentPosition=geo.getCurrentPosition;navigator.geolocation.watchPosition=geo.watchPosition;}catch(_){}}
+  window.__getCityLocation=IRCity.get;
+  window.__openCityPicker=function(){IRCity.openPicker(function(){location.reload();});};
 })();
 </script>
 
@@ -709,7 +793,7 @@ function App() {
             }).catch(() => {
             });
           },
-          { enableHighAccuracy: true, timeout: 1e4, maximumAge: 3e5 }
+          { enableHighAccuracy: false, timeout: 1e4, maximumAge: 3e5 }
         );
       }
     }, 1e3);
@@ -722,7 +806,7 @@ function App() {
   }, [aiMsgs]);
   const getLocation = () => {
     if (!navigator.geolocation) {
-      setLocErr("\u0627\u0644\u062C\u0647\u0627\u0632 \u0644\u0627 \u064A\u062F\u0639\u0645 GPS");
+      setLocErr("\u062A\u0639\u0630\u0651\u0631 \u062A\u062D\u062F\u064A\u062F \u0627\u0644\u0645\u062F\u064A\u0646\u0629");
       return;
     }
     setLocL(true);
@@ -749,7 +833,7 @@ function App() {
         else if (err.code === 2) setLocErr("\u062A\u0639\u0630\u0651\u0631 \u062A\u062D\u062F\u064A\u062F \u0627\u0644\u0645\u0648\u0642\u0639\u060C \u062D\u0627\u0648\u0644 \u0645\u0631\u0629 \u0623\u062E\u0631\u0649");
         else setLocErr("\u0627\u0646\u062A\u0647\u062A \u0645\u0647\u0644\u0629 \u062A\u062D\u062F\u064A\u062F \u0627\u0644\u0645\u0648\u0642\u0639");
       },
-      { enableHighAccuracy: true, timeout: 1e4, maximumAge: 6e4 }
+      { enableHighAccuracy: false, timeout: 1e4, maximumAge: 6e4 }
     );
   };
   const [contactOpen, setContactOpen] = useState(false);
@@ -2072,7 +2156,7 @@ ${cMsg}`,
     borderRadius: 12,
     background: `rgba(201,169,110,0.1)`,
     border: `1px solid rgba(201,169,110,0.15)`
-  } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 23, marginBottom: 4 } }, EMOJIS[i]), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, fontWeight: 700, color: "white", marginBottom: 3 } }, p.ar), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, color: `rgb(${p.hue})`, fontWeight: 600 } }, pTimes[p.id] || "\u2014"))))) : null, locErr && /* @__PURE__ */ React.createElement("div", { style: { color: "#ff6b6b", fontSize: 17, textAlign: "center", marginTop: 6 } }, locErr)), (() => {
+  } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 23, marginBottom: 4 } }, EMOJIS[i]), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, fontWeight: 700, color: "white", marginBottom: 3 } }, p.ar), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, color: `rgb(${p.hue})`, fontWeight: 600 } }, pTimes[p.id] || "\u2014"))))) : null, coords && /* @__PURE__ */ React.createElement("button", { className: "btn", onClick: () => window.__openCityPicker && window.__openCityPicker(), style: { width: "100%", marginTop: 10, padding: "10px 12px", borderRadius: 14, border: "1px solid rgba(201,169,110,0.3)", background: "rgba(201,169,110,0.06)", color: "var(--gold)", fontSize: 17, fontFamily: "Noto Naskh Arabic", cursor: "pointer" } }, "\u{1F4CD} " + (window.__cityLabel || "\u0645\u062F\u064A\u0646\u062A\u0643") + " \u00B7 \u062A\u063A\u064A\u064A\u0631 \u0627\u0644\u0645\u062F\u064A\u0646\u0629"), locErr && /* @__PURE__ */ React.createElement("div", { style: { color: "#ff6b6b", fontSize: 17, textAlign: "center", marginTop: 6 } }, locErr)), (() => {
     const mTimes = meccaTimes;
     return /* @__PURE__ */ React.createElement("div", { style: {
       borderRadius: 20,
